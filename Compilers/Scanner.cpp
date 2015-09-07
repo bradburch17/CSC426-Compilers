@@ -22,7 +22,7 @@ Scanner::Scanner(istream& in) :
 }
 
 enum State {
-	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH_ST, SLASH2_ST, BRACE_ST, ID_ST
+	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH_ST, SLASH2_ST, BRACE_ST, ALPHA_ST, ID_ST
 };
 
 enum Action {
@@ -93,11 +93,14 @@ static State next_state[][NUM_CHAR_CLASS] = {
 	{ // SLASH2_ST
 		SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST,  SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST, SLASH2_ST
 	}, //********NO IDEA IF THESE ARE CORRECT*********
-	{ //BRACE_ST
+	{ // BRACE_ST
 		BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST,  BRACE_ST, BRACE_ST
 	}, 
-	{ //ID_ST
-		ID_ST,     INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
+	{ // ALPHA_ST  first letter state
+		ALPHA_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
+	}, 
+	{ // ID_ST  state after first letter
+		ID_ST,     ID_ST,     ID_ST,     INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
 	}
 };
 
@@ -120,9 +123,15 @@ static Action action[][NUM_CHAR_CLASS] = {
 	},
 	{ // SLASH2_ST
 		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  EOF_ACT, SKIP_ACT
-	}, 
+	}, //*******NO IDEA IF ANY OF THESE ARE RIGHT******
 	{ // BRACES_ST
-		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  NEXT_ACT,  SKIP_ACT, SKIP_ACT
+		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT
+	}, 
+	{ // ALPHA_ST
+		NEXT_ACT,  SKIP_ACT,  SKIP_ACT,   ID_ACT,   ID_ACT,   ID_ACT,    ID_ACT,    SKIP_ACT,  ID_ACT,     ID_ACT,  ID_ACT
+	}, 
+	{ // ID_ST
+		NEXT_ACT,  NEXT_ACT,  NEXT_ACT,   ID_ACT,  ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,     ID_ACT,  ID_ACT
 	}
 };
 
@@ -136,14 +145,7 @@ static map_t create_token_map()
 	m["+"] = PLUS;
 	m["-"] = MINUS;
 	m["*"] = STAR;
-	m["="] = EQUALS;
-	m["program"] = PROGRAM;
-	m["const"] = CONST;
-	m["begin"] = BEGIN;
-	m["end"] = END;
-	m["print"] = PRINT;
-	m["div"] = DIV;
-	m["mod"] = MOD;
+	m["="] = EQUALS; //are we counting this as an OP?
 	return m;
 }
 
@@ -184,6 +186,11 @@ Token Scanner::next() {
 
 		case OP_ACT:
 			token.type = token_map[token.lexeme];
+			done = true;
+			break;
+
+		case ID_ACT:
+			token.type = ID;
 			done = true;
 			break;
 
