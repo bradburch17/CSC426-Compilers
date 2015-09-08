@@ -149,7 +149,16 @@ static map_t create_token_map()
 	return m;
 }
 
+static map_t create_keyword_map() {
+	map_t m;
+	m["begin"] = BEGIN;
+	m["program"] = PROGRAM;
+	m["end"] = END;
+	return m;
+}
+
 static map_t token_map = create_token_map();
+static map_t token_map = create_keyword_map();
 
 Token Scanner::next() {
 	Token token;
@@ -188,9 +197,14 @@ Token Scanner::next() {
 			token.type = token_map[token.lexeme];
 			done = true;
 			break;
-
+			
 		case ID_ACT:
-			token.type = ID;
+			if (token.type = token_map[token.lexeme]) {
+				token.type = token_map[token.lexeme];
+			}
+			else {
+				token.type = ID;
+			}
 			done = true;
 			break;
 
