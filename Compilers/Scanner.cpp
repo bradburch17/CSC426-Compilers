@@ -158,7 +158,6 @@ static map_t create_keyword_map() {
 }
 
 static map_t token_map = create_token_map();
-static map_t token_map = create_keyword_map();
 
 Token Scanner::next() {
 	Token token;
@@ -199,12 +198,7 @@ Token Scanner::next() {
 			break;
 			
 		case ID_ACT:
-			if (token.type = token_map[token.lexeme]) {
-				token.type = token_map[token.lexeme];
-			}
-			else {
-				token.type = ID;
-			}
+			token.type = ID;
 			done = true;
 			break;
 
