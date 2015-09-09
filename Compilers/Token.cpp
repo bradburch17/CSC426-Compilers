@@ -2,30 +2,23 @@
 * Token.cpp
 *
 *  Created on: Aug 30, 2015
-*      Author: bhoward and Brad Burch
-*	   Modified September 6, 2015 by Brad Burch
+*      Author: Brad Burch
 */
 
 #include "Token.h"
 
 #include <ostream>
 
-using namespace std;
-
-ostream& operator<<(ostream& out, Token_Type type) {
+std::ostream& operator<<(std::ostream& out, Token_Type type) {
 	switch (type) {
-		//Numbers
+	// Numbers 
 	case NUM:
-		out << "NUM ";
+		out << "NUM";
 		break;
-		//Punctuation 
+	// Operators/Punctuation 
 	case SEMI:
 		out << "SEMI";
 		break;
-	case PERIOD:
-		out << "PERIOD";
-		break;
-		//Operators
 	case PLUS:
 		out << "PLUS";
 		break;
@@ -68,6 +61,7 @@ ostream& operator<<(ostream& out, Token_Type type) {
 	case EOFILE:
 		out << "EOF";
 		break;
+		// TODO add cases for the other Token_Types
 	default:
 		out << "ERROR";
 		break;
@@ -76,14 +70,11 @@ ostream& operator<<(ostream& out, Token_Type type) {
 	return out;
 }
 
-ostream& operator<<(ostream& out, const Token& token) {
+std::ostream& operator<<(std::ostream& out, const Token& token) {
 	out << token.type;
 
-	if (token.type == NUM) {
-		out << token.lexeme;
-	}
-	if (token.type == ID) {
-		out << token.lexeme;
+	if (token.lexeme != "") {
+		out << " " << token.lexeme;
 	}
 
 	out << " " << token.line << ":" << token.column;

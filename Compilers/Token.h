@@ -2,8 +2,7 @@
 * Token.h
 *
 *  Created on: Aug 30, 2015
-*      Author: bhoward and Brad Burch
-*	   Modified September 6, 2015 by Brad Burch
+*      Author: Brad Burch
 */
 
 #ifndef TOKEN_H_
@@ -30,6 +29,7 @@ enum Token_Type {
 	DIV, //div
 	MOD, //mod
 	ID, //identifer 
+	// TODO add other Token_Types
 	EOFILE // EOF is already used in cstdio
 };
 

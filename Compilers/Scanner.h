@@ -2,8 +2,7 @@
 * Scanner.h
 *
 *  Created on: Aug 30, 2015
-*      Author: bhoward and Brad Burch
-*	   Modified September 6, 2015 by Brad Burch
+*      Author: Brad Burch
 */
 
 #ifndef SCANNER_H_
@@ -20,7 +19,6 @@ class Scanner {
 public:
 	Scanner(istream& in);
 
-	// return the next token from the input stream, or EOFILE if none
 	Token next();
 
 private:
@@ -29,6 +27,7 @@ private:
 	string line;
 
 	char current_char();
+	bool at_EOF();
 	void advance();
 };
 
