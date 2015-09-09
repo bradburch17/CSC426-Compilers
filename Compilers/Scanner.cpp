@@ -21,7 +21,7 @@ Scanner::Scanner(istream& in) :
 }
 
 enum States {
-	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH1_ST, SLASH2_ST, RBRACE_ST, LBRACE_ST, ID_ST
+	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH1_ST, SLASH2_ST, LBRACE_ST, RBRACE_ST, ID_ST
 };
 
 enum Actions {
@@ -63,7 +63,7 @@ static CharacterClass char_class(char c) {
 }
 
 static States next_state[][CHARACTERS_CLASS] = {
-	//  ALPHA,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER
+	//  LETTER,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER
 	{ // INIT_ST
 		ID_ST,   ZERO_ST,   NUM_ST,    INIT_ST,   INIT_ST,  OP_ST,     SLASH1_ST,  LBRACE_ST,   RBRACE_ST,   INIT_ST, INIT_ST
 	},
@@ -81,11 +81,11 @@ static States next_state[][CHARACTERS_CLASS] = {
 	},
 	{ // SLASH2_ST
 		SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST,  SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST, SLASH2_ST
-	}, //********NO IDEA IF THESE ARE CORRECT*********
-	{ // BRACE_ST
-		RBRACE_ST,  RBRACE_ST,  RBRACE_ST,  RBRACE_ST,  RBRACE_ST, RBRACE_ST,  RBRACE_ST,  LBRACE_ST,  RBRACE_ST,  INIT_ST, RBRACE_ST
+	}, 
+	{ // LRACE_ST
+		LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  LBRACE_ST, LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  RBRACE_ST,  INIT_ST, LBRACE_ST
 	},
-	{ // LBRACE_ST
+	{ // RBRACE_ST
 		INIT_ST,    INIT_ST,     INIT_ST,    INIT_ST,    INIT_ST,   INIT_ST,     INIT_ST,    RBRACE_ST,   INIT_ST,    INIT_ST, INIT_ST
 	},
 	{ // ID_ST  
@@ -94,7 +94,7 @@ static States next_state[][CHARACTERS_CLASS] = {
 };
 
 static Actions action[][CHARACTERS_CLASS] = {
-	//  ALPHA,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER
+	//  LETTER,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER
 	{ // INIT_ST
 		MARK_ACT,  MARK_ACT,  MARK_ACT,  SKIP_ACT,  SKIP_ACT, MARK_ACT,  SKIP_ACT,  SKIP_ACT,  ERR_ACT,   EOF_ACT, ERR_ACT
 	},
@@ -113,48 +113,16 @@ static Actions action[][CHARACTERS_CLASS] = {
 	{ // SLASH2_ST
 		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  EOF_ACT, SKIP_ACT
 	},
-	{ // BRACES_ST
+	{ // LBRACES_ST
 		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT
 	},
-	{
-		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT
+	{ // RBRACES_ST
+		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  EOF_ACT, SKIP_ACT
 	},
-	{ // ID_ST
+	{ // ID_ST11
 		NEXT_ACT,  NEXT_ACT,  NEXT_ACT,   ID_ACT,  ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,     ID_ACT,  ID_ACT
 	}
 };
-
-typedef map<string, Token_Type> yymap;
-
-static yymap create_keyword_map() {
-	yymap m;
-	m["program "] = PROGRAM;
-	m["begin "] = BEGIN;
-	m["end"] = END;
-	m["const "] = CONST;
-	m["mod "] = MOD;
-	m["div "] = DIV;
-	m["print "] = PRINT;
-	return m;
-}
-
-static yymap keyword_map = create_keyword_map();
-
-typedef map<string, Token_Type> map_t;
-
-static map_t create_token_map()
-{
-	map_t m;
-	m[";"] = SEMI;
-	m["."] = PERIOD;
-	m["+"] = PLUS;
-	m["-"] = MINUS;
-	m["*"] = STAR;
-	m["="] = EQUALS; //are we counting this as an OP?
-	return m;
-}
-
-static map_t token_map = create_token_map();
 
 Token Scanner::next() {
 	Token token;
@@ -166,6 +134,7 @@ Token Scanner::next() {
 		CharacterClass c = char_class(current);
 		Actions act = action[state][c];
 		state = next_state[state][c];
+		string word;
 
 		switch (act) {
 		case SKIP_ACT:
@@ -186,12 +155,50 @@ Token Scanner::next() {
 			done = true;
 			break;
 		case OP_ACT:
-			token.type = token_map[token.lexeme];
+			if (token.lexeme == "*") {
+				token.type = STAR;
+			}
+			else if (token.lexeme == "+") {
+				token.type = PLUS;
+			}
+			else if (token.lexeme == "-") {
+				token.type = MINUS;
+			}
+			else if (token.lexeme == "=") {
+				token.type = EQUALS;
+			}
+			else if (token.lexeme == ";") {
+				token.type = SEMI;
+			}
+			else if (token.lexeme == ".") {
+				token.type = PERIOD;
+			}
 			done = true;
 			break;			
 		case ID_ACT:
-			cout << "hey";
-			token.type = ID;
+			if (token.lexeme == "program") {
+				token.type = PROGRAM;
+			}
+			else if (token.lexeme == "begin") {
+				token.type = BEGIN;
+			}
+			else if (token.lexeme == "end") {
+				token.type = END;
+			}
+			else if (token.lexeme == "print") {
+				token.type = PRINT;
+			}
+			else if (token.lexeme == "mod") {
+				token.type = MOD;
+			}
+			else if (token.lexeme == "div") {
+				token.type = DIV;
+			}
+			else if (token.lexeme == "const") {
+				token.type = CONST;
+			}
+			else 
+				token.type = ID;
 			done = true;
 			break;
 		case EOF_ACT:

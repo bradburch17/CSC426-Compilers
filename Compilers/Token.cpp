@@ -19,6 +19,9 @@ std::ostream& operator<<(std::ostream& out, Token_Type type) {
 	case SEMI:
 		out << "SEMI";
 		break;
+	case PERIOD:
+		out << "PERIOD";
+		break;
 	case PLUS:
 		out << "PLUS";
 		break;
