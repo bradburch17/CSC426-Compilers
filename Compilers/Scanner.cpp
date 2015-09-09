@@ -21,7 +21,7 @@ Scanner::Scanner(istream& in) :
 }
 
 enum States {
-	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH1_ST, SLASH2_ST, RBRACE_ST, LBRACE_ST, LETTER_ST, ID_ST 
+	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH1_ST, SLASH2_ST, RBRACE_ST, LBRACE_ST, ID_ST
 };
 
 enum Actions {
@@ -53,10 +53,19 @@ static CharacterClass char_tbl[] = {
 	LETTER_CC, LETTER_CC, LETTER_CC,   LBRACE_CC, OTHER_CC, RBRACE_CC, OTHER_CC, OTHER_CC  // x,  y,  z,  {,  |,  },  ~,  DEL
 };
 
+static CharacterClass char_class(char c) {
+	if (c == char_traits<char>::eof()) {
+		return EOF_CC;
+	}
+	else {
+		return char_tbl[c & 127];
+	}
+}
+
 static States next_state[][CHARACTERS_CLASS] = {
 	//  ALPHA,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER
 	{ // INIT_ST
-		INIT_ST,   ZERO_ST,   NUM_ST,    INIT_ST,   INIT_ST,  OP_ST,     SLASH1_ST,  INIT_ST,   INIT_ST,   INIT_ST, INIT_ST
+		ID_ST,   ZERO_ST,   NUM_ST,    INIT_ST,   INIT_ST,  OP_ST,     SLASH1_ST,  LBRACE_ST,   RBRACE_ST,   INIT_ST, INIT_ST
 	},
 	{ // NUM_ST
 		INIT_ST,   NUM_ST,    NUM_ST,    INIT_ST,   INIT_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST, INIT_ST
@@ -77,7 +86,7 @@ static States next_state[][CHARACTERS_CLASS] = {
 		RBRACE_ST,  RBRACE_ST,  RBRACE_ST,  RBRACE_ST,  RBRACE_ST, RBRACE_ST,  RBRACE_ST,  LBRACE_ST,  RBRACE_ST,  INIT_ST, RBRACE_ST
 	},
 	{ // ALPHA_ST  first letter state
-		LETTER_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
+		ID_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
 	},
 	{ // ID_ST  state after first letter
 		ID_ST,     ID_ST,     ID_ST,     INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
@@ -103,45 +112,46 @@ static Actions action[][CHARACTERS_CLASS] = {
 	},
 	{ // SLASH2_ST
 		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  EOF_ACT, SKIP_ACT
-	}, //*******NO IDEA IF ANY OF THESE ARE RIGHT******
+	},
 	{ // BRACES_ST
 		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT
-	},
-	{ // ALPHA_ST
-		NEXT_ACT,  SKIP_ACT,  SKIP_ACT,   ID_ACT,   ID_ACT,   ID_ACT,    ID_ACT,    SKIP_ACT,  ID_ACT,     ID_ACT,  ID_ACT
 	},
 	{ // ID_ST
 		NEXT_ACT,  NEXT_ACT,  NEXT_ACT,   ID_ACT,  ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,     ID_ACT,  ID_ACT
 	}
 };
 
-static CharacterClass char_class(char c) {
-	if (c == char_traits<char>::eof()) {
-		return EOF_CC;
-	}
-	else {
-		return char_tbl[c & 127];
-	}
-}
-
 typedef map<string, Token_Type> yymap;
-
-static yymap create_operator_map() {
-	yymap m;
-	m["."] = PERIOD;
-	m[";"] = SEMI;
-	m["+"] = PLUS;
-	m["*"] = STAR;
-	m["="] = EQUALS;
-	m["-"] = MINUS;
-	return m;
-}
 
 static yymap create_keyword_map() {
 	yymap m;
-	m["program"] = PROGRAM;
-	m["begin"] = BEGIN;
+	m["program "] = PROGRAM;
+	m["begin "] = BEGIN;
+	m["end"] = END;
+	m["const "] = CONST;
+	m["mod "] = MOD;
+	m["div "] = DIV;
+	m["print "] = PRINT;
+	return m;
 }
+
+static yymap keyword_map = create_keyword_map();
+
+typedef map<string, Token_Type> map_t;
+
+static map_t create_token_map()
+{
+	map_t m;
+	m[";"] = SEMI;
+	m["."] = PERIOD;
+	m["+"] = PLUS;
+	m["-"] = MINUS;
+	m["*"] = STAR;
+	m["="] = EQUALS; //are we counting this as an OP?
+	return m;
+}
+
+static map_t token_map = create_token_map();
 
 Token Scanner::next() {
 	Token token;
@@ -150,7 +160,7 @@ Token Scanner::next() {
 
 	while (!done) {
 		char current = current_char();
-		CharacterClass c = CharacterClass(current);
+		CharacterClass c = char_class(current);
 		Actions act = action[state][c];
 		state = next_state[state][c];
 
@@ -171,30 +181,35 @@ Token Scanner::next() {
 		case NUMBER_ACT:
 			token.type = NUM;
 			done = true;
+			break;
 		case OP_ACT:
-			if (current = '*') {
-				token.type = STAR;
+			token.type = token_map[token.lexeme];
+			done = true;
+			break;			
+		case ID_ACT:
+			cout << "hey";
+			token.type = ID;
+			done = true;
+			break;
+		case EOF_ACT:
+			token.line = line_num;
+			token.column = column_num;
+			token.type = EOFILE;
+			done = true;
+			break;		
+		case ERR_ACT:
+			if (c == EOF_CC) {
+				cerr << "ERROR! Unexpected end of file ";
 			}
-			else if (current = ';') {
-				token.type = SEMI;
-			}
-			else if (current = '.') {
-				token.type = PERIOD;
-			}
-			else if (current = '-') {
-				token.type = MINUS;
-			}
-			else if (current = '+') {
-				token.type = PLUS;
-			}
-			else if (current = '=') {
-				token.type = EQUALS;
-			}
-			if (token.type != NULL) {
-				done = true;
-				break;
-			}
+			else
+				cerr << "ERROR! Unexpected character " << current;
+			cerr << "at line " << line_num << ", column " << column_num;
+			cerr << endl;
+			advance();
+			break;
+
 		}
+
 
 	}
 
