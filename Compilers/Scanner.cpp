@@ -2,7 +2,7 @@
 * Scanner.cpp
 *
 *  Created on: Aug 30, 2015
-*      Author: bhoward
+*      Author: Brad Burch
 */
 
 #include "Scanner.h"
@@ -119,7 +119,7 @@ static Actions action[][CHARACTERS_CLASS] = {
 	{ // RBRACES_ST
 		SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT, SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  SKIP_ACT,  EOF_ACT, SKIP_ACT
 	},
-	{ // ID_ST11
+	{ // ID_ST
 		NEXT_ACT,  NEXT_ACT,  NEXT_ACT,   ID_ACT,  ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,    ID_ACT,     ID_ACT,  ID_ACT
 	}
 };
@@ -134,7 +134,6 @@ Token Scanner::next() {
 		CharacterClass c = char_class(current);
 		Actions act = action[state][c];
 		state = next_state[state][c];
-		string word;
 
 		switch (act) {
 		case SKIP_ACT:
@@ -220,22 +219,7 @@ Token Scanner::next() {
 
 		}
 
-
 	}
-
-
-	// TODO implement the state machine here:
-	// - have a "state" variable start in the initial state
-	// - repeatedly look at current_char() (the current character),
-	//   perform an appropriate action based on them, and assign
-	//   a new state until the end of a token is seen
-	// - call advance() on each state transition, until you
-	//   see the first character after the token
-	// - if at_EOF() is true, then return an EOF token:
-	//     token.line = line_num;
-	//     token.column = column_num;
-	//     token.type = EOFILE;
-	//     token.lexeme = "";
 
 	return token;
 }

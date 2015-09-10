@@ -34,7 +34,7 @@ std::ostream& operator<<(std::ostream& out, Token_Type type) {
 	case EQUALS:
 		out << "EQUALS";
 		break;
-		//Keywords
+	//Keywords
 	case PROGRAM:
 		out << "PROGRAM";
 		break;
@@ -64,7 +64,6 @@ std::ostream& operator<<(std::ostream& out, Token_Type type) {
 	case EOFILE:
 		out << "EOF";
 		break;
-		// TODO add cases for the other Token_Types
 	default:
 		out << "ERROR";
 		break;
