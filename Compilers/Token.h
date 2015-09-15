@@ -20,7 +20,7 @@ enum Token_Type {
 	MINUS, //-
 	STAR, //*
 	PERIOD, //.
-	EQUALS, //=
+	ASSIGN, //=
 	PROGRAM, //program
 	CONST, //constant
 	BEGIN, //begin

@@ -9,7 +9,9 @@
 
 #include <ostream>
 
-std::ostream& operator<<(std::ostream& out, Token_Type type) {
+using namespace std;
+
+ostream& operator<<(ostream& out, Token_Type type) {
 	switch (type) {
 	// Numbers 
 	case NUM:
@@ -31,8 +33,8 @@ std::ostream& operator<<(std::ostream& out, Token_Type type) {
 	case STAR:
 		out << "STAR";
 		break;
-	case EQUALS:
-		out << "EQUALS";
+	case ASSIGN:
+		out << "ASSIGN";
 		break;
 	//Keywords
 	case PROGRAM:
@@ -58,7 +60,7 @@ std::ostream& operator<<(std::ostream& out, Token_Type type) {
 		break;
 		//Identifier 
 	case ID:
-		out << "ID ";
+		out << "ID";
 		break;
 		//End of File
 	case EOFILE:
@@ -72,10 +74,19 @@ std::ostream& operator<<(std::ostream& out, Token_Type type) {
 	return out;
 }
 
-std::ostream& operator<<(std::ostream& out, const Token& token) {
+ostream& operator<<(ostream& out, const Token& token) {
 	out << token.type;
 
-	if (token.lexeme != "") {
+	if (token.type == ID) {
+		out << " " << token.lexeme;
+	}
+	else if (token.type == NUM) {
+		out << " " << token.lexeme;
+	}
+	else if (token.type != ID) {
+
+	}
+	else if (token.lexeme != "") {
 		out << " " << token.lexeme;
 	}
 

@@ -83,10 +83,10 @@ static States next_state[][CHARACTERS_CLASS] = {
 		SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST,  SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST, SLASH2_ST
 	}, 
 	{ // LRACE_ST
-		LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  LBRACE_ST, LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  RBRACE_ST,  INIT_ST, LBRACE_ST
+		LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  LBRACE_ST, LBRACE_ST,  LBRACE_ST,  LBRACE_ST,  INIT_ST,  INIT_ST, LBRACE_ST
 	},
 	{ // RBRACE_ST
-		INIT_ST,    INIT_ST,     INIT_ST,    INIT_ST,    INIT_ST,   INIT_ST,     INIT_ST,    RBRACE_ST,   INIT_ST,    INIT_ST, INIT_ST
+		INIT_ST,    INIT_ST,     INIT_ST,    INIT_ST,    INIT_ST,   INIT_ST,     INIT_ST,    INIT_ST,   INIT_ST,    INIT_ST, INIT_ST
 	},
 	{ // ID_ST  
 		ID_ST,     ID_ST,     ID_ST,     INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST
@@ -164,7 +164,7 @@ Token Scanner::next() {
 				token.type = MINUS;
 			}
 			else if (token.lexeme == "=") {
-				token.type = EQUALS;
+				token.type = ASSIGN;
 			}
 			else if (token.lexeme == ";") {
 				token.type = SEMI;
@@ -212,7 +212,7 @@ Token Scanner::next() {
 			}
 			else
 				cerr << "ERROR! Unexpected character " << current;
-			cerr << "at line " << line_num << ", column " << column_num;
+			cerr << " at line " << line_num << ", column " << column_num;
 			cerr << endl;
 			advance();
 			break;
