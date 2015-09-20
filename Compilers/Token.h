@@ -29,7 +29,6 @@ enum Token_Type {
 	DIV, //div
 	MOD, //mod
 	ID, //identifer 
-	// TODO add other Token_Types
 	EOFILE // EOF is already used in cstdio
 };
 

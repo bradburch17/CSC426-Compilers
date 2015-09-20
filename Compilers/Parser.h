@@ -14,10 +14,9 @@ using namespace std;
 
 class Parser {
 public:
-	bool check(Token);
-	bool match(Token);
-	void look();
+
 private:
+
 	
 };
 
