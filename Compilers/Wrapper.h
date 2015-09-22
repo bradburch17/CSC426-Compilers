@@ -19,10 +19,11 @@ public:
 	Token match(Token_Type type);
 	Token current();
 	Wrapper();
+	Token skip();
 
 private:
 	Token curr;
-	Scanner scanner;
+	Scanner scanner; //this is causing no default constructor error
 };
 
 #endif /* WRAPPER_H_ */

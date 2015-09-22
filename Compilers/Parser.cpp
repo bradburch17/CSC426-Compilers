@@ -11,6 +11,20 @@
 
 using namespace std;
 
+int pres(Token_Type type) {
+	if (type == PRINT) {
+		return 0;
+	}
+	else if (type == PLUS) {
+		return 1;
+	}
+	else if (type == MINUS) {
+		return 1;
+	}
+	else
+		return 2;
+}
+
 void main() {
 	
 	Wrapper wrapper;

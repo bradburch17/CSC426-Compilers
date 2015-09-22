@@ -3,21 +3,20 @@
 * Author: Brad Burch
 */
 #include <iostream>
+
 #include "Wrapper.h"
 #include "Scanner.h"
 
 using namespace std;
 
+
 Wrapper::Wrapper() {
-	//Scanner scanner();
-	//Token token();
+	Scanner scan = scanner;
 }
 
 Token Wrapper::current() {
 	return curr;
 }
-
-
 
 bool Wrapper::check(Token_Type type) {
 	if (curr.type == type) {
@@ -31,13 +30,18 @@ bool Wrapper::check(Token_Type type) {
 Token Wrapper::match(Token_Type type) {
 	Token token = curr;
 	
-
 	if (token.type = type) {
 		token = scanner.next();
 	}
 	else {
-		cout << "Error, yo!" << endl;
+		cout << "Error!" << endl;
 	}
+}
+
+Token Wrapper::skip() {
+	Token tok = curr;
+	return curr;
+	tok = scanner.next();
 }
 
 
