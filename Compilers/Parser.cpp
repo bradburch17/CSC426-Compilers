@@ -47,7 +47,7 @@ void main() {
 				cout << wrapper.match(NUM);
 			}
 			else if (wrapper.check(ID)) {
-				cout << wrapper.match(ID); //WILL NEED TO CHANGE TO ACTUALLY PRINT ID
+				cout << wrapper.match(ID); 
 			}
 			else if (wrapper.check(PLUS)) {
 				op = wrapper.match(PLUS);
@@ -91,7 +91,7 @@ while not check(SEMI) do:
 if check(NUM) then:
 print(match(NUM))
 else if check(ID) then:
-print(lookup(match(ID)))          PAY ATTENTION TO THIS LINE - WILL NEED TO CHANGE
+print(lookup(match(ID)))          Make sure this line works. 
 else if check(PLUS) or check(MINUS) or ... then:
 op = match(... whatever ...)
 while prec(s.top) >= prec(op) do:

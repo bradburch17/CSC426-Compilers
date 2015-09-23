@@ -30,7 +30,12 @@ bool Wrapper::check(Token_Type type) {
 
 Token Wrapper::match(Token_Type type) {
 	Token token = curr;
-	
+	if (token.type = NUM) {
+		cout << token.lexeme;
+	}
+	else if (token.type = ID) {
+		cout << token.lexeme;
+	}
 	if (token.type = type) {
 		return skip();
 	}
