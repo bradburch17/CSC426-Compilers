@@ -8,6 +8,7 @@
 #include "Parser.h"
 #include "Scanner.h"
 #include "Wrapper.h"
+#include "Token.h"
 
 using namespace std;
 
@@ -60,7 +61,7 @@ void main() {
 			else {
 				cout << "Error! Unexpected character. Expected NUM, ID, Operator";
 			}
-			while (s.top >= op) {
+			while (pres(s.top) >= pres(op.type)) {
 				cout << s.pop;
 				s.push(op);
 			}

@@ -27,11 +27,12 @@ bool Wrapper::check(Token_Type type) {
 	}
 }
 
+
 Token Wrapper::match(Token_Type type) {
 	Token token = curr;
 	
 	if (token.type = type) {
-		token = scanner.next();
+		return skip();
 	}
 	else {
 		cout << "Error!" << endl;
@@ -40,8 +41,10 @@ Token Wrapper::match(Token_Type type) {
 
 Token Wrapper::skip() {
 	Token tok = curr;
-	return curr;
+
 	tok = scanner.next();
+	return curr;
+	
 }
 
 

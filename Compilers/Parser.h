@@ -15,15 +15,13 @@ using namespace std;
 
 class Parser {
 public:
-	bool check(Token_Type type);
-	Token match(Token_Type type);
-	Token current();
-	//Wrapper(Scanner scanner);
-	Token skip();
+	
 
 private:
+	/*
 	Token curr;
 	Scanner scanner;
+	*/
 	
 };
 

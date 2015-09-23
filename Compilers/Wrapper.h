@@ -15,8 +15,8 @@ using namespace std;
 
 class Wrapper {
 public:
-	bool check(Token_Type type);
-	Token match(Token_Type type);
+	bool check(Token_Type type); //Check returns true or false if the Token_Type is a match
+	Token match(Token_Type type); //Match returns the token 
 	Token current();
 	Wrapper();
 	Token skip();
