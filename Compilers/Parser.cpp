@@ -5,11 +5,16 @@
 #include <iostream>
 #include <stack>
 
+#include "Parser.h"
 #include "Scanner.h"
 #include "Wrapper.h"
 #include "Token.h"
 
 using namespace std;
+
+Parser::Parser() {
+	
+}
 
 /*
 * pres is the presidence of the token types. 
@@ -32,7 +37,7 @@ int pres(Token tok) {
 		return 2;
 }
 
-void parser() {
+void Parser::parser() {
 	
 	Wrapper wrapper(cin);
 	while (wrapper.check(PRINT)) {
@@ -42,14 +47,14 @@ void parser() {
 		tok.type = PRINT;
 		s.push(tok);
 		Token op;
-		while (!(wrapper.check(SEMI))) {
+		while (!wrapper.check(SEMI)) {
 			if (wrapper.check(NUM)) {
-				cout << wrapper.match(NUM);
+				cout << wrapper.match(NUM); //only print lexeme
 			}
 			else if (wrapper.check(ID)) {
-				cout << wrapper.match(ID); 
+				cout << wrapper.match(ID); //only print lexeme
 			}
-			else if (wrapper.check(PLUS)) {
+			else if (wrapper.check(PLUS)) { //add the ID, CONST, whatever 
 				op = wrapper.match(PLUS);
 			}
 			else if (wrapper.check(MINUS)) {

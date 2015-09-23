@@ -6,22 +6,17 @@
 #define PARSER_H_
 
 #include <iosfwd>
-#include <string>
 
-#include "Token.h"
 #include "Scanner.h"
 
 using namespace std;
 
 class Parser {
 public:
-	
+	Parser();
+	void parser();	
 
 private:
-	/*
-	Token curr;
-	Scanner scanner;
-	*/
 	
 };
 

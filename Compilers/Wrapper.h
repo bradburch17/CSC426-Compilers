@@ -23,7 +23,7 @@ public:
 
 private:
 	Token curr; //This is the current token 
-	Scanner scanner(istream& i); //This is scanner... Why is it green? 
+	Scanner scanner; //This is scanner... Why is it green? 
 };
 
 #endif /* WRAPPER_H_ */

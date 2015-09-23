@@ -6,17 +6,13 @@
 */
 
 #include "Scanner.h"
+#include "Parser.h"
 
 #include <iostream>
 
 using namespace std;
 
 int main() {
-	Scanner scanner(cin);
-
-	Token token;
-	do {
-		token = scanner.next();
-		cout << token << endl;
-	} while (token.type != EOFILE);
+	Parser parser;
+	parser.parser();
 }
