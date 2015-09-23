@@ -32,7 +32,7 @@ int pres(Token tok) {
 		return 2;
 }
 
-void main() {
+void parser() {
 	
 	Wrapper wrapper(cin);
 	while (wrapper.check(PRINT)) {
@@ -67,15 +67,17 @@ void main() {
 			else {
 				cout << "Error! Unexpected character. Expected NUM, ID, Operator";
 			}
-			while (pres(s.top) >= pres(op)) {
-				cout << s.pop;
+			while (pres(s.top()) >= pres(op)) {
+				cout << s.top();
+				s.pop();
 				s.push(op);
 			}
 		}
 		if (wrapper.check(SEMI)) {
 			wrapper.match(SEMI);
-			while (s.empty == false) {
-				cout << s.pop;
+			while (s.empty() == false) {
+				cout << s.top();
+				s.pop();
 			}
 		}
 	}

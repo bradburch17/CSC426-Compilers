@@ -14,6 +14,11 @@ Wrapper::Wrapper(istream& i) {
 	scanner(i);
 }
 
+Scanner Wrapper::scanner(istream & i)
+{
+	return Scanner(i);
+}
+
 Token Wrapper::current() {
 	return curr;
 }
@@ -32,9 +37,11 @@ Token Wrapper::match(Token_Type type) {
 	Token token = curr;
 	if (token.type = NUM) {
 		cout << token.lexeme;
+		return skip();
 	}
 	else if (token.type = ID) {
 		cout << token.lexeme;
+		return skip();
 	}
 	if (token.type = type) {
 		return skip();
