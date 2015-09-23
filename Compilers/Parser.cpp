@@ -5,14 +5,20 @@
 #include <iostream>
 #include <stack>
 
-#include "Parser.h"
 #include "Scanner.h"
 #include "Wrapper.h"
 #include "Token.h"
 
 using namespace std;
 
-int pres(Token_Type type) {
+/*
+* pres is the presidence of the token types. 
+*
+* @params: Token 
+*/
+int pres(Token tok) {
+	Token_Type type;
+	type = tok.type;
 	if (type == PRINT) {
 		return 0;
 	}
@@ -28,7 +34,7 @@ int pres(Token_Type type) {
 
 void main() {
 	
-	Wrapper wrapper;
+	Wrapper wrapper(cin);
 	while (wrapper.check(PRINT)) {
 		wrapper.match(PRINT);
 		stack<Token> s;
@@ -61,14 +67,14 @@ void main() {
 			else {
 				cout << "Error! Unexpected character. Expected NUM, ID, Operator";
 			}
-			while (pres(s.top) >= pres(op.type)) {
+			while (pres(s.top) >= pres(op)) {
 				cout << s.pop;
 				s.push(op);
 			}
 		}
 		if (wrapper.check(SEMI)) {
 			wrapper.match(SEMI);
-			while (!(s.empty)) {
+			while (s.empty == false) {
 				cout << s.pop;
 			}
 		}

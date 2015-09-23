@@ -10,8 +10,8 @@
 using namespace std;
 
 
-Wrapper::Wrapper() {
-	Scanner scan = scanner;
+Wrapper::Wrapper(istream& i) {
+	scanner(i);
 }
 
 Token Wrapper::current() {
@@ -41,9 +41,8 @@ Token Wrapper::match(Token_Type type) {
 
 Token Wrapper::skip() {
 	Token tok = curr;
-
-	tok = scanner.next();
-	return curr;
+	curr = scanner(cin).next();
+	return tok;
 	
 }
 
