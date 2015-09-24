@@ -14,10 +14,6 @@ Wrapper::Wrapper(istream& i): scanner(Scanner(i)) {
 	curr = scanner.next();
 }
 
-Token Wrapper::current() {
-	return curr;
-}
-
 bool Wrapper::check(Token_Type type) {
 	if (curr.type == type) {
 		return true;
@@ -35,7 +31,7 @@ Token Wrapper::match(Token_Type type) {
 		return skip();
 	}
 	else {
-		cout << "Error: Token types did not match." << endl;
+		cout << "Error: Token " << curr << " not expected." << endl;
 		exit(1);
 	}
 }

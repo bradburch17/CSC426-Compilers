@@ -45,10 +45,16 @@ int pres(Token tok) {
 		return 2;
 	} 
 }
-
+/*
+* parser() is the main parser function. It sets up the syntax for a YASL program. 
+*/
 void Parser::parser() {
 	
 	Wrapper wrapper(cin);
+
+	wrapper.match(PROGRAM);
+	wrapper.match(ID);
+	wrapper.match(SEMI);
 
 	while (wrapper.check(CONST)) {
 		wrapper.skip();
@@ -59,6 +65,8 @@ void Parser::parser() {
 		constant = make_pair(id.lexeme, num.lexeme);
 		con.insert(constant);
 	}
+
+	wrapper.match(BEGIN);
 
 	while (wrapper.check(PRINT)) {
 		wrapper.match(PRINT);
@@ -103,7 +111,6 @@ void Parser::parser() {
 				cout << "Error! Unexpected character. Expected NUM, ID, Operator";
 				wrapper.skip();
 			}
-
 			while (pres(s.top()) >= pres(op)) {
 				cout << s.top().lexeme << endl;
 				s.pop();
@@ -113,7 +120,9 @@ void Parser::parser() {
 		if (wrapper.check(SEMI) == true) {
 			wrapper.match(SEMI);
 			while (!s.empty()) {
-				cout << s.top().lexeme << endl;
+				if (s.top().type != PRINT) {
+					cout << s.top().lexeme << endl;
+				}
 				if (s.top().type == PRINT) {
 					cout << "PRINT" << endl;
 				}
@@ -121,4 +130,6 @@ void Parser::parser() {
 			}
 		}
 	}
+	wrapper.match(END);
+	wrapper.match(PERIOD);
 }

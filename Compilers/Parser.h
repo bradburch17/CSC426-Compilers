@@ -19,8 +19,8 @@ public:
 	void parser();	
 
 private:
-	pair<string, string> constant;
-	unordered_map<string, string> con;
+	pair<string, string> constant; //This sets up the pairing for constants. It is not the actual hashmap.
+	unordered_map<string, string> con; //This is the actual hashmap that takes in constant. 
 };
 
 #endif /* PARSER_H_ */
