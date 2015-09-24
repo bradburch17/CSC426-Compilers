@@ -4,6 +4,8 @@
 */
 #include <iostream>
 #include <stack>
+#include <unordered_map>
+#include <string>
 
 #include "Parser.h"
 #include "Scanner.h"
@@ -40,21 +42,30 @@ int pres(Token tok) {
 void Parser::parser() {
 	
 	Wrapper wrapper(cin);
+		
+	while (wrapper.check(CONST)) {
+		Token id = wrapper.match(ID);
+		Token num = wrapper.match(NUM);
+		wrapper.skip();
+		pair<string, string> constant = make_pair(id.lexeme, num.lexeme);
+	}
+
 	while (wrapper.check(PRINT)) {
 		wrapper.match(PRINT);
 		stack<Token> s;
 		Token tok;
 		tok.type = PRINT;
 		s.push(tok);
-		Token op;
+		Token op = wrapper.skip();
+
 		while (!wrapper.check(SEMI)) {
 			if (wrapper.check(NUM)) {
-				cout << wrapper.match(NUM); //only print lexeme
+				cout << wrapper.match(NUM).lexeme << endl; 
 			}
 			else if (wrapper.check(ID)) {
-				cout << wrapper.match(ID); //only print lexeme
+				cout << wrapper.match(ID).lexeme << endl; 
 			}
-			else if (wrapper.check(PLUS)) { //add the ID, CONST, whatever 
+			else if (wrapper.check(PLUS)) { 
 				op = wrapper.match(PLUS);
 			}
 			else if (wrapper.check(MINUS)) {
@@ -72,13 +83,16 @@ void Parser::parser() {
 			else {
 				cout << "Error! Unexpected character. Expected NUM, ID, Operator";
 			}
+
 			while (pres(s.top()) >= pres(op)) {
-				cout << s.top();
+				cout << s.top() << endl;
 				s.pop();
-				s.push(op);
 			}
+			
+			s.push(op);
+			
 		}
-		if (wrapper.check(SEMI)) {
+		if (wrapper.check(SEMI) == true) {
 			wrapper.match(SEMI);
 			while (s.empty() == false) {
 				cout << s.top();
@@ -88,28 +102,5 @@ void Parser::parser() {
 	}
 }
 
-
-/*
-while check(PRINT) do:
-match(PRINT)
-s = new stack
-s.push(PRINT)
-while not check(SEMI) do:
-if check(NUM) then:
-print(match(NUM))
-else if check(ID) then:
-print(lookup(match(ID)))          Make sure this line works. 
-else if check(PLUS) or check(MINUS) or ... then:
-op = match(... whatever ...)
-while prec(s.top) >= prec(op) do:
-print(s.pop)
-s.push(op)
-else: error -- expected NUM, ID, or operator
-end if
-end while
-match(SEMI)
-while not s.isEmpty do:
-print(s.pop)
-end while
-end while
-*/
+//CONST (hashmap thing to link), pseudocode, and wrapper 
+//new main (psu, maping to id+num, op stack), wrapper, 

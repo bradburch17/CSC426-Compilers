@@ -35,7 +35,7 @@ Token Wrapper::match(Token_Type type) {
 		return skip();
 	}
 	else {
-		cout << "Error!" << endl;
+		cout << "Nope" << endl;
 		exit(1);
 	}
 }

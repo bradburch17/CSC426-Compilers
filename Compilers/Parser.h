@@ -6,6 +6,8 @@
 #define PARSER_H_
 
 #include <iosfwd>
+#include <unordered_map>
+#include <string>
 
 #include "Scanner.h"
 
@@ -17,7 +19,7 @@ public:
 	void parser();	
 
 private:
-	
+
 };
 
 #endif /* PARSER_H_ */
