@@ -35,19 +35,29 @@ int pres(Token tok) {
 	else if (type == MINUS) {
 		return 1;
 	}
-	else
+	else if (type == STAR) {
 		return 2;
+	} 
+	else if (type == DIV) {
+		return 2;
+	}
+	else if (type == MOD) {
+		return 2;
+	} 
 }
 
 void Parser::parser() {
 	
 	Wrapper wrapper(cin);
-		
+
 	while (wrapper.check(CONST)) {
-		Token id = wrapper.match(ID);
-		Token num = wrapper.match(NUM);
 		wrapper.skip();
-		pair<string, string> constant = make_pair(id.lexeme, num.lexeme);
+		Token id = wrapper.match(ID);
+		wrapper.match(ASSIGN);
+		Token num = wrapper.match(NUM);
+		wrapper.match(SEMI);
+		constant = make_pair(id.lexeme, num.lexeme);
+		con.insert(constant);
 	}
 
 	while (wrapper.check(PRINT)) {
@@ -56,14 +66,17 @@ void Parser::parser() {
 		Token tok;
 		tok.type = PRINT;
 		s.push(tok);
-		Token op = wrapper.skip();
+		Token op;
 
 		while (!wrapper.check(SEMI)) {
 			if (wrapper.check(NUM)) {
 				cout << wrapper.match(NUM).lexeme << endl; 
+				continue;
 			}
 			else if (wrapper.check(ID)) {
-				cout << wrapper.match(ID).lexeme << endl; 
+				Token id = wrapper.match(ID);
+				cout << con.at(id.lexeme) << endl;
+				continue;
 			}
 			else if (wrapper.check(PLUS)) { 
 				op = wrapper.match(PLUS);
@@ -74,6 +87,12 @@ void Parser::parser() {
 			else if (wrapper.check(STAR)) {
 				op = wrapper.match(STAR);
 			}
+			else if (wrapper.check(MOD)) {
+				op = wrapper.match(MOD);
+			}
+			else if (wrapper.check(DIV)) {
+				op = wrapper.match(DIV);
+			}
 			else if (wrapper.check(ASSIGN)) {
 				op = wrapper.match(ASSIGN);
 			}
@@ -82,25 +101,24 @@ void Parser::parser() {
 			}
 			else {
 				cout << "Error! Unexpected character. Expected NUM, ID, Operator";
+				wrapper.skip();
 			}
 
 			while (pres(s.top()) >= pres(op)) {
-				cout << s.top() << endl;
+				cout << s.top().lexeme << endl;
 				s.pop();
 			}
-			
 			s.push(op);
-			
 		}
 		if (wrapper.check(SEMI) == true) {
 			wrapper.match(SEMI);
-			while (s.empty() == false) {
-				cout << s.top();
+			while (!s.empty()) {
+				cout << s.top().lexeme << endl;
+				if (s.top().type == PRINT) {
+					cout << "PRINT" << endl;
+				}
 				s.pop();
 			}
 		}
 	}
 }
-
-//CONST (hashmap thing to link), pseudocode, and wrapper 
-//new main (psu, maping to id+num, op stack), wrapper, 

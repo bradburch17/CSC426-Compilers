@@ -19,7 +19,8 @@ public:
 	void parser();	
 
 private:
-
+	pair<string, string> constant;
+	unordered_map<string, string> con;
 };
 
 #endif /* PARSER_H_ */
