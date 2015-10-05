@@ -21,6 +21,16 @@ enum Token_Type {
 	STAR, //*
 	PERIOD, //.
 	ASSIGN, //=
+	COLON, //:
+	LPAREN, //(
+	RPAREN, //)
+	COMMA, //,
+	EQUAL, //==
+	NOTEQUAL, //<>
+	LESSEQUAL, //<=
+	GREATEREQUAL, //>=
+	LESS, //<
+	GREATER, //>
 	PROGRAM, //program
 	CONST, //constant
 	BEGIN, //begin
@@ -29,6 +39,21 @@ enum Token_Type {
 	DIV, //div
 	MOD, //mod
 	ID, //identifer 
+	VAR, //variable
+	INT, //integer
+	BOOL, //boolean
+	PROC, //
+	IF, //if
+	THEN, //then
+	ELSE, //else
+	WHILE, //while
+	DO, //do
+	PROMPT, //prompt
+	AND, //and
+	OR, //or
+	NOT, //not 
+	TRUE, //true
+	FALSE, //false
 	EOFILE // EOF is already used in cstdio
 };
 

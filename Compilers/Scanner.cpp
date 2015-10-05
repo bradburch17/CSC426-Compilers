@@ -172,6 +172,30 @@ Token Scanner::next() {
 			else if (token.lexeme == ".") {
 				token.type = PERIOD;
 			}
+			else if (token.lexeme == ":") {
+				token.type = COLON;
+			}
+			else if (token.lexeme == ",") {
+				token.type = COMMA;
+			}
+			else if (token.lexeme == "==") {
+				token.type = EQUAL;
+			}
+			else if (token.lexeme == "<>") {
+				token.type = NOTEQUAL;
+			}
+			else if (token.lexeme == "<=") {
+				token.type = LESSEQUAL;
+			}
+			else if (token.lexeme == ">=") {
+				token.type = GREATEREQUAL;
+			}
+			else if (token.lexeme == "<") {
+				token.type = LESS;
+			}
+			else if (token.lexeme == ">") {
+				token.type = GREATER;
+			}
 			done = true;
 			break;			
 		case ID_ACT:
@@ -195,6 +219,51 @@ Token Scanner::next() {
 			}
 			else if (token.lexeme == "const") {
 				token.type = CONST;
+			}
+			else if (token.lexeme == "var") {
+				token.type = VAR;
+			}
+			else if (token.lexeme == "int") {
+				token.type = INT;
+			}
+			else if (token.lexeme == "bool") {
+				token.type = BOOL;
+			}
+			else if (token.lexeme == "proc") {
+				token.type = PROC;
+			}
+			else if (token.lexeme == "if") {
+				token.type = IF;
+			}
+			else if (token.lexeme == "then") {
+				token.type = THEN;
+			}
+			else if (token.lexeme == "else") {
+				token.type = ELSE;
+			}
+			else if (token.lexeme == "while") {
+				token.type = WHILE;
+			}
+			else if (token.lexeme == "do") {
+				token.type = DO;
+			}
+			else if (token.lexeme == "prompt") {
+				token.type = PROMPT;
+			}
+			else if (token.lexeme == "and") {
+				token.type = AND;
+			}
+			else if (token.lexeme == "or") {
+				token.type = OR;
+			}
+			else if (token.lexeme == "not") {
+				token.type = NOT;
+			}
+			else if (token.lexeme == "true") {
+				token.type = TRUE;
+			}
+			else if (token.lexeme == "false") {
+				token.type = FALSE;
 			}
 			else 
 				token.type = ID;

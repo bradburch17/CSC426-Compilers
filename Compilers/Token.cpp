@@ -58,11 +58,56 @@ ostream& operator<<(ostream& out, Token_Type type) {
 	case MOD:
 		out << "MOD";
 		break;
-		//Identifier 
+
+	case VAR:
+		out << "VAR";
+		break;
+	case INT: 
+		out << "INT";
+		break;
+	case BOOL:
+		out << "BOOLEAN";
+		break;
+	case PROC:
+		out << "PROC";
+		break;
+	case IF:
+		out << "IF";
+		break;
+	case THEN:
+		out << "THEN";
+		break;
+	case ELSE:
+		out << "ELSE";
+		break;
+	case WHILE:
+		out << "WHILE";
+		break;
+	case DO:
+		out << "DO";
+		break;
+	case PROMPT:
+		out << "PROMPT";
+		break;
+	case AND:
+		out << "AND";
+		break;
+	case OR:
+		out << "OR";
+		break;
+	case NOT:
+		out << "NOT";
+		break;
+	case TRUE:
+		out << "TRUE";
+		break;
+	case FALSE:
+		out << "FALSE";
+		break;
 	case ID:
 		out << "ID";
 		break;
-		//End of File
+	//End of File
 	case EOFILE:
 		out << "EOF";
 		break;
