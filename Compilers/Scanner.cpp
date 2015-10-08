@@ -25,7 +25,7 @@ enum States {
 };
 
 enum Actions {
-	SKIP_ACT, MARK_ACT, NEXT_ACT, NUMBER_ACT, OP_ACT, ID_ACT, EOF_ACT, ERR_ACT, 
+	SKIP_ACT, MARK_ACT, NEXT_ACT, NUMBER_ACT, OP_ACT, ID_ACT, EOF_ACT, ERR_ACT
 };
 
 enum CharacterClass {
@@ -63,12 +63,12 @@ static CharacterClass char_class(char c) {
 }
 
 static States next_state[][CHARACTERS_CLASS] = {
-	//  LETTER,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER
+	//  LETTER,     ZERO,      DIGIT,     SPACE,     NEWLINE,  OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER,     
 	{ // INIT_ST
 		ID_ST,   ZERO_ST,   NUM_ST,    INIT_ST,   INIT_ST,  OP_ST,     SLASH1_ST,  LBRACE_ST,   RBRACE_ST,   INIT_ST, INIT_ST
 	},
 	{ // NUM_ST
-		INIT_ST,   NUM_ST,    NUM_ST,    INIT_ST,   INIT_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST, INIT_ST
+		INIT_ST,   NUM_ST,    NUM_ST,    INIT_ST,   INIT_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST, INIT_ST 
 	},
 	{ // ZERO_ST
 		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST, INIT_ST
@@ -163,9 +163,6 @@ Token Scanner::next() {
 			else if (token.lexeme == "-") {
 				token.type = MINUS;
 			}
-			else if (token.lexeme == "=") {
-				token.type = ASSIGN;
-			}
 			else if (token.lexeme == ";") {
 				token.type = SEMI;
 			}
@@ -180,6 +177,9 @@ Token Scanner::next() {
 			}
 			else if (token.lexeme == "==") {
 				token.type = EQUAL;
+			}
+			else if (token.lexeme == "=") {
+				token.type = ASSIGN;
 			}
 			else if (token.lexeme == "<>") {
 				token.type = NOTEQUAL;
