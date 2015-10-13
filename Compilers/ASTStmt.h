@@ -16,7 +16,6 @@ using namespace std;
 
 class ASTStmt {
 public: 
-	ASTStmt();
 	virtual string render(string indent) = 0;
 
 private:
