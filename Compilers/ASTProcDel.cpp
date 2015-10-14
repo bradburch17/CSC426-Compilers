@@ -1,4 +1,7 @@
 #include "ASTProcDel.h"
+#include <iostream>
+
+using namespace std;
 
 ASTProcDecl::ASTProcDecl(string i, list<ASTParam> p, ASTBlock b)
 {

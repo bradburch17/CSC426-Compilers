@@ -22,4 +22,18 @@ private:
 
 
 };
+
+class ValParam : public ASTParam {
+public: 
+
+private: 
+
+};
+
+class VarParam : public ASTParam {
+public:
+
+private:
+
+};
 #endif /* ASTParam_H_ */

@@ -22,4 +22,17 @@ private:
 
 
 };
+
+class ExprItem : public ASTItem {
+public:
+
+private:
+
+};
+class StringItem : public ASTItem {
+public:
+
+private:
+
+};
 #endif /* ASTItem_H_ */

@@ -144,13 +144,6 @@
   <ItemGroup>
     <ClInclude Include="ASTParam.h" />
     <ClInclude Include="ASTType.h" />
-    <ClInclude Include="ExprBinOp.h" />
-    <ClInclude Include="ExprID.h" />
-    <ClInclude Include="ExprNum.h" />
-    <ClInclude Include="ExprUnOp.h" />
-    <ClInclude Include="ItemExprItem.h" />
-    <ClInclude Include="ItemStringItem.h" />
-    <ClInclude Include="AssignOPStmt.h" />
     <ClInclude Include="ASTExpr.h" />
     <ClInclude Include="ASTItem.h" />
     <ClInclude Include="ASTStmt.h" />
@@ -161,9 +154,7 @@
     <ClInclude Include="ASTProgram.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="Token.h" />
-    <ClInclude Include="ParamValParam.h" />
     <ClInclude Include="ASTVarDecl.h" />
-    <ClInclude Include="ParamVarParam.h" />
     <ClInclude Include="Wrapper.h" />
   </ItemGroup>
   <ItemGroup>
@@ -176,18 +167,11 @@
     <ClCompile Include="ASTProgram.cpp" />
     <ClCompile Include="ASTType.cpp" />
     <ClCompile Include="ASTVarDecl.cpp" />
-    <ClCompile Include="StmtAssignID.cpp" />
-    <ClCompile Include="StmtAssignNum.cpp" />
-    <ClCompile Include="AssignOPStmt.cpp" />
     <ClCompile Include="ASTStmt.cpp" />
-    <ClCompile Include="StmtIf.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />
-    <ClCompile Include="StmtSeq.cpp" />
     <ClCompile Include="Token.cpp" />
-    <ClCompile Include="StmtUntil.cpp" />
-    <ClCompile Include="StmtWhile.cpp" />
     <ClCompile Include="Wrapper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

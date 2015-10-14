@@ -22,4 +22,32 @@ private:
 
 
 };
+
+class BinOp : public ASTExpr {
+public: 
+
+private: 
+
+};
+
+class BinID : public ASTExpr {
+public:
+
+private:
+
+};
+
+class BinNum : public ASTExpr {
+public:
+
+private:
+
+};
+
+class BinUpOp : public ASTExpr {
+public:
+
+private:
+
+};
 #endif /* ASTExpr_H_ */

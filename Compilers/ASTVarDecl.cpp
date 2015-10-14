@@ -1,4 +1,7 @@
 #include "ASTVarDecl.h"
+#include <iostream>
+
+using namespace std;
 
 ASTVarDecl::ASTVarDecl(string i, ASTType t)
 {

@@ -1,4 +1,7 @@
+#include <iostream>
 #include "ASTConstDecl.h"
+
+using namespace std;
 
 ASTConstDecl::ASTConstDecl(string i, int v)
 {
