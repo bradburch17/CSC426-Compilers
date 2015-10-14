@@ -133,3 +133,75 @@ void Parser::parser() {
 	wrapper.match(END);
 	wrapper.match(PERIOD);
 }
+
+ASTStmt Parser::parseProgram()
+{
+	Wrapper wrapper(cin);
+	ASTStmt stmt = parseS();
+	wrapper.match(EOFILE);
+	return stmt;
+}
+
+/*
+ASTStmt parseS() {
+	Wrapper wrapper(cin);
+	if (wrapper.check(ID)) {
+		string lhs = wrapper.match(ID);
+		wrapper.match(ASSIGN);
+		return parseU(lhs);
+		} 
+	else if (wrapper.check(BEGIN)) {
+		wrapper.match(BEGIN);
+		list<Stmt> stmts = parseT(new ArrayList<Stmt>());
+		wrapper.match(END);
+		return Stmt.seqStmt(stmts);
+		} 
+	else if (wrapper.check(WHILE)) {
+		wrapper.match(WHILE);
+		string test = wrapper.match(ID);
+		Stmt body = parseS();
+		return Stmt.whileStmt(test, body);
+		} 
+	else if (wrapper.check(IF)) {
+		wrapper.match(IF);
+		string test = wrapper.match(ID);
+		Stmt body = parseS();
+		return Stmt.ifStmt(test, body);
+		} 
+	else {
+		wrapper.match(DO);
+		Stmt body = parseS();
+		wrapper.match(UNTIL);
+		string test = wrapper.match(ID);
+		return Stmt.untilStmt(test, body);
+	if (wrapper.check(ID)) {
+		string lhs = wrapper.match(ID);
+		wrapper.match(ASSIGN);
+		return parseU(lhs);
+	}
+	else if (wrapper.check(BEGIN)) {
+		wrapper.match(BEGIN);
+		list<Stmt> stmts = parseT(ArrayList<Stmt>());
+		wrapper.match(END);
+		return Stmt.seqStmt(stmts);
+	}
+	else if (wrapper.check(WHILE)) {
+		wrapper.match(WHILE);
+		string test = wrapper.match(ID);
+		Stmt body = parseS();
+		return Stmt.whileStmt(test, body);
+	}
+	else if (wrapper.check(IF)) {
+		wrapper.match(IF);
+		string test = wrapper.match(ID);
+		Stmt body = parseS();
+		return Stmt.ifStmt(test, body);
+	}
+	else {
+		wrapper.match(DO);
+		Stmt body = parseS();
+		wrapper.match(UNTIL);
+		string test = wrapper.match(ID);
+		return Stmt.untilStmt(test, body);
+	}
+	*/
