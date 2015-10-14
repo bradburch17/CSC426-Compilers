@@ -3,3 +3,7 @@
 #include "ASTStmt.h"
 
 using namespace std;
+
+ASTStmt::ASTStmt()
+{
+}

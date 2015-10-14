@@ -10,13 +10,17 @@
 #include <string>
 
 #include "Scanner.h"
+#include "ASTStmt.h"
 
 using namespace std;
 
 class Parser {
 public:
 	Parser();
-	void parser();	
+	void parser();
+
+	ASTStmt parseProgram();
+
 
 private:
 	pair<string, string> constant; //This sets up the pairing for constants. It is not the actual hashmap.

@@ -1,12 +1,12 @@
 /*
-* AssignIDStmt.h
+* StmtAssignID.h
 *
 *  Created on: October 12, 2015
 *      Author: Brad Burch
 */
 
-#ifndef AssignIDStmt_H_
-#define AssignIDStmt_H_
+#ifndef StmtAssignID_H_
+#define StmtAssignID_H_
 
 #include <string>
 #include <iosfwd>
@@ -14,9 +14,9 @@
 
 using namespace std;
 
-class AssignIDStmt : public ASTStmt {
+class StmtAssignID : public ASTStmt {
 public:
-	AssignIDStmt(string l, string i);
+	StmtAssignID(string l, string i);
 	string render(string indent);
 	
 private:
@@ -24,4 +24,4 @@ private:
 	string id;
 
 };
-#endif /* AssignIDStmt_H_ */
+#endif /* StmtAssignID_H_ */

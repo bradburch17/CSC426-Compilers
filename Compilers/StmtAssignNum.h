@@ -1,27 +1,25 @@
 /*
-* IfStmt.h
+* StmtAssignNum.h
 *
 *  Created on: October 12, 2015
 *      Author: Brad Burch
 */
 
-#ifndef IfStmt_H_
-#define IfStmt_H_
+#ifndef StmtAssignNum_H_
+#define StmtAssignNum_H_
 
-#include <string>
 #include <iosfwd>
 #include <string>
 #include "ASTStmt.h"
 
 using namespace std;
 
-class IfStmt : public ASTStmt {
+class StmtAssignNum : public ASTStmt {
 public:
-	IfStmt(string t, ASTStmt b);
+	StmtAssignNum(string l, string n);
 	string render(string indent);
-
 private:
-	string test;
-	ASTStmt body;
+	string lhs;
+	string num;
 };
-#endif /* IfStmt_H_ */
+#endif /* AssignNumStmt_H_ */

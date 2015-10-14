@@ -1,6 +1,5 @@
 #include "AssignOPStmt.h"
 #include <iostream>
-#include "AssignIDStmt.h"
 
 using namespace std;
 
@@ -13,5 +12,5 @@ AssignOPStmt::AssignOPStmt(string l, string i1, string o, string i2) {
 
 string AssignOPStmt::render(string indent)
 {
-	return string();
+	return indent + "ASSIGN_OP " + lhs + " = " + id1 + " " + op + " " + id2 + "\n";
 }

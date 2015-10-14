@@ -10,13 +10,14 @@
 
 #include <string>
 #include <iosfwd>
-#include <string>
 
 using namespace std;
 
 class ASTStmt {
 public: 
 	virtual string render(string indent) = 0;
+	ASTStmt();
+//	ASTStmt assignNumStmt(string lhs, string num);
 
 private:
 

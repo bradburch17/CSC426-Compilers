@@ -14,6 +14,7 @@
 using namespace std;
 
 enum Token_Type {
+	STRING, //String literal
 	NUM, //Number
 	SEMI, //;
 	PLUS, //+

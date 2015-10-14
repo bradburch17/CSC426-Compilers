@@ -1,23 +1,23 @@
 /*
-* AssignIDStmt.h
+* StmtWhile.h
 *
 *  Created on: October 12, 2015
 *      Author: Brad Burch
 */
 
-#ifndef UntilStmt_H_
-#define UntilStmt_H_
+#ifndef StmtWhile_H_
+#define StmtWhile_H_
 
 #include <string>
 #include <iosfwd>
-#include <string>
+
 #include "ASTStmt.h"
 
 using namespace std;
 
-class UntilStmt : public ASTStmt {
+class StmtWhile : public ASTStmt {
 public:
-	UntilStmt(string t, ASTStmt b);
+	StmtWhile(string t, ASTStmt b);
 	string render(string indent);
 
 private:
@@ -25,4 +25,4 @@ private:
 	ASTStmt body;
 
 };
-#endif /* UntilStmt_H_ */
+#endif /* StmtWhile_H_ */
