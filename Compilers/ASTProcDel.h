@@ -13,7 +13,9 @@
 #include <list>
 
 #include "ASTParam.h"
-#include "ASTBlock.h"
+//#include "ASTBlock.h"
+
+class ASTBlock;
 
 using namespace std;
 

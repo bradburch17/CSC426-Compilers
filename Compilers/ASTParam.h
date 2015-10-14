@@ -16,7 +16,7 @@ using namespace std;
 class ASTParam {
 public:
 	ASTParam();
-	virtual string render(string render) = 0;
+	virtual string render(string indent) = 0;
 
 private:
 

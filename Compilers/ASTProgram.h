@@ -10,10 +10,11 @@
 
 #include <string>
 #include <iosfwd>
+#include "ASTBlock.h"
 
 using namespace std;
 
-class ASTBlock;
+
 
 class ASTProgram {
 public:
