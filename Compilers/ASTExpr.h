@@ -19,9 +19,9 @@ using namespace std;
 class ASTExpr {
 public:
 	ASTExpr();
-	enum Type{ IntType, BoolType };
-	enum Op1 { Neg, Not };
-	enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
+	//enum Type{ IntType, BoolType };
+	//enum Op1 { Neg, Not };
+	//enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
 
 	//string checkType(Type type);
 	string checkOp1(Op1 op1);

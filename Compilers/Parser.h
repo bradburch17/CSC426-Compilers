@@ -31,7 +31,7 @@ public:
 	void parser();
 	ASTProgram* start();
 
-	//Parsers (easier to read than ParseS, etc.)
+	//Parsers 
 	ASTProgram* parseProgram();
 	ASTBlock* parseBlock();
 	ASTConstDecl* parseConstDecl();

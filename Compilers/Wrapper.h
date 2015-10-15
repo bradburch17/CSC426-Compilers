@@ -19,9 +19,9 @@ public:
 	Token match(Token_Type type); //Match returns the token and advances to the next
 	Wrapper(istream& i); //This is the constructor, it has a scanner in it
 	Token skip(); //This returns the current token and advances to the next 
-
+	Token curr;
 private:
-	Token curr;  
+	  
 	Scanner scanner; 
 };
 

@@ -52,10 +52,11 @@ int pres(Token tok) {
 /*
 * parser() is the main parser function. It sets up the syntax for a YASL program. 
 */
+
 void Parser::parser() {
 	
 	Wrapper wrapper(cin);
-
+	
 	wrapper.match(PROGRAM);
 	wrapper.match(ID);
 	wrapper.match(SEMI);
@@ -209,6 +210,7 @@ ASTProcDecl * Parser::parseProcDecl()
 	wrapper.match(SEMI);
 
 	ASTProcDecl* p = new ASTProcDecl(id.lexeme, paramList, block);
+	return p;
 }
 
 ASTParam * Parser::parseParam()
@@ -287,8 +289,8 @@ ASTStmt * Parser::parseStmt()
 
 ASTStmt * Parser::parseStmtID(string i)
 {
-	if (wrapper.check(EQUAL)) {
-		wrapper.match(EQUAL);
+	if (wrapper.check(ASSIGN)) {
+		wrapper.match(ASSIGN);
 		ASTExpr* expr = parseExpr();
 		Assign* a = new Assign(i, expr);
 		return a;
@@ -339,9 +341,9 @@ ASTExpr * Parser::parseExprRest(ASTExpr * e)
 {
 	if (wrapper.check(EQUAL) || wrapper.check(NOTEQUAL) || wrapper.check(LESS) || wrapper.check(GREATER) || wrapper.check(LESSEQUAL) || wrapper.check(GREATEREQUAL)) {
 		Op2 relOp = parseRelOp();
-		ASTExpr* expr = parseSimpleExpr();
+		ASTExpr* exp = parseSimpleExpr();
 
-		BinOp* b = new BinOp(e, relOp, expr);
+		BinOp* b = new BinOp(e, relOp, exp);
 		return b;
 	}
 }
@@ -388,8 +390,6 @@ ASTExpr * Parser::parseTermRest(ASTExpr * e)
 		return e;
 }
 
-//enum Op1 {Neg, Not}; //*******************************************
-
 ASTExpr * Parser::parseFactor()
 {
 	if (wrapper.check(NUM)) {
@@ -430,14 +430,15 @@ ASTExpr * Parser::parseFactor()
 
 		return n;
 	}
-	else
-	{
+	else if (wrapper.check(LPAREN)) {
 		Token leftParen = wrapper.match(LPAREN);
 		ASTExpr* n = parseExpr();
 		wrapper.match(RPAREN);
 
 		return n;
 	}
+	else
+		cout << "Expecting a NUM, ID, true, false, -, not, or (.Entered: " << wrapper.curr << "." << endl;
 }
 
 ASTItem * Parser::parseItem()
@@ -460,28 +461,30 @@ Op2 Parser::parseRelOp()
 {
 	if (wrapper.check(EQUAL)) {
 		wrapper.match(EQUAL);
-		return EQ; //*********************************************************
+		return EQ; 
 	}
 	else if (wrapper.check(NOTEQUAL)) {
 		wrapper.match(NOTEQUAL);
-		return NE; //*****************************************************
+		return NE; 
 	}
 	else if (wrapper.check(LESS)) {
 		wrapper.match(LESS);
-		return LT; //***********************************************************
+		return LT; 
 	}
 	else if (wrapper.check(GREATER)) {
 		wrapper.match(GREATER);
-		return GT; //*****************************************************
+		return GT; 
 	}
 	else if (wrapper.check(LESSEQUAL)) {
 		wrapper.match(LESSEQUAL);
-		return LE; //********************************************************
+		return LE; 
 	}
-	else {
+	else if (wrapper.check(GREATEREQUAL)) {
 		wrapper.match(GREATEREQUAL);
-		return GE; //*************************************************************
+		return GE; 
 	}
+	else
+		cout << "Expecting =, <>, <, >, <=, >=. Entered: " << wrapper.curr << "." << endl;
 }
 
 Op2 Parser::parseAddOp()
@@ -496,10 +499,13 @@ Op2 Parser::parseAddOp()
 		wrapper.match(MINUS);
 		return Minus; //****************************************************
 	}
-	else
+	else if (wrapper.check(OR))
 	{
 		wrapper.match(OR);
 		return Or; //**********************************************************
+	}
+	else {
+		cout << "Expecting +, -, or. Entered: " << wrapper.curr << "." << endl;
 	}
 }
 
@@ -508,23 +514,25 @@ Op2 Parser::parseMulOp()
 	if (wrapper.check(STAR))
 	{
 		wrapper.match(STAR);
-		return Times; //*****************************************************
+		return Times; 
 	}
 	else if (wrapper.check(DIV))
 	{
 		wrapper.match(DIV);
-		return Div; //****************************************************
+		return Div; 
 	}
 	else if (wrapper.check(MOD))
 	{
 		wrapper.match(MOD); 
-		return Mod; //********************************************************
+		return Mod; 
 	}
-	else
+	else if (wrapper.check(AND))
 	{
 		wrapper.match(AND);
-		return And; //**********************************************************
+		return And; 
 	}
+	else
+		cout << "Expected *, div, mod, and. Entered: " << wrapper.curr << endl;
 }
 
 string Parser::parseSign()
@@ -538,19 +546,17 @@ string Parser::parseSign()
 		return "";
 }
 
-//enum Type { IntType, BoolType }; //****************************************************
-
 Type Parser::parseType()
 {
-	if (wrapper.check(NUM))
+	if (wrapper.check(INT))
 	{
-		wrapper.match(NUM);
-		return IntType; //****************************************
+		wrapper.match(INT);
+		return IntType; 
 	}
 	else
 	{
 		wrapper.match(BOOL);
-		return BoolType; //*******************************************************
+		return BoolType; 
 	}
 }
 

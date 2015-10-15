@@ -40,9 +40,9 @@ static CharacterClass char_tbl[] = {
 	OTHER_CC, OTHER_CC, OTHER_CC,   OTHER_CC,  OTHER_CC, OTHER_CC,  OTHER_CC, OTHER_CC, // DLE,DC1,DC2,DC3,DC4,NAK,SYN,ETB
 	OTHER_CC, OTHER_CC, OTHER_CC,   OTHER_CC,  OTHER_CC, OTHER_CC,  OTHER_CC, OTHER_CC, // CAN,EM, SUB,ESC,FS, GS, RS, US
 	SPACE_CC, OTHER_CC, QUOTE_CC,   OTHER_CC,  OTHER_CC, OTHER_CC,  OTHER_CC, OTHER_CC, // SPC,!,  ",  #,  $,  %,  &,  '
-	OTHER_CC, OTHER_CC, OP_CC,      OP_CC,     OTHER_CC, OP_CC,     OP_CC,    SLASH_CC, // (,  ),  *,  +,  ,,  -,  .,  /
+	OP_CC, OP_CC, OP_CC,      OP_CC,     OP_CC, OP_CC,     OP_CC,    SLASH_CC, // (,  ),  *,  +,  ,,  -,  .,  /
 	ZERO_CC,  DIGIT_CC, DIGIT_CC,   DIGIT_CC,  DIGIT_CC, DIGIT_CC,  DIGIT_CC, DIGIT_CC, // 0,  1,  2,  3,  4,  5,  6,  7
-	DIGIT_CC, DIGIT_CC, OTHER_CC,   OP_CC,     OTHER_CC, OP_CC,     OTHER_CC, OTHER_CC, // 8,  9,  :,  ;,  <,  =,  >,  ?
+	DIGIT_CC, DIGIT_CC, OP_CC,   OP_CC,     OP_CC, OP_CC,     OP_CC, OTHER_CC, // 8,  9,  :,  ;,  <,  =,  >,  ?
 	OTHER_CC, LETTER_CC, LETTER_CC,   LETTER_CC,  LETTER_CC, LETTER_CC,  LETTER_CC, LETTER_CC, // @,  A,  B,  C,  D,  E,  F,  G
 	LETTER_CC, LETTER_CC, LETTER_CC,   LETTER_CC,  LETTER_CC, LETTER_CC,  LETTER_CC, LETTER_CC, // H,  I,  J,  K,  L,  M,  N,  O
 	LETTER_CC, LETTER_CC, LETTER_CC,   LETTER_CC,  LETTER_CC, LETTER_CC,  LETTER_CC, LETTER_CC, // P,  Q,  R,  S,  T,  U,  V,  W
@@ -92,7 +92,7 @@ static States next_state[][CHARACTERS_CLASS] = {
 		ID_ST,      ID_ST,     ID_ST,     INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,  Q1_ST
 	},  
 	{ // Q1_ST
-		Q1_ST,      Q1_ST,     Q1_ST,     Q1_ST,    INIT_ST,    Q1_ST,     Q1_ST,     Q1_ST,      Q1_ST,     INIT_ST,  Q1_ST,    Q2_ST
+		Q1_ST,      Q1_ST,     Q1_ST,     Q1_ST,    INIT_ST,    Q1_ST,     INIT_ST,     Q1_ST,      Q1_ST,     INIT_ST,  Q1_ST,    Q2_ST
 	}, 
 	{ // Q2_ST
 		INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,   Q1_ST
@@ -207,6 +207,12 @@ Token Scanner::next() {
 			}
 			else if (token.lexeme == ">") {
 				token.type = GREATER;
+			}
+			else if (token.lexeme == "(") {
+				token.type = LPAREN;
+			}
+			else if (token.lexeme == ")") {
+				token.type = RPAREN;
 			}
 			done = true;
 			break;			
