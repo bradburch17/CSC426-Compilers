@@ -25,23 +25,23 @@ private:
 
 class ValParam : public ASTParam {
 public: 
-	ValParam(string i, ASTType t);
+	ValParam(string i, Type t);
 	string render(string indent);
 
 private: 
 	string id;
-	ASTType type;
+	Type type;
 
 };
 
 class VarParam : public ASTParam {
 public:
-	VarParam(string i, ASTType t);
+	VarParam(string i, Type t);
 	string render(string indent);
 
 private:
 	string id;
-	ASTType type;
+	Type type;
 
 };
 #endif /* ASTParam_H_ */

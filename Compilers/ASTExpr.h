@@ -23,7 +23,7 @@ public:
 	enum Op1 { Neg, Not };
 	enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
 
-	string checkType(Type type);
+	//string checkType(Type type);
 	string checkOp1(Op1 op1);
 	string checkOp2(Op2 op2);
 	virtual string render(string indent) = 0;
@@ -34,12 +34,12 @@ private:
 
 class BinOp : public ASTExpr {
 public: 
-	BinOp(ASTExpr* l, ASTOp2 o, ASTExpr* r);
+	BinOp(ASTExpr* l, Op2 o, ASTExpr* r);
 	string render(string indent);
 
 private: 
 	ASTExpr* left;
-	ASTOp2 op;
+	Op2 op;
 	ASTExpr* right;
 };
 
@@ -65,11 +65,11 @@ private:
 
 class UnOp : public ASTExpr {
 public:
-	UnOp(ASTOp1 o, ASTExpr* e);
+	UnOp(Op1 o, ASTExpr* e);
 	string render(string indent);
 
 private:
-	ASTOp1 op;
+	Op1 op;
 	ASTExpr* expr;
 
 };

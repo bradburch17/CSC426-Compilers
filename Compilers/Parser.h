@@ -19,7 +19,9 @@
 #include "ASTConstDecl.h"
 #include "ASTExpr.h"
 #include "ASTItem.h"
+#include "ASTOp2.h"
 #include "ASTOp1.h"
+#include "ASTType.h"
 
 using namespace std;
 
@@ -48,15 +50,15 @@ public:
 	ASTExpr* parseTermRest(ASTExpr* e); 
 	ASTExpr* parseFactor();
 	ASTItem* parseItem();
-
+	
 	//The Operators
-	ASTOp2 parseRelOp();
-	ASTOp2 parseAddOp();
-	ASTOp2 parseMulOp();
+	Op2 parseRelOp();
+	Op2 parseAddOp();
+	Op2 parseMulOp();
 
 	//The smaller traits
 	string parseSign();
-	ASTType parseType();
+	Type parseType();
 
 	//All the lists
 	list<ASTConstDecl*> parseConstDecls();
@@ -71,6 +73,8 @@ public:
 	list<ASTExpr*> parseArgsRest();
 	list<ASTItem*> parseItems();
 	list<ASTItem*> parseItemsRest();
+
+	
 
 private:
 	pair<string, string> constant; //This sets up the pairing for constants. It is not the actual hashmap.

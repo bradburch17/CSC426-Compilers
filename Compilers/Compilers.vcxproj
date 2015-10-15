@@ -165,12 +165,9 @@
     <ClCompile Include="ASTConstDecl.cpp" />
     <ClCompile Include="ASTExpr.cpp" />
     <ClCompile Include="ASTItem.cpp" />
-    <ClCompile Include="ASTOp1.cpp" />
-    <ClCompile Include="ASTOp2.cpp" />
     <ClCompile Include="ASTParam.cpp" />
     <ClCompile Include="ASTProcDel.cpp" />
     <ClCompile Include="ASTProgram.cpp" />
-    <ClCompile Include="ASTType.cpp" />
     <ClCompile Include="ASTVarDecl.cpp" />
     <ClCompile Include="ASTStmt.cpp" />
     <ClCompile Include="Main.cpp" />

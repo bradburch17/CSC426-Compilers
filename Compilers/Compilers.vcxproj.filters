@@ -110,14 +110,5 @@
     <ClCompile Include="ASTVarDecl.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ASTType.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTOp1.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTOp2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

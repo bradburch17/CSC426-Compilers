@@ -17,12 +17,12 @@ using namespace std;
 
 class ASTVarDecl {
 public:
-	ASTVarDecl(string i, ASTType t);
+	ASTVarDecl(string i, Type t);
 	string render(string indent);
 
 private:
 	string id;
-	ASTType typ;
+	Type typ;
 
 
 };

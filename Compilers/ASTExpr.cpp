@@ -2,6 +2,7 @@
 #include "ASTOp1.h"
 #include "ASTExpr.h"
 #include "ASTType.h"
+#include "ASTOp2.h"
 #include <string>
 
 using namespace std;
@@ -56,7 +57,7 @@ string True::render(string indent)
 	return indent + "True\n";
 }
 
-BinOp::BinOp(ASTExpr * l, ASTOp2 o, ASTExpr * r)
+BinOp::BinOp(ASTExpr * l, Op2 o, ASTExpr * r)
 {
 	left = l;
 	op = o;
@@ -91,7 +92,7 @@ string Num::render(string indent)
 	return indent + "Num " + to_string(value) + "\n";
 }
 
-UnOp::UnOp(ASTOp1 o, ASTExpr * e)
+UnOp::UnOp(Op1 o, ASTExpr * e)
 {
 	op = o;
 	expr = e;

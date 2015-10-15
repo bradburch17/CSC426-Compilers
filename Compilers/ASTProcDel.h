@@ -26,8 +26,6 @@ public:
 private:
 	string id;
 	list<ASTParam*> params;
-	ASTBlock block; //throws an error because undefined class. 
-
-
+	ASTBlock* block; //*********************************
 };
 #endif /* ASTProcDecl_H_ */

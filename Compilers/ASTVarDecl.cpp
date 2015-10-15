@@ -3,7 +3,7 @@
 
 using namespace std;
 
-ASTVarDecl::ASTVarDecl(string i, ASTType t)
+ASTVarDecl::ASTVarDecl(string i, Type t)
 {
 	id = i;
 	typ = t;

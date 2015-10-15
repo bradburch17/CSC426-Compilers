@@ -192,7 +192,7 @@ ASTVarDecl * Parser::parseVarDecl()
 	Token var = wrapper.match(VAR);
 	Token id = wrapper.match(ID);
 	wrapper.match(COLON);
-	ASTType type = parseType();
+	Type type = parseType();
 	wrapper.match(SEMI);
 
 	ASTVarDecl* v = new ASTVarDecl(id.lexeme, type);
@@ -216,7 +216,7 @@ ASTParam * Parser::parseParam()
 	if (wrapper.check(ID)) {
 		Token id = wrapper.match(ID);
 		wrapper.match(COLON);
-		ASTType type = parseType();
+		Type type = parseType();
 		ValParam* v = new ValParam(id.lexeme, type);
 		return v;
 	}
@@ -224,7 +224,7 @@ ASTParam * Parser::parseParam()
 		Token var = wrapper.match(VAR);
 		Token id = wrapper.match(ID);
 		wrapper.match(COLON);
-		ASTType type = parseType();
+		Type type = parseType();
 
 		VarParam* v = new VarParam(id.lexeme, type);
 		return v;
@@ -338,7 +338,7 @@ ASTExpr * Parser::parseExpr()
 ASTExpr * Parser::parseExprRest(ASTExpr * e)
 {
 	if (wrapper.check(EQUAL) || wrapper.check(NOTEQUAL) || wrapper.check(LESS) || wrapper.check(GREATER) || wrapper.check(LESSEQUAL) || wrapper.check(GREATEREQUAL)) {
-		ASTOp2 relOp = parseRelOp();
+		Op2 relOp = parseRelOp();
 		ASTExpr* expr = parseSimpleExpr();
 
 		BinOp* b = new BinOp(e, relOp, expr);
@@ -357,7 +357,7 @@ ASTExpr * Parser::parseSimpleExpr()
 ASTExpr * Parser::parseSimpleExprRest(ASTExpr * e)
 {
 	if (wrapper.check(PLUS) || wrapper.check(MINUS) || wrapper.check(OR)) {
-		ASTOp2 addOp = parseAddOp();
+		Op2 addOp = parseAddOp();
 		ASTExpr* term = parseTerm();
 		BinOp* binOp = new BinOp(e, addOp, term);
 		ASTExpr* n = parseSimpleExprRest(binOp);
@@ -377,9 +377,9 @@ ASTExpr * Parser::parseTerm()
 ASTExpr * Parser::parseTermRest(ASTExpr * e)
 {
 	if (wrapper.check(STAR) || wrapper.check(DIV) || wrapper.check(MOD) || wrapper.check(AND)) {
-		ASTOp2 mulOp = parseMulOp();
-		ASTExpr* factor = parseFactor();
-		BinOp* binOp = new BinOp(e, mulOp, factor);
+		Op2 mulOp = parseMulOp();
+		ASTExpr* facto = parseFactor();
+		BinOp* binOp = new BinOp(e, mulOp, facto);
 		ASTExpr* n = parseTermRest(binOp);
 
 		return n;
@@ -388,51 +388,45 @@ ASTExpr * Parser::parseTermRest(ASTExpr * e)
 		return e;
 }
 
+//enum Op1 {Neg, Not}; //*******************************************
+
 ASTExpr * Parser::parseFactor()
 {
-	if (wrapper.check(NUM))
-	{
+	if (wrapper.check(NUM)) {
 		Token num = wrapper.match(NUM);
 		Num* n = new Num(stoi(num.lexeme));
 
 		return n;
 	}
-	else if (wrapper.check(ID))
-	{
+	else if (wrapper.check(ID)) {
 		Token id = wrapper.match(ID);
 		IDExpr* n = new IDExpr(id.lexeme);
 
 		return n;
 	}
-	else if (wrapper.check(TRUE))
-	{
+	else if (wrapper.check(TRUE)) {
 		Token trueToken = wrapper.match(TRUE);
 		True* n = new True();
 
 		return n;
 	}
-	else if (wrapper.check(FALSE))
-	{
+	else if (wrapper.check(FALSE)) {
 		Token falseToken = wrapper.match(FALSE);
 		False* n = new False();
 
 		return n;
 	}
-	else if (wrapper.check(MINUS))
-	{
+	else if (wrapper.check(MINUS)) {
 		Token unOp = wrapper.match(MINUS);
 		ASTExpr* factor = parseFactor();
-		ASTOp1 Neg; //This will probably need to be fixed. 
-		UnOp* n = new UnOp(Neg, factor);
+		UnOp* n = new UnOp(Neg, factor); //***********************************
 
 		return n;
 	}
-	else if (wrapper.check(NOT))
-	{
+	else if (wrapper.check(NOT)) {
 		Token unOp = wrapper.match(NOT);
 		ASTExpr* factor = parseFactor();
-		ASTOp1 Not; //This will probably need to be fixed.
-		UnOp* n = new UnOp(Not, factor);
+		UnOp* n = new UnOp(Not, factor); //*************************************
 
 		return n;
 	}
@@ -454,8 +448,7 @@ ASTItem * Parser::parseItem()
 
 		return node;
 	}
-	else
-	{
+	else {
 		ASTExpr* expr = parseExpr();
 		ExprItem* n = new ExprItem(expr);
 
@@ -463,81 +456,74 @@ ASTItem * Parser::parseItem()
 	}
 }
 
-ASTOp2 Parser::parseRelOp()
+Op2 Parser::parseRelOp()
 {
-	ASTOp1 op1;
-	if (wrapper.check(EQUAL))
-	{
+	if (wrapper.check(EQUAL)) {
 		wrapper.match(EQUAL);
-		return EQ;
+		return EQ; //*********************************************************
 	}
-	else if (wrapper.check(NOTEQUAL))
-	{
+	else if (wrapper.check(NOTEQUAL)) {
 		wrapper.match(NOTEQUAL);
-		return NE;
+		return NE; //*****************************************************
 	}
-	else if (wrapper.check(LESS))
-	{
+	else if (wrapper.check(LESS)) {
 		wrapper.match(LESS);
-		return LT;
+		return LT; //***********************************************************
 	}
-	else if (wrapper.check(GREATER))
-	{
+	else if (wrapper.check(GREATER)) {
 		wrapper.match(GREATER);
-		return GT;
+		return GT; //*****************************************************
 	}
-	else if (wrapper.check(LESSEQUAL))
-	{
+	else if (wrapper.check(LESSEQUAL)) {
 		wrapper.match(LESSEQUAL);
-		return LE;
+		return LE; //********************************************************
 	}
-	else
-	{
+	else {
 		wrapper.match(GREATEREQUAL);
-		return GE;
+		return GE; //*************************************************************
 	}
 }
 
-ASTOp2 Parser::parseAddOp()
+Op2 Parser::parseAddOp()
 {
 	if (wrapper.check(PLUS))
 	{
 		wrapper.match(PLUS);
-		return Plus;
+		return Plus; //****************************************************
 	}
 	else if (wrapper.check(MINUS))
 	{
 		wrapper.match(MINUS);
-		return Minus;
+		return Minus; //****************************************************
 	}
 	else
 	{
 		wrapper.match(OR);
-		return Or;
+		return Or; //**********************************************************
 	}
 }
 
-ASTOp2 Parser::parseMulOp()
+Op2 Parser::parseMulOp()
 {
 	if (wrapper.check(STAR))
 	{
 		wrapper.match(STAR);
-		return Times;
+		return Times; //*****************************************************
 	}
 	else if (wrapper.check(DIV))
 	{
 		wrapper.match(DIV);
-		return Div;
+		return Div; //****************************************************
 	}
 	else if (wrapper.check(MOD))
 	{
-		wrapper.match(MOD);
-		return Mod;
+		wrapper.match(MOD); 
+		return Mod; //********************************************************
 	}
 	else
 	{
 		wrapper.match(AND);
-		return And;
+		return And; //**********************************************************
 	}
 }
 
@@ -552,17 +538,19 @@ string Parser::parseSign()
 		return "";
 }
 
-ASTType Parser::parseType()
+//enum Type { IntType, BoolType }; //****************************************************
+
+Type Parser::parseType()
 {
 	if (wrapper.check(NUM))
 	{
 		wrapper.match(NUM);
-		return IntType;
+		return IntType; //****************************************
 	}
 	else
 	{
 		wrapper.match(BOOL);
-		return BoolType;
+		return BoolType; //*******************************************************
 	}
 }
 
