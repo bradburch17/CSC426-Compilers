@@ -140,6 +140,12 @@ void Parser::parser() {
 
 Wrapper wrapper(cin);
 
+ASTProgram* Parser::start() {
+	ASTProgram* stmt = parseProgram();
+	wrapper.match(EOFILE);
+	return stmt;
+}
+
 ASTProgram * Parser::parseProgram() {
 	Token program = wrapper.match(PROGRAM);
 	Token id = wrapper.match(ID);
@@ -459,6 +465,7 @@ ASTItem * Parser::parseItem()
 
 ASTOp2 Parser::parseRelOp()
 {
+	ASTOp1 op1;
 	if (wrapper.check(EQUAL))
 	{
 		wrapper.match(EQUAL);

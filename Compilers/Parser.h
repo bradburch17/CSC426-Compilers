@@ -27,6 +27,7 @@ class Parser {
 public:
 	Parser();
 	void parser();
+	ASTProgram* start();
 
 	//Parsers (easier to read than ParseS, etc.)
 	ASTProgram* parseProgram();
