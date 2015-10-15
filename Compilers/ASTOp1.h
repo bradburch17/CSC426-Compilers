@@ -1,24 +1,25 @@
 /*
-* ASTType.h
+* ASTOp1.h
 *
 *  Created on: October 12, 2015
 *      Author: Brad Burch
 */
 
-#ifndef ASTType_H_
-#define ASTType_H_
+#ifndef ASTOp1_H_
+#define ASTOp1_H_
 
 #include <string>
 #include <iosfwd>
 
 using namespace std;
 
-class ASTType {
+class ASTOp1 {
 public:
-	enum Type{IntType, BoolType};
-	string nameCheck(Type t);
+	enum Op1 {Neg, Not};
+	string nameCheck(Op1 op1);
+
 private:
 
 
 };
-#endif /* ASTType_H_ */
+#endif /* ASTOp1_H_ */

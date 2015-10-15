@@ -14,16 +14,14 @@
 
 using namespace std;
 
-
-
 class ASTProgram {
 public:
-	ASTProgram(string n, ASTBlock b);
+	ASTProgram(string n, ASTBlock* b);
 	string render(string indent);
 
 private:
 	string name;
-	ASTBlock block;
+	ASTBlock* block;
 
 
 };

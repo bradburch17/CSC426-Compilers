@@ -8,99 +8,33 @@ ASTStmt::ASTStmt()
 {
 }
 
-ASTStmt * ASTStmt::assignNumStmt(string lhs, string num)
+Assign::Assign(string i, ASTExpr* e)
 {
-
-	return nullptr;
-}
-
-ASTStmt * ASTStmt::assignIDStmt(string l, string i)
-{
-	return nullptr;
-}
-
-ASTStmt * ASTStmt::assignOpStmt(string lhs, string id1, string op, string id2)
-{
-	return nullptr;
-}
-
-ASTStmt * ASTStmt::seqStmt(list<ASTStmt*> stmts)
-{
-	return nullptr;
-}
-
-ASTStmt * ASTStmt::whileStmt(string test, ASTStmt * body)
-{
-	return nullptr;
-}
-
-ASTStmt * ASTStmt::ifStmt(string test, ASTStmt * body)
-{
-	return nullptr;
-}
-
-ASTStmt * ASTStmt::untilStmt(string test, ASTStmt * body)
-{
-	return nullptr;
-}
-
-AssignID::AssignID(string l, string i)
-{
-	lhs = l;
 	id = i;
+	expr = e;
 }
 
-string AssignID::render(string indent)
+string Assign::render(string indent)
 {
-	return indent + "ASSIGN_ID " + lhs + " = " + id + "\n";
-}
-
-AssignNum::AssignNum(string l, string n)
-{
-	lhs = l;
-	num = n;
-}
-
-string AssignNum::render(string indent)
-{
-	return indent + "ASSIGN_NUM " + lhs + " = " + num + "\n";
-}
-
-IfStmt::IfStmt(string t, ASTStmt* b) {
-	test = t;
-	body = b;
-}
-
-string IfStmt::render(string indent)
-{
-	string result = indent + "IF " + test + "\n";
-	result += body.render(indent + "  ");
+	string result = indent + "Assign " + id + "\n";
+	result += expr->render(indent + "  ");
 	return result;
+}
+
+Seq::Seq(list<ASTStmt*> b)
+{
+	body = b;
 }
 
 string Seq::render(string indent)
 {
-	string result = indent + "SEQ\n";
-	for (ASTStmt* stmt : stmts) {
-		result += stmt.render(indent + "  ");
-	}
+	string result = indent + "Sequence\n";
+	for (ASTStmt* b : body)
+		result += b->render(indent + "  ");
 	return result;
 }
 
-Until::Until(string t, ASTStmt * b)
-{
-	test = t;
-	body = b;
-}
-
-string Until::render(string indent)
-{
-	string result = indent + "UNTIL " + test + "\n";
-	result += body.render(indent + "  ");
-	return result;
-}
-
-While::While(string t, ASTStmt * b)
+While::While(ASTExpr* t, ASTStmt * b)
 {
 	test = t;
 	body = b;
@@ -108,7 +42,86 @@ While::While(string t, ASTStmt * b)
 
 string While::render(string indent)
 {
-	string result = indent + "WHILE " + test + "\n";
-	result += body.render(indent + "  ");
+	string result = indent + "While\n";
+	result += test->render(indent + "  ");
+	result += body->render(indent + "  ");
+	return result;
+}
+
+IfThen::IfThen(ASTExpr * t, ASTStmt * tc)
+{
+	test = t;
+	trueClause = tc;
+}
+
+string IfThen::render(string indent)
+{
+	string result = indent + "IfThen\n";
+	result += test->render(indent + "  ");
+	result += trueClause->render(indent + "  ");
+	return result;
+}
+
+IfThenElse::IfThenElse(ASTExpr * t, ASTStmt * tc, ASTStmt * fc)
+{
+	test = t;
+	trueClause = tc;
+	falseClause = fc;
+}
+
+string IfThenElse::render(string indent)
+{
+	string result = indent + "IfThenElse\n";
+	result += test->render(indent + "  ");
+	result += trueClause->render(indent + "  ");
+	result += falseClause->render(indent + "  ");
+	return result;
+}
+
+Print::Print(list<ASTItem*> i)
+{
+	items = i;
+}
+
+string Print::render(string indent)
+{
+	string result = indent + "Print\n";
+	for (ASTItem* i : items)
+		result += i->render(indent + "  ");
+	return result;
+}
+
+Prompt::Prompt(string m)
+{
+	message = m;
+}
+
+string Prompt::render(string indent)
+{
+	return indent + "Prompt " + message + "/n";
+}
+
+Prompt2::Prompt2(string m, string i)
+{
+	message = m;
+	id = i;
+}
+
+string Prompt2::render(string indent)
+{
+	return indent + "Prompt 2 " + message + ", " + id + "\n";
+}
+
+Call::Call(string i, list<ASTExpr*> a)
+{
+	id = i;
+	args = a;
+}
+
+string Call::render(string indent)
+{
+	string result = indent + "Call " + id + "\n";
+	for (ASTExpr * a : args)
+		result += a->render(indent + "  ");
 	return result;
 }

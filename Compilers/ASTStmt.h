@@ -11,6 +11,8 @@
 #include <string>
 #include <iosfwd>
 #include <list>
+#include "ASTExpr.h"
+#include "ASTItem.h"
 
 using namespace std;
 
@@ -18,119 +20,97 @@ class ASTStmt { //Must use pointers when working with virtual functions!
 public: 
 	virtual string render(string indent) = 0;
 	ASTStmt();
-	ASTStmt* assignNumStmt(string lhs, string num);
-	ASTStmt* assignIDStmt(string lhs, string id);
-	ASTStmt* assignOpStmt(string lhs, string id1, string op, string id2);
-	ASTStmt* seqStmt(list<ASTStmt*> stmts);
-	ASTStmt* whileStmt(string test, ASTStmt* body);
-	ASTStmt* ifStmt(string test, ASTStmt* body);
-	ASTStmt* untilStmt(string test, ASTStmt* body);
-
-private:
 
 };
-/*
-We can add the class declarations for everything that is going to use this abstract class in here, make it neat 
-*/
-class AssignID : public ASTStmt {
+
+class Assign : public ASTStmt {
 public:
-	AssignID(string l, string i);
+	Assign(string i, ASTExpr* e);
 	string render(string indent);
 
 private:
-	string lhs;
 	string id;
-
-};
-
-class AssignNum : public ASTStmt {
-public:
-	AssignNum(string l, string n);
-	string render(string indent);
-private:
-	string lhs;
-	string num;
+	ASTExpr* expr;
 };
 
 class Call : public ASTStmt {
 public: 
-
-private: 
-
-};
-
-class IfStmt : public ASTStmt {
-public:
-	IfStmt(string t, ASTStmt* b);
+	Call(string i, list<ASTExpr*> a);
 	string render(string indent);
 
-private:
-	string test;
-	ASTStmt* body;
+private: 
+	string id;
+	list<ASTExpr*> args;
 };
+
 
 class IfThen : public ASTStmt {
 public: 
-
+	IfThen(ASTExpr* t, ASTStmt* tc);
+	string render(string indent);
 private: 
-
+	ASTExpr* test;
+	ASTStmt* trueClause;
 };
 
 class IfThenElse : public ASTStmt {
 public: 
+	IfThenElse(ASTExpr* t, ASTStmt* tc, ASTStmt* fc);
+	string render(string indent);
 
 private: 
-
+	ASTExpr* test;
+	ASTStmt* trueClause;
+	ASTStmt* falseClause;
 };
 
 class Print : public ASTStmt {
 public: 
+	Print(list<ASTItem*> i);
+	string render(string indent);
 
 private: 
+	list<ASTItem*> items;
 
 };
 
 class Prompt : public ASTStmt {
 public: 
-
+	Prompt(string m);
+	string render(string indent);
 private: 
+	string message;
 
 };
 
 class Prompt2 : public ASTStmt {
 public: 
+	Prompt2(string m, string i);
+	string render(string indent);
 
 private: 
+	string message;
+	string id;
 
 };
 
 class Seq : public ASTStmt {
 public:
-	//ArrayList in C++?
+	Seq(list<ASTStmt*> b);
 	string render(string indent);
 
 private:
-	//ArrayList
+	list<ASTStmt*> body;
 
-};
-
-class Until : public ASTStmt {
-public:
-	Until(string t, ASTStmt* b);
-	string render(string indent);
-
-private:
-	string test;
-	ASTStmt* body;
 };
 
 class While : public ASTStmt {
 public:
-	While(string t, ASTStmt* b);
+	While(ASTExpr* t, ASTStmt* b);
 	string render(string indent);
 
 private:
-	string test;
+	ASTExpr* test;
 	ASTStmt* body;
 
 };

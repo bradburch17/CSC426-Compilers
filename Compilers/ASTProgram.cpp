@@ -3,7 +3,7 @@
 
 using namespace std;
 
-ASTProgram::ASTProgram(string n, ASTBlock b)
+ASTProgram::ASTProgram(string n, ASTBlock* b)
 {
 	name = n;
 	block = b;
@@ -11,5 +11,7 @@ ASTProgram::ASTProgram(string n, ASTBlock b)
 
 string ASTProgram::render(string indent)
 {
-	return string();
+	string result = indent + "Program " + name + "\n";
+	result += block->render(indent + "  ");
+	return result;
 }

@@ -20,14 +20,14 @@ using namespace std;
 
 class ASTBlock {
 public:
-	ASTBlock(list<ASTConstDecl> c, list<ASTVarDecl> v, list<ASTProcDecl> p, list<ASTStmt> b);
+	ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*> p, list<ASTStmt*> b);
 	string render(string indent);
 
 private:
-	list<ASTConstDecl> consts;
-	list<ASTVarDecl> vars;
-	list<ASTProcDecl> procs;
-	list<ASTStmt> body;
+	list<ASTConstDecl*> consts;
+	list<ASTVarDecl*> vars;
+	list<ASTProcDecl*> procs;
+	list<ASTStmt*> body;
 
 };
 #endif /* ASTBlock_H_ */

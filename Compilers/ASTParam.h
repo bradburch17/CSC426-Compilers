@@ -10,6 +10,7 @@
 
 #include <string>
 #include <iosfwd>
+#include "ASTType.h"
 
 using namespace std;
 
@@ -20,20 +21,27 @@ public:
 
 private:
 
-
 };
 
 class ValParam : public ASTParam {
 public: 
+	ValParam(string i, ASTType t);
+	string render(string indent);
 
 private: 
+	string id;
+	ASTType type;
 
 };
 
 class VarParam : public ASTParam {
 public:
+	VarParam(string i, ASTType t);
+	string render(string indent);
 
 private:
+	string id;
+	ASTType type;
 
 };
 #endif /* ASTParam_H_ */

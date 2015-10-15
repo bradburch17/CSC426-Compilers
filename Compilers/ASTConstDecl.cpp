@@ -11,5 +11,5 @@ ASTConstDecl::ASTConstDecl(string i, int v)
 
 string ASTConstDecl::render(string indent)
 {
-	return string();
+	return indent + "Const " + id + " = " + to_string(value) +"\n";
 }

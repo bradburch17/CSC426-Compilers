@@ -10,6 +10,7 @@
 
 #include <string>
 #include <iosfwd>
+#include "ASTExpr.h"
 
 using namespace std;
 
@@ -25,14 +26,19 @@ private:
 
 class ExprItem : public ASTItem {
 public:
+	ExprItem(ASTExpr* e);
+	string render(string indent);
 
 private:
+	ASTExpr* expr;
 
 };
 class StringItem : public ASTItem {
 public:
-
+	StringItem(string m);
+	string render(string indent);
 private:
+	string message;
 
 };
 #endif /* ASTItem_H_ */

@@ -142,6 +142,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="AST.h" />
+    <ClInclude Include="ASTOp1.h" />
+    <ClInclude Include="ASTOp2.h" />
     <ClInclude Include="ASTParam.h" />
     <ClInclude Include="ASTType.h" />
     <ClInclude Include="ASTExpr.h" />
@@ -162,6 +165,8 @@
     <ClCompile Include="ASTConstDecl.cpp" />
     <ClCompile Include="ASTExpr.cpp" />
     <ClCompile Include="ASTItem.cpp" />
+    <ClCompile Include="ASTOp1.cpp" />
+    <ClCompile Include="ASTOp2.cpp" />
     <ClCompile Include="ASTParam.cpp" />
     <ClCompile Include="ASTProcDel.cpp" />
     <ClCompile Include="ASTProgram.cpp" />

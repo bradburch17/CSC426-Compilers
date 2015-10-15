@@ -3,6 +3,10 @@
 
 using namespace std;
 
-ASTType::ASTType()
+string ASTType::nameCheck(Type t)
 {
+	switch (t) {
+	case IntType: return "IntType";
+	case BoolType: return "BoolType";
+	}
 }

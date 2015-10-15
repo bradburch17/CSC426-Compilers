@@ -3,7 +3,7 @@
 
 using namespace std;
 
-ASTProcDecl::ASTProcDecl(string i, list<ASTParam> p, ASTBlock b)
+ASTProcDecl::ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b)
 {
 	id = i;
 	params = p;
@@ -12,5 +12,10 @@ ASTProcDecl::ASTProcDecl(string i, list<ASTParam> p, ASTBlock b)
 
 string ASTProcDecl::render(string indent)
 {
-	return string();
+	string result = indent + "Proc " + id + "\n";
+	for (ASTParam* p : params) {
+		result += p->render(indent + "  ");
+	}
+	result += block->render(indent + "  ");
+	return result;
 }
