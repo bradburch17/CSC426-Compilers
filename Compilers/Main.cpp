@@ -15,6 +15,5 @@ using namespace std;
 int main() {
 	Parser parser;
 	ASTProgram* start = parser.start();
-	//cout << start << endl;
 	cout << start->render("");
 }
