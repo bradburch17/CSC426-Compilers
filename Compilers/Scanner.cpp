@@ -21,18 +21,18 @@ Scanner::Scanner(istream& in) :
 }
 
 enum States {
-	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH1_ST, SLASH2_ST, LBRACE_ST, RBRACE_ST, ID_ST, Q1_ST, Q2_ST
+	INIT_ST, NUM_ST, ZERO_ST, OP_ST, SLASH1_ST, SLASH2_ST, LBRACE_ST, RBRACE_ST, ID_ST, Q1_ST, Q2_ST, LESS_ST, GREATER_ST, EQUAL_ST
 };
 
 enum Actions {
-	SKIP_ACT, MARK_ACT, NEXT_ACT, NUMBER_ACT, OP_ACT, ID_ACT, EOF_ACT, ERR_ACT, Q1_ACT, Q2_ACT
+	SKIP_ACT, MARK_ACT, NEXT_ACT, NUMBER_ACT, OP_ACT, ID_ACT, EOF_ACT, ERR_ACT, Q1_ACT, Q2_ACT, LESS_ACT, GREATER_ACT, EQUAL_ACT
 };
 
 enum CharacterClass {
-	LETTER_CC, ZERO_CC, DIGIT_CC, SPACE_CC, NEWLINE_CC, OP_CC, SLASH_CC, LBRACE_CC, RBRACE_CC, EOF_CC, OTHER_CC, QUOTE_CC
+	LETTER_CC, ZERO_CC, DIGIT_CC, SPACE_CC, NEWLINE_CC, OP_CC, SLASH_CC, LBRACE_CC, RBRACE_CC, EOF_CC, OTHER_CC, QUOTE_CC, LESS_CC, GREATER_CC, EQUAL_CC
 };
 
-static const int CHARACTERS_CLASS = OTHER_CC + 2;
+static const int CHARACTERS_CLASS = OTHER_CC + 5;
 
 static CharacterClass char_tbl[] = {
 	OTHER_CC, OTHER_CC, OTHER_CC,   OTHER_CC,  OTHER_CC, OTHER_CC,  OTHER_CC, OTHER_CC, // NUL,SOH,STX,ETX,EOT,ENQ,ACK,BEL
@@ -42,7 +42,7 @@ static CharacterClass char_tbl[] = {
 	SPACE_CC, OTHER_CC, QUOTE_CC,   OTHER_CC,  OTHER_CC, OTHER_CC,  OTHER_CC, OTHER_CC, // SPC,!,  ",  #,  $,  %,  &,  '
 	OP_CC, OP_CC, OP_CC,      OP_CC,     OP_CC, OP_CC,     OP_CC,    SLASH_CC, // (,  ),  *,  +,  ,,  -,  .,  /
 	ZERO_CC,  DIGIT_CC, DIGIT_CC,   DIGIT_CC,  DIGIT_CC, DIGIT_CC,  DIGIT_CC, DIGIT_CC, // 0,  1,  2,  3,  4,  5,  6,  7
-	DIGIT_CC, DIGIT_CC, OP_CC,   OP_CC,     OP_CC, OP_CC,     OP_CC, OTHER_CC, // 8,  9,  :,  ;,  <,  =,  >,  ?
+	DIGIT_CC, DIGIT_CC, OP_CC,       OP_CC,  LESS_CC, EQUAL_CC,   GREATER_CC, OTHER_CC, // 8,  9,  :,  ;,  <,  =,  >,  ?
 	OTHER_CC, LETTER_CC, LETTER_CC,   LETTER_CC,  LETTER_CC, LETTER_CC,  LETTER_CC, LETTER_CC, // @,  A,  B,  C,  D,  E,  F,  G
 	LETTER_CC, LETTER_CC, LETTER_CC,   LETTER_CC,  LETTER_CC, LETTER_CC,  LETTER_CC, LETTER_CC, // H,  I,  J,  K,  L,  M,  N,  O
 	LETTER_CC, LETTER_CC, LETTER_CC,   LETTER_CC,  LETTER_CC, LETTER_CC,  LETTER_CC, LETTER_CC, // P,  Q,  R,  S,  T,  U,  V,  W
@@ -63,76 +63,94 @@ static CharacterClass char_class(char c) {
 }
 
 static States next_state[][CHARACTERS_CLASS] = {
-	//  LETTER,     ZERO,      DIGIT,     SPACE,     NEWLINE,    OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER,     QUOTE
+	//  LETTER,     ZERO,      DIGIT,     SPACE,     NEWLINE,    OP,        SLASH,     LBRACE,    RBRACE,    EOF,     OTHER,     QUOTE,   <,       >,          =
 	{ // INIT_ST
-		ID_ST,	   ZERO_ST,   NUM_ST,    INIT_ST,   INIT_ST,    OP_ST,     SLASH1_ST,  LBRACE_ST, RBRACE_ST, INIT_ST, INIT_ST,   Q1_ST
+		ID_ST,	   ZERO_ST,   NUM_ST,    INIT_ST,   INIT_ST,    OP_ST,     SLASH1_ST,  LBRACE_ST, RBRACE_ST, INIT_ST, INIT_ST,   Q1_ST, LESS_ST, GREATER_ST, EQUAL_ST
 	},
 	{ // NUM_ST
-		INIT_ST,   NUM_ST,    NUM_ST,    INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST, INIT_ST,   Q1_ST
+		INIT_ST,   NUM_ST,    NUM_ST,    INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST, INIT_ST,   INIT_ST, INIT_ST, INIT_ST, INIT_ST
 	},
 	{ // ZERO_ST
-		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST, INIT_ST,   Q1_ST
+		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST, INIT_ST,   INIT_ST, INIT_ST, INIT_ST, INIT_ST
 	},
 	{ // OP_ST
-		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, INIT_ST,   Q1_ST
+		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, INIT_ST,   INIT_ST, INIT_ST, INIT_ST, INIT_ST
 	},
 	{ // SLASH_ST
-		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   SLASH2_ST, INIT_ST,    INIT_ST,   INIT_ST, INIT_ST,   Q1_ST
+		INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   SLASH2_ST, INIT_ST,    INIT_ST,   INIT_ST, INIT_ST,   INIT_ST, INIT_ST, INIT_ST, INIT_ST
 	},
 	{ // SLASH2_ST
-		SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST,    SLASH2_ST, SLASH2_ST, SLASH2_ST,  SLASH2_ST, INIT_ST, SLASH2_ST, Q1_ST
+		SLASH2_ST, SLASH2_ST, SLASH2_ST, SLASH2_ST, INIT_ST,    SLASH2_ST, SLASH2_ST, SLASH2_ST,  SLASH2_ST, INIT_ST, SLASH2_ST, INIT_ST, INIT_ST, INIT_ST, INIT_ST
 	}, 
 	{ // LRACE_ST
-		LBRACE_ST,  LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST,  INIT_ST,   INIT_ST, LBRACE_ST, LBRACE_ST
+		LBRACE_ST,  LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST, LBRACE_ST,  INIT_ST,   INIT_ST, LBRACE_ST, LBRACE_ST, INIT_ST, INIT_ST, INIT_ST
 	},
 	{ // RBRACE_ST
-		INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, INIT_ST,   INIT_ST
+		INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, INIT_ST,   INIT_ST,   INIT_ST, INIT_ST, INIT_ST
 	},
 	{ // ID_ST  
-		ID_ST,      ID_ST,     ID_ST,     INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,  Q1_ST
+		ID_ST,      ID_ST,     ID_ST,     INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,  INIT_ST,   INIT_ST, INIT_ST, INIT_ST
 	},  
 	{ // Q1_ST
-		Q1_ST,      Q1_ST,     Q1_ST,     Q1_ST,    INIT_ST,    Q1_ST,     INIT_ST,     Q1_ST,      Q1_ST,     INIT_ST,  Q1_ST,    Q2_ST
+		Q1_ST,      Q1_ST,     Q1_ST,     Q1_ST,    INIT_ST,    Q1_ST,     INIT_ST,     Q1_ST,      Q1_ST,     INIT_ST,  Q1_ST,   Q2_ST,    Q1_ST, Q1_ST, Q1_ST
 	}, 
 	{ // Q2_ST
-		INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,   Q1_ST
+		INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,   Q1_ST,    INIT_ST, INIT_ST, INIT_ST
+	}, 
+	{ //LESS_ST
+		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, LESS_ST, INIT_ST, INIT_ST
+	}, 
+	{ //GREATER_ST
+		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, INIT_ST, GREATER_ST, INIT_ST
+	}, 
+	{ //EQUALS_ST
+		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST, INIT_ST, INIT_ST,  EQUAL_ST
 	}
 };
 
 static Actions action[][CHARACTERS_CLASS] = {
-	//  LETTER,     ZERO,       DIGIT,      SPACE,      NEWLINE,      OP,        SLASH,      LBRACE,    RBRACE,     EOF,         OTHER,       QUOTE
+	//  LETTER,     ZERO,       DIGIT,      SPACE,      NEWLINE,      OP,        SLASH,      LBRACE,    RBRACE,     EOF,         OTHER,       QUOTE,    <,        >,        =
 	{ // INIT_ST
-		MARK_ACT,   MARK_ACT,   MARK_ACT,   SKIP_ACT,   SKIP_ACT,   MARK_ACT,   SKIP_ACT,   SKIP_ACT,   ERR_ACT,    EOF_ACT,    ERR_ACT,    Q1_ACT
+		MARK_ACT,   MARK_ACT,   MARK_ACT,   SKIP_ACT,   SKIP_ACT,   MARK_ACT,   SKIP_ACT,   SKIP_ACT,   ERR_ACT,    EOF_ACT,    ERR_ACT,    MARK_ACT, MARK_ACT, MARK_ACT, MARK_ACT
 	},
 	{ // NUM_ST
-		NUMBER_ACT, NEXT_ACT,   NEXT_ACT,   NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, Q1_ACT
+		NUMBER_ACT, NEXT_ACT,   NEXT_ACT,   NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT
 	},
 	{ // ZERO_ST
-		NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, Q1_ACT
+		NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT, NUMBER_ACT
 	},
 	{ // OP_ST
-		OP_ACT,     OP_ACT,     OP_ACT,     OP_ACT,     OP_ACT,     OP_ACT,      OP_ACT,    OP_ACT,     OP_ACT,    OP_ACT,      OP_ACT,     Q1_ACT
+		OP_ACT,     OP_ACT,     OP_ACT,     OP_ACT,     OP_ACT,     OP_ACT,      OP_ACT,    OP_ACT,     OP_ACT,    OP_ACT,      OP_ACT,     OP_ACT,       OP_ACT,    OP_ACT,     OP_ACT
 	},
 	{ // SLASH_ST
-		ERR_ACT,    ERR_ACT,    ERR_ACT,    ERR_ACT,    ERR_ACT,    ERR_ACT,     SKIP_ACT,  ERR_ACT,    ERR_ACT,   ERR_ACT,     ERR_ACT,    Q1_ACT
+		ERR_ACT,    ERR_ACT,    ERR_ACT,    ERR_ACT,    ERR_ACT,    ERR_ACT,     SKIP_ACT,  ERR_ACT,    ERR_ACT,   ERR_ACT,     ERR_ACT,    ERR_ACT, ERR_ACT,     ERR_ACT,    ERR_ACT
 	},
 	{ // SLASH2_ST
-		SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,    SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  EOF_ACT,     SKIP_ACT,   Q1_ACT
+		SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,    SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  EOF_ACT,     SKIP_ACT,   SKIP_ACT,  SKIP_ACT,   SKIP_ACT,   SKIP_ACT
 	},
 	{ // LBRACES_ST
-		SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,    SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  ERR_ACT,     SKIP_ACT,   Q1_ACT
+		SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,    SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  ERR_ACT,     SKIP_ACT,   SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  SKIP_ACT
 	},
 	{ // RBRACES_ST
-		SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,    SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  EOF_ACT,     SKIP_ACT,   Q1_ACT
+		SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,   SKIP_ACT,    SKIP_ACT,  SKIP_ACT,   SKIP_ACT,  EOF_ACT,     SKIP_ACT,   SKIP_ACT, SKIP_ACT,   SKIP_ACT,   SKIP_ACT
 	},
 	{ // ID_ST
-		NEXT_ACT,   NEXT_ACT,   NEXT_ACT,   ID_ACT,     ID_ACT,     ID_ACT,      ID_ACT,    ID_ACT,     ID_ACT,    ID_ACT,      ID_ACT,     Q1_ACT
+		NEXT_ACT,   NEXT_ACT,   NEXT_ACT,   ID_ACT,     ID_ACT,     ID_ACT,      ID_ACT,    ID_ACT,     ID_ACT,    ID_ACT,      ID_ACT,     ID_ACT, ID_ACT,     ID_ACT,     ID_ACT
 	}, 
 	{ // Q1_ST
-		Q1_ACT,     Q1_ACT,     Q1_ACT,		Q1_ACT,     ERR_ACT,    Q1_ACT,      Q1_ACT,	Q1_ACT,     Q1_ACT,    ERR_ACT,     Q1_ACT,     SKIP_ACT
+		Q1_ACT,     Q1_ACT,     Q1_ACT,		Q1_ACT,     ERR_ACT,    Q1_ACT,      Q1_ACT,	Q1_ACT,     Q1_ACT,    ERR_ACT,     Q1_ACT,     SKIP_ACT,  Q1_ACT,    Q1_ACT,    Q1_ACT
 	}, 
 	{ // Q2_ST
-		Q2_ACT,     Q2_ACT,     Q2_ACT,		Q2_ACT,     Q2_ACT,     Q2_ACT,      Q2_ACT,	Q2_ACT,     Q2_ACT,    Q2_ACT,      Q2_ACT,     Q2_ACT
+		Q2_ACT,     Q2_ACT,     Q2_ACT,		Q2_ACT,     Q2_ACT,     Q2_ACT,      Q2_ACT,	Q2_ACT,     Q2_ACT,    Q2_ACT,      Q2_ACT,     Q1_ACT,    Q2_ACT,    Q2_ACT,   Q2_ACT
+	}, 
+	{ //LESS_ST
+		LESS_ACT,  LESS_ACT,  LESS_ACT,   LESS_ACT,    LESS_ACT,    LESS_ACT,   LESS_ACT,   LESS_ACT,     LESS_ACT, LESS_ACT,  LESS_ACT,     LESS_ACT,  LESS_ACT,  NEXT_ACT, NEXT_ACT  
+	}, 
+	{ //GREATER_ST
+		GREATER_ACT,     GREATER_ACT,     GREATER_ACT,     GREATER_ACT,     GREATER_ACT,     GREATER_ACT,      GREATER_ACT,    GREATER_ACT,     GREATER_ACT,    GREATER_ACT,  GREATER_ACT, NEXT_ACT
+	}, 
+	{ //EQUALS_ST
+		EQUAL_ACT,     EQUAL_ACT,     EQUAL_ACT,     EQUAL_ACT,     EQUAL_ACT,     EQUAL_ACT,      EQUAL_ACT,    EQUAL_ACT,     EQUAL_ACT,    EQUAL_ACT,      EQUAL_ACT,     NEXT_ACT
 	}
 };
 
@@ -187,27 +205,6 @@ Token Scanner::next() {
 			else if (token.lexeme == ",") {
 				token.type = COMMA;
 			}
-			else if (token.lexeme == "==") {
-				token.type = EQUAL;
-			}
-			else if (token.lexeme == "=") {
-				token.type = ASSIGN;
-			}
-			else if (token.lexeme == "<>") {
-				token.type = NOTEQUAL;
-			}
-			else if (token.lexeme == "<=") {
-				token.type = LESSEQUAL;
-			}
-			else if (token.lexeme == ">=") {
-				token.type = GREATEREQUAL;
-			}
-			else if (token.lexeme == "<") {
-				token.type = LESS;
-			}
-			else if (token.lexeme == ">") {
-				token.type = GREATER;
-			}
 			else if (token.lexeme == "(") {
 				token.type = LPAREN;
 			}
@@ -215,7 +212,37 @@ Token Scanner::next() {
 				token.type = RPAREN;
 			}
 			done = true;
-			break;			
+			break;		
+		case LESS_ACT:
+			if (token.lexeme == "<=" ) {
+				token.type = LESSEQUAL;
+			}
+			else if (token.lexeme == "<") {
+				token.type = LESS;
+			}
+			else if (token.lexeme == "<>") {
+				token.type = NOTEQUAL;
+			}
+			done = true;
+			break;
+		case GREATER_ACT:
+			if (token.lexeme == "=") {
+				token.type = GREATEREQUAL;
+			}
+			else if (token.lexeme == ">") {
+				token.type = GREATER;
+			}
+			done = true;
+			break;
+		case EQUAL_ACT:
+			if (token.lexeme == "==") {
+				token.type = EQUAL;
+			}
+			else {
+				token.type = ASSIGN;
+			}
+			done = true;
+			break;
 		case ID_ACT:
 			if (token.lexeme == "program") {
 				token.type = PROGRAM;
