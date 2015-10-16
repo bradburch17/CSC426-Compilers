@@ -53,7 +53,7 @@ int pres(Token tok) {
 * parser() is the main parser function. It sets up the syntax for a YASL program. 
 */
 
-void Parser::parser() {
+void Parser::parser2() {
 	
 	Wrapper wrapper(cin);
 	
