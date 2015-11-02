@@ -11,10 +11,9 @@
 //#include <string>
 //#include <iosfwd>
 //#include <list>
-//#include "ASTStmt.h"
+//
 //
 //using namespace std;
-//
 //class ASTBlock {
 //public:
 //	ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*> p, list<ASTStmt*> b);
@@ -42,6 +41,8 @@
 //class ASTExpr {
 //public:
 //	ASTExpr();
+//	string checkOp1(Op1 op1);
+//	string checkOp2(Op2 op2);
 //	virtual string render(string indent) = 0;
 //
 //private:
@@ -50,18 +51,18 @@
 //
 //class BinOp : public ASTExpr {
 //public:
-//	BinOp(ASTExpr* l, ASTOp2* o, ASTExpr* r);
+//	BinOp(ASTExpr* l, Op2 o, ASTExpr* r);
 //	string render(string indent);
 //
 //private:
 //	ASTExpr* left;
-//	ASTOp2* op;
+//	Op2 op;
 //	ASTExpr* right;
 //};
 //
-//class ID : public ASTExpr {
+//class IDExpr : public ASTExpr {
 //public:
-//	ID(string i);
+//	IDExpr(string i);
 //	string render(string indent);
 //
 //private:
@@ -81,33 +82,29 @@
 //
 //class UnOp : public ASTExpr {
 //public:
-//	UnOp(ASTOp1* o, ASTExpr* e);
+//	UnOp(Op1 o, ASTExpr* e);
 //	string render(string indent);
 //
 //private:
-//	ASTOp1* op;
+//	Op1 op;
 //	ASTExpr* expr;
 //
 //};
 //
 //class True : public ASTExpr {
 //public:
-//	True(int l, int c);
+//	True();
 //	string render(string indent);
 //private:
-//	int line;
-//	int column;
 //	bool boolean;
 //};
 //
 //class False : public ASTExpr {
 //public:
-//	False(int l, int c);
+//	False();
 //	string render(string indent);
 //
 //private:
-//	int line;
-//	int column;
 //	bool boolean;
 //};
 //
@@ -130,7 +127,6 @@
 //	ASTExpr* expr;
 //
 //};
-//
 //class StringItem : public ASTItem {
 //public:
 //	StringItem(string m);
@@ -139,24 +135,12 @@
 //	string message;
 //
 //};
+/////////////////////////////////////////////////////////////////////////////////////////
+//enum Op1 { Neg, Not };
 //
-//class ASTOp1 {
-//public:
-//	enum Op1 { Neg, Not };
-//	string nameCheck(Op1 op1);
+//enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
 //
-//private:
-//
-//};
-//
-//class ASTOp2 {
-//public:
-//	enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
-//	string nameCheck(Op2 op2);
-//private:
-//
-//
-//};
+//enum Type { IntType, BoolType };
 //
 //class ASTParam {
 //public:
@@ -169,40 +153,161 @@
 //
 //class ValParam : public ASTParam {
 //public:
-//	ValParam(string i, ASTType* t);
+//	ValParam(string i, Type t);
 //	string render(string indent);
 //
 //private:
 //	string id;
-//	ASTType* type;
+//	Type type;
 //
 //};
 //
 //class VarParam : public ASTParam {
 //public:
-//	VarParam(string i, ASTType* t);
+//	VarParam(string i, Type t);
 //	string render(string indent);
 //
 //private:
 //	string id;
-//	ASTType* type;
+//	Type type;
 //
 //};
 //
-//class ASTBlock;
+////class ASTBlock;
 //
-//using namespace std;
 //
 //class ASTProcDecl {
 //public:
-//	ASTProcDecl(string i, list<ASTParam> p, ASTBlock b);
+//	ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b);
 //	string render(string indent);
 //
 //private:
 //	string id;
-//	list<ASTParam> params;
-//	ASTBlock block;
+//	list<ASTParam*> params;
+//	ASTBlock* block; 
+//};
+//
+//class ASTProgram {
+//public:
+//	ASTProgram(string n, ASTBlock* b);
+//	string render(string indent);
+//
+//private:
+//	string name;
+//	ASTBlock* block;
 //
 //
 //};
+//
+//class ASTStmt { //Must use pointers when working with virtual functions! 
+//public:
+//	virtual string render(string indent) = 0;
+//	ASTStmt();
+//
+//};
+//
+//class Assign : public ASTStmt {
+//public:
+//	Assign(string i, ASTExpr* e);
+//	string render(string indent);
+//
+//private:
+//	string id;
+//	ASTExpr* expr;
+//};
+//
+//class Call : public ASTStmt {
+//public:
+//	Call(string i, list<ASTExpr*> a);
+//	string render(string indent);
+//
+//private:
+//	string id;
+//	list<ASTExpr*> args;
+//};
+//
+//
+//class IfThen : public ASTStmt {
+//public:
+//	IfThen(ASTExpr* t, ASTStmt* tc);
+//	string render(string indent);
+//private:
+//	ASTExpr* test;
+//	ASTStmt* trueClause;
+//};
+//
+//class IfThenElse : public ASTStmt {
+//public:
+//	IfThenElse(ASTExpr* t, ASTStmt* tc, ASTStmt* fc);
+//	string render(string indent);
+//
+//private:
+//	ASTExpr* test;
+//	ASTStmt* trueClause;
+//	ASTStmt* falseClause;
+//};
+//
+//class Print : public ASTStmt {
+//public:
+//	Print(list<ASTItem*> i);
+//	string render(string indent);
+//
+//private:
+//	list<ASTItem*> items;
+//
+//};
+//
+//class Prompt : public ASTStmt {
+//public:
+//	Prompt(string m);
+//	string render(string indent);
+//private:
+//	string message;
+//
+//};
+//
+//class Prompt2 : public ASTStmt {
+//public:
+//	Prompt2(string m, string i);
+//	string render(string indent);
+//
+//private:
+//	string message;
+//	string id;
+//
+//};
+//
+//class Seq : public ASTStmt {
+//public:
+//	Seq(list<ASTStmt*> b);
+//	string render(string indent);
+//
+//private:
+//	list<ASTStmt*> body;
+//
+//};
+//
+//class While : public ASTStmt {
+//public:
+//	While(ASTExpr* t, ASTStmt* b);
+//	string render(string indent);
+//
+//private:
+//	ASTExpr* test;
+//	ASTStmt* body;
+//
+//};
+//
+//class ASTVarDecl {
+//public:
+//	ASTVarDecl(string i, Type t);
+//	string render(string indent);
+//
+//private:
+//	string id;
+//	Type typ;
+//
+//
+//};
+//
 //#endif /* ASTBlock_H_ */

@@ -28,7 +28,7 @@ using namespace std;
 class Parser {
 public:
 	Parser();
-	void parser();
+	void parser2();
 	ASTProgram* start();
 
 	//Parsers 
