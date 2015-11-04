@@ -27,16 +27,3 @@ void SymbolTable::exit()
 	scopes.pop();
 }
 
-void SymbolTable::bind(string id, Value value)
-{
-	pair<string, Value> local = make_pair(id, value);
-	//get<1>(scopes.top().insert(local));
-}
-
-void SymbolTable::lookup(string id)
-{
-}
-
-Value::Value()
-{
-}

@@ -12,16 +12,17 @@
 #include <string>
 
 #include "Scanner.h"
-#include "ASTStmt.h"
-#include "ASTParam.h"
-#include "ASTProgram.h"
-#include "ASTBlock.h"
-#include "ASTConstDecl.h"
-#include "ASTExpr.h"
-#include "ASTItem.h"
-#include "ASTOp2.h"
-#include "ASTOp1.h"
-#include "ASTType.h"
+//#include "ASTStmt.h"
+//#include "ASTParam.h"
+//#include "ASTProgram.h"
+//#include "ASTBlock.h"
+//#include "ASTConstDecl.h"
+//#include "ASTExpr.h"
+//#include "ASTItem.h"
+//#include "ASTOp2.h"
+//#include "ASTOp1.h"
+//#include "ASTType.h"
+#include "AST.h"
 
 using namespace std;
 
