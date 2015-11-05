@@ -143,35 +143,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="AST.h" />
-    <ClInclude Include="ASTOp1.h" />
-    <ClInclude Include="ASTOp2.h" />
-    <ClInclude Include="ASTParam.h" />
-    <ClInclude Include="ASTType.h" />
-    <ClInclude Include="ASTExpr.h" />
-    <ClInclude Include="ASTItem.h" />
-    <ClInclude Include="ASTStmt.h" />
-    <ClInclude Include="ASTBlock.h" />
-    <ClInclude Include="ASTConstDecl.h" />
     <ClInclude Include="Parser.h" />
-    <ClInclude Include="ASTProcDel.h" />
-    <ClInclude Include="ASTProgram.h" />
     <ClInclude Include="Scanner.h" />
     <ClInclude Include="SymbolTable.h" />
     <ClInclude Include="Token.h" />
-    <ClInclude Include="ASTVarDecl.h" />
     <ClInclude Include="Wrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AST.cpp" />
-    <ClCompile Include="ASTBlock.cpp" />
-    <ClCompile Include="ASTConstDecl.cpp" />
-    <ClCompile Include="ASTExpr.cpp" />
-    <ClCompile Include="ASTItem.cpp" />
-    <ClCompile Include="ASTParam.cpp" />
-    <ClCompile Include="ASTProcDel.cpp" />
-    <ClCompile Include="ASTProgram.cpp" />
-    <ClCompile Include="ASTVarDecl.cpp" />
-    <ClCompile Include="ASTStmt.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="Parser.cpp" />
     <ClCompile Include="Scanner.cpp" />

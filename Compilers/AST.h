@@ -1,4 +1,4 @@
-/*      TOO LATE TO TRY AND IMPLEMENT THIS - MAYBE LATER 
+/*       
 * AST.h
 *
 *  Created on: October 12, 2015
@@ -12,25 +12,45 @@
 #include <iosfwd>
 #include <list>
 #include <stack>
+#include <vector>
+#include <map>
 
 using namespace std;
 
 enum Op1 { Neg, Not };
 enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
 enum Type { IntType, BoolType };
-enum ValueType { Undefined,	IntValue, BoolValue, IntegerCell, BooleanCell, ProcedureValue };
+
+enum NodeTypes {Val, Expr, Item}; //used to check to see if node is true.
 
 string checkOp1(Op1 op1);
 string checkOp2(Op2 op2);
+//string checkValueType(ValueType type);
 
 /*
 * Abstract Syntax Tree Beginning 
+*/
+class ASTConstDecl;
+class ASTVarDecl;
+class ASTProcDecl;
+class ASTStmt;
+class ASTItem;
+class ASTParam;
+class ASTExpr;
+class ASTValDecl;
+class ASTProgram;
+class Value;
+class SymbolTable;
+
+
+
+/**
+* Block
 */
 class ASTBlock {
 public:
 	ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*> p, list<ASTStmt*> b);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -41,30 +61,35 @@ private:
 
 };
 
+/*
+* Constant Declaration
+*/
 class ASTConstDecl {
 public:
 	ASTConstDecl(string i, int v);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
 	string id;
 	int value;
-
 };
 
+/*
+* Expressions 
+*/
 class ASTExpr {
 public:
 	ASTExpr();
 	virtual string render(string indent) = 0;
+	virtual Value* interpret(SymbolTable t) = 0;
+	NodeTypes expr;
 };
 
 class BinOp : public ASTExpr {
 public:
 	BinOp(ASTExpr* l, Op2 o, ASTExpr* r);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -77,31 +102,26 @@ class IDExpr : public ASTExpr {
 public:
 	IDExpr(string i);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
 	string id;
-
 };
 
 class Num : public ASTExpr {
 public:
 	Num(int v);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
 	int value;
-
 };
 
 class UnOp : public ASTExpr {
 public:
 	UnOp(Op1 o, ASTExpr* e);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -114,7 +134,6 @@ class True : public ASTExpr {
 public:
 	True();
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 private:
 	bool boolean;
@@ -124,78 +143,71 @@ class False : public ASTExpr {
 public:
 	False();
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
 	bool boolean;
 };
 
+/*********************************
+* Items
+***********************************/
 class ASTItem {
 public:
 	ASTItem();
 	virtual string render(string indent) = 0;
+	NodeTypes item;
 };
 
 class ExprItem : public ASTItem {
 public:
 	ExprItem(ASTExpr* e);
 	string render(string indent);
-	Value* interpret();
-	Value* interpret(SymbolTable t);
-
-private:
 	ASTExpr* expr;
-
 };
 
 class StringItem : public ASTItem {
 public:
 	StringItem(string m);
 	string render(string indent);
-	Value* interpret();
-	Value* interpret(SymbolTable t);
-private:
 	string message;
-
 };
 
+
+/***********************************
+* Parameter 
+*************************************/
 class ASTParam {
 public:
 	ASTParam();
 	virtual string render(string indent) = 0;
+	NodeTypes val;
 };
 
 class ValParam : public ASTParam {
 public:
 	ValParam(string i, Type t);
 	string render(string indent);
-	Value* interpret();
-	Value* interpret(SymbolTable t);
-
-private:
 	string id;
 	Type type;
+	NodeTypes val;
 };
 
 class VarParam : public ASTParam {
 public:
 	VarParam(string i, Type t);
 	string render(string indent);
-	Value* interpret();
-	Value* interpret(SymbolTable t);
-
-private:
 	string id;
 	Type type;
-
 };
 
+/**
+* Procedure Declaration 
+*/
 class ASTProcDecl {
 public:
 	ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -204,31 +216,34 @@ private:
 	ASTBlock* block; 
 };
 
+/**
+* Program
+*/
 class ASTProgram {
 public:
 	ASTProgram(string n, ASTBlock* b);
 	string render(string indent);
 	Value* interpret();
-	Value* interpret(SymbolTable t);
 
 private:
 	string name;
 	ASTBlock* block;
 };
 
-class ASTStmt { //Must use pointers when working with virtual functions! 
+/**
+* Statements 
+*/
+class ASTStmt {  
 public:
-	virtual string render(string indent) = 0;
 	ASTStmt();
-	Value* interpret();
-	Value* interpret(SymbolTable t);
+	virtual string render(string indent) = 0;
+	virtual Value* interpret(SymbolTable t) = 0;
 };
 
 class Assign : public ASTStmt {
 public:
 	Assign(string i, ASTExpr* e);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -240,9 +255,8 @@ class Call : public ASTStmt {
 public:
 	Call(string i, list<ASTExpr*> a);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
-
+	void call(list<ASTParam*> p, ASTBlock* b, list<Value*> v, SymbolTable t);
 private:
 	string id;
 	list<ASTExpr*> args;
@@ -253,7 +267,6 @@ class IfThen : public ASTStmt {
 public:
 	IfThen(ASTExpr* t, ASTStmt* tc);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 private:
 	ASTExpr* test;
@@ -264,7 +277,6 @@ class IfThenElse : public ASTStmt {
 public:
 	IfThenElse(ASTExpr* t, ASTStmt* tc, ASTStmt* fc);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -277,7 +289,6 @@ class Print : public ASTStmt {
 public:
 	Print(list<ASTItem*> i);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -289,7 +300,6 @@ class Prompt : public ASTStmt {
 public:
 	Prompt(string m);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 private:
 	string message;
@@ -300,7 +310,6 @@ class Prompt2 : public ASTStmt {
 public:
 	Prompt2(string m, string i);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -313,7 +322,6 @@ class Seq : public ASTStmt {
 public:
 	Seq(list<ASTStmt*> b);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -325,7 +333,6 @@ class While : public ASTStmt {
 public:
 	While(ASTExpr* t, ASTStmt* b);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -334,11 +341,13 @@ private:
 
 };
 
+/**
+* Variable Declarations 
+*/
 class ASTVarDecl {
 public:
 	ASTVarDecl(string i, Type t);
 	string render(string indent);
-	Value* interpret();
 	Value* interpret(SymbolTable t);
 
 private:
@@ -347,63 +356,91 @@ private:
 };
 
 /*
-* Start of the Value abstract class and five separate classes 
+* Values
 */
-class Value {
-public:
-	Value();
-	ValueType value;	
-};
-
-class IntValue :Value {
-public: 
-	IntValue(int i) : Value();
-private:
-	int integer;
-};
-
-class BoolValue :Value {
-public: 
-	BoolValue(bool b) :Value();
-private:
-	bool boolean;
-};
-
-class ProcValue :Value {
-public: 
-	ProcValue(list<ASTParam*> p, ASTBlock* b) :Value();
-private: 
-	list<ASTParam*> param;
-	ASTBlock* block;
-};
-
-class IntCell :Value {
-public: 
-	IntCell(int i) :Value();
-	void set(int i);
-private:
-	int integer;
-};
-
-class BoolCell :Value {
-public: 
-	BoolCell(bool b) :Value();
-	void set(bool b);
-private:
-	bool boolean;
-};
-
-/*
-* SymbolTable 
-*/
-class SymbolTable {
-public:
-	SymbolTable();
-	void enter(string id);
-	void exit();
-	void bind(string id, Value* v);
-	Value* lookup(string id);
-private:
-	stack<pair<string, map<string, Value*>*>> scopes;
-};
+//class Value {
+//public:
+//	Value();
+//	ValueType value;
+//	virtual int getIntValue() = 0;
+//	virtual bool getBoolValue() = 0;
+//	virtual void setInt(int i) = 0;
+//	virtual void setBool(bool b) = 0;
+//};
+//
+//class IntValue :public Value {
+//public: 
+//	IntValue(int i);
+//	int integer;
+//	int getIntValue();
+//	bool getBoolValue();
+//	void setInt(int i);
+//	void setBool(bool b);
+//private:
+//	ValueType value;
+//};
+//
+//class BoolValue :public Value {
+//public: 
+//	BoolValue(bool b);
+//	bool boolean;
+//	int getIntValue();
+//	bool getBoolValue();
+//	void setInt(int i);
+//	void setBool(bool b);
+//private:
+//	ValueType value;
+//};
+//
+//class ProcValue :public Value {
+//public: 
+//	ProcValue(list<ASTParam*> p, ASTBlock* b);
+//	list<ASTParam*> param;
+//	ASTBlock* block;
+//	int getIntValue();
+//	bool getBoolValue();
+//	void setInt(int i);
+//	void setBool(bool b);
+//private: 
+//	ValueType value;
+//};
+//
+//class IntCell :public Value {
+//public: 
+//	IntCell(int i);
+//	void set(int i);
+//	int getIntValue();
+//	bool getBoolValue();
+//	void setInt(int i);
+//	void setBool(bool b);
+//private:
+//	int integer;
+//	ValueType value;
+//};
+//
+//class BoolCell :public Value {
+//public: 
+//	BoolCell(bool b);
+//	void set(bool b);
+//	int getIntValue();
+//	bool getBoolValue();
+//	void setInt(int i);
+//	void setBool(bool b);
+//private:
+//	bool boolean;
+//	ValueType value;
+//};
+//
+///*
+//* Symbol Table 
+//*/
+//class SymbolTable {
+//public:
+//	SymbolTable();
+//	void enter(string id);
+//	void exit();
+//	void bind(string id, Value* v);
+//	Value* lookup(string id);
+//	vector<pair<string, map<string, Value*>*>> scopes;	
+//};
 #endif /* AST_H_ */

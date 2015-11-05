@@ -27,42 +27,6 @@
     <ClInclude Include="Wrapper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="ASTStmt.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTExpr.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTBlock.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTProcDel.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTProgram.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTVarDecl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTConstDecl.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTParam.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTType.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTOp2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ASTOp1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="AST.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -86,38 +50,16 @@
     <ClCompile Include="Wrapper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ASTStmt.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTBlock.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTProgram.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTParam.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTExpr.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTConstDecl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTProcDel.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ASTVarDecl.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="AST.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SymbolTable.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\..\..\..\..\..\Desktop\test0.txt">
+      <Filter>Source Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

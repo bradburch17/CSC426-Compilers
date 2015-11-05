@@ -1,8 +1,15 @@
+/*
+* AST.cpp
+*
+*  Created on: Aug 30, 2015
+*      Author: Brad Burch
+*/
 #include <iostream>
 #include <string>
 #include <list>
 #include <map>
 #include "AST.h"
+#include "SymbolTable.h"
 
 using namespace std;
 
@@ -12,6 +19,7 @@ string checkOp1(Op1 op1)
 	case Neg: return "Neg";
 	case Not: return "Not";
 	}
+	exit(1);
 }
 string checkOp2(Op2 op2)
 {
@@ -30,6 +38,7 @@ string checkOp2(Op2 op2)
 	case And: return "And";
 	case Or: return "Or";
 	}
+	exit(1);
 }
 
 string checkType(Type t) {
@@ -37,6 +46,19 @@ string checkType(Type t) {
 	case IntType: return "Int";
 	case BoolType: return "Bool";
 	}
+	exit(1);
+}
+
+string checkValueType(ValueType t) {
+	switch (t) {
+	case Undefined: return "Undefined Value";
+	case IntegerValue: return "Integer Value";
+	case BooleanValue: return "Boolean Value";
+	case IntegerCell: return "Integer Cell";
+	case BooleanCell: return "Boolean Cell";
+	case ProcedureValue: return "Procedure Value";
+	}
+	exit(1);
 }
 
 
@@ -57,6 +79,7 @@ ASTConstDecl::ASTConstDecl(string i, int v)
 
 ASTExpr::ASTExpr()
 {
+	expr = Expr;
 }
 
 BinOp::BinOp(ASTExpr * l, Op2 o, ASTExpr * r)
@@ -94,6 +117,7 @@ UnOp::UnOp(Op1 o, ASTExpr * e)
 
 ASTItem::ASTItem()
 {
+	item = Item;
 }
 
 ExprItem::ExprItem(ASTExpr * e)
@@ -106,45 +130,22 @@ StringItem::StringItem(string m)
 	message = m;
 }
 
-
-
 ASTParam::ASTParam()
 {
+	val = Val;
 }
 
 ValParam::ValParam(string i, Type t)
 {
 	id= i;
 	type = t;
+	val = Val;
 }
 
 VarParam::VarParam(string i, Type t)
 {
 	id= i;
 	type = t;
-}
-
-ASTProcDecl::ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b)
-{
-	id= i;
-	params = p;
-	block = b;
-}
-
-string ASTProgram::render(string indent)
-{
-	string result = indent + "Program " + name + "\n";
-	result += block->render(indent + "  ");
-	return result;
-}
-
-Value * ASTProgram::interpret()
-{
-	SymbolTable t = SymbolTable();
-	t.enter(name);
-	block->interpret(t);
-	t.exit;
-	return NULL;
 }
 
 ASTProgram::ASTProgram(string n, ASTBlock* b)
@@ -155,6 +156,13 @@ ASTProgram::ASTProgram(string n, ASTBlock* b)
 
 ASTStmt::ASTStmt()
 {
+}
+
+ASTProcDecl::ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b)
+{
+	id= i;
+	params = p;
+	block = b;
 }
 
 Assign::Assign(string i, ASTExpr* e)
@@ -215,7 +223,14 @@ ASTVarDecl::ASTVarDecl(string i, Type t)
 	typ = t;
 }
 
-//Render methods
+string ASTProgram::render(string indent)
+{
+	string result = indent + "Program " + name + "\n";
+	result += block->render(indent + "  ");
+	return result;
+}
+
+
 string ASTBlock::render(string indent)
 {
 	string result = indent + "Block\n";
@@ -230,32 +245,17 @@ string ASTBlock::render(string indent)
 	return result;
 }
 
-Value * ASTBlock::interpret(SymbolTable t)
-{
-	for (ASTConstDecl* c : consts)
-		c->interpret(t);
-	for (ASTVarDecl* v : vars)
-		v->interpret(t);
-	for (ASTProcDecl* p : procs)
-		p->interpret(t);
-	for (ASTStmt* s : body)
-		s->interpret(t);
-}
-
-
 string ASTConstDecl::render(string indent)
 {
 	string result = indent + "Const " + id + " = " + to_string(value) + "\n";
 	return result;
 }
 
-
 string ASTVarDecl::render(string indent)
 {
 	string result = indent + "Var " + id + " : " + checkType(typ) + "\n";
 	return result;
 }
-
 
 string ASTProcDecl::render(string indent)
 {
@@ -266,6 +266,52 @@ string ASTProcDecl::render(string indent)
 	return result;
 }
 
+Value * ASTProgram::interpret()
+{
+	SymbolTable t = SymbolTable();
+	t.enter(name);
+	block->interpret(t);
+	t.exit();
+	return NULL;
+}
+
+Value * ASTStmt::interpret(SymbolTable t)
+{
+	return NULL;
+}
+
+Value * ASTBlock::interpret(SymbolTable t)
+{
+	for (ASTConstDecl* c : consts)
+		c->interpret(t);
+	for (ASTVarDecl* v : vars)
+		v->interpret(t);
+	for (ASTProcDecl* p : procs)
+		p->interpret(t);
+	for (ASTStmt* s : body)
+		s->interpret(t);
+	return NULL;
+}
+
+Value * ASTConstDecl::interpret(SymbolTable t)
+{
+	t.bind(id, new IntValue(value));
+	return NULL;
+}
+Value * ASTVarDecl::interpret(SymbolTable t)
+{
+	if (typ == IntType)
+		t.bind(id, new IntCell(0));
+	else 
+		t.bind(id, new BoolCell(false));
+	return NULL;
+}
+
+Value * ASTProcDecl::interpret(SymbolTable t)
+{
+	t.bind(id, new ProcValue(params, block));
+	return NULL;
+}
 
 string ValParam::render(string indent)
 {
@@ -273,19 +319,51 @@ string ValParam::render(string indent)
 	return result;
 }
 
-
 string VarParam::render(string indent)
 {
 	string result = indent + "Var " + id + " : " + checkType(type) + "\n";
 	return result;
 }
 
-
 string Assign::render(string indent)
 {
 	string result = indent + "Assign " + id + "\n";
 	result += expr->render(indent + "  ");
 	return result;
+}
+
+Value * Assign::interpret(SymbolTable t)
+{
+	Value* lhs = t.lookup(id);
+
+	if (lhs->value == IntegerCell || lhs->value == BooleanCell)
+	{
+		Value* rhs = expr->interpret(t);
+
+		if (lhs->value == IntegerCell && rhs->value == IntegerValue)
+		{
+			IntCell* cell = dynamic_cast<IntCell*>(lhs);
+			IntValue* value = dynamic_cast<IntValue*>(rhs);
+			cell->set(value->integer);
+		}
+		else if (lhs->value == BooleanCell && rhs->value == BooleanValue)
+		{
+			BoolCell* cell = dynamic_cast<BoolCell*>(lhs);
+			BoolValue* value = dynamic_cast<BoolValue*>(rhs);
+			cell->set(value->boolean);
+		}
+		else
+		{
+			cout << "Error: Cannot assign " << (rhs->value) << endl;
+			exit(1);
+		}
+	}
+	else
+	{
+		cout << "Error: Cannot assign to " << id;
+		exit(1);
+	}
+	return NULL;
 }
 
 
@@ -297,6 +375,80 @@ string Call::render(string indent)
 	return result;
 }
 
+Value * Call::interpret(SymbolTable t)
+{
+	Value* look_up = t.lookup(id);
+
+	if (look_up == NULL)
+	{
+		cout << "Error: Expected " << checkValueType(ProcedureValue) << endl;
+		exit(1);
+	}
+
+	if (look_up->value != ProcedureValue)
+	{
+		cout << "Error: Expected " << checkValueType(ProcedureValue) << endl;
+		exit(1);
+	}
+
+	ProcValue* value = dynamic_cast<ProcValue*>(t.lookup(id));
+	list<Value*> arguments;
+
+	for (ASTExpr* arg : args) {
+		Value* v = arg->interpret(t);
+		arguments.push_back(v);
+	}
+
+
+	if (value->param.size() != arguments.size())
+	{
+		cout << "Error: Parameters do not match in " << id << endl;
+		exit(1);
+	}
+
+	t.enter(id);
+	call(value->param, value->block, arguments, t);
+	t.exit();
+	return NULL;
+}
+
+void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, SymbolTable t)
+{
+	if (param.empty() && args.empty())
+		block->interpret(t);
+	else
+	{
+		ASTParam* par = param.front();
+		Value* arg = value.front();
+		param.pop_front();
+		args.pop_front();
+
+		if (par->val == Val)
+		{
+			ValParam* param = dynamic_cast<ValParam*>(par);
+
+			if (param->type == IntType)
+				t.bind(param->id, new IntCell(arg->getIntValue()));
+			else
+				t.bind(param->id, new BoolCell(arg->getBoolValue()));
+		}
+		else
+		{
+			VarParam* param = dynamic_cast<VarParam*>(par);
+
+			if (param->type == IntType && arg->value == IntegerCell)
+				t.bind(param->id, dynamic_cast<IntCell*>(arg));
+			else if (param->type == BoolType && arg->value == BooleanCell)
+				t.bind(param->id, dynamic_cast<BoolCell*>(arg));
+			else
+			{
+				cout << "Error: Cannot pass " << checkValueType(arg->value) << endl;
+				exit(1);
+			}
+		}
+		call(param, block, value, t);
+	}
+}
 
 string Seq::render(string indent)
 {
@@ -304,6 +456,13 @@ string Seq::render(string indent)
 	for (ASTStmt* b : body)
 		result += b->render(indent + "  ");
 	return result;
+}
+
+Value * Seq::interpret(SymbolTable t)
+{
+	for (ASTStmt* b : body)
+		b->interpret(t);
+	return NULL;
 }
 
 
@@ -315,6 +474,13 @@ string IfThen::render(string indent)
 	return result;
 }
 
+Value * IfThen::interpret(SymbolTable t)
+{
+	Value* val = test->interpret(t);
+	if (val->getBoolValue())
+		trueClause->interpret(t);
+	return NULL;
+}
 
 string IfThenElse::render(string indent)
 {
@@ -323,6 +489,16 @@ string IfThenElse::render(string indent)
 	result += trueClause->render(indent + "  ");
 	result += falseClause->render(indent + "  ");
 	return result;
+}
+
+Value * IfThenElse::interpret(SymbolTable t)
+{
+	Value* value = test->interpret(t);
+	if (value->getBoolValue())
+		trueClause->interpret(t);
+	else
+		falseClause->interpret(t);
+	return NULL;
 }
 
 
@@ -334,6 +510,16 @@ string While::render(string indent)
 	return result;
 }
 
+Value * While::interpret(SymbolTable t) {
+	Value* value = test->interpret( t );
+	while ( value->getBoolValue() )
+	{
+		body->interpret( t );
+		value = test->interpret( t );
+	}
+	return NULL;
+}
+
 
 string Prompt::render(string indent)
 {
@@ -341,11 +527,39 @@ string Prompt::render(string indent)
 	return result;
 }
 
+Value * Prompt::interpret(SymbolTable t)
+{
+	string input;
+	cout << message;
+	getline(cin, input);
+	return NULL;
+}
+
 
 string Prompt2::render(string indent)
 {
 	string result = indent + "Prompt2 " + message + ", " + id + "\n";
 	return result;
+}
+
+Value * Prompt2::interpret(SymbolTable t)
+{
+	Value* lhs = t.lookup(id);
+	string input;
+
+	cout << message << " ";
+	getline(cin, input);
+
+	try
+	{
+		lhs->setInt(stoi(input));
+	}
+	catch (std::invalid_argument)
+	{
+		cout << "Error: Input is not an interger" << endl;
+		exit(1);
+	}
+	return NULL;
 }
 
 
@@ -357,6 +571,27 @@ string Print::render(string indent)
 	return result;
 }
 
+Value * Print::interpret(SymbolTable t)
+{
+	for (ASTItem* i : items)
+	{
+		if (i->item == Item)
+		{
+			ExprItem* item = dynamic_cast<ExprItem*>(i);
+			Value* value = item->expr->interpret(t);
+			cout << value->getIntValue();
+			delete item;
+		}
+		else
+		{
+			StringItem* item = dynamic_cast<StringItem*>(i);
+			cout << item->message;
+		}
+	}
+	cout << endl;
+	return NULL;
+}
+
 
 string ExprItem::render(string indent)
 {
@@ -365,13 +600,11 @@ string ExprItem::render(string indent)
 	return result;
 }
 
-
 string StringItem::render(string indent)
 {
 	string result = indent + "StringItem " + message + "\n";
 	return result;
 }
-
 
 string BinOp::render(string indent)
 {
@@ -379,6 +612,30 @@ string BinOp::render(string indent)
 	result += left->render(indent + "  ");
 	result += right->render(indent + "  ");
 	return result;
+}
+
+Value * BinOp::interpret(SymbolTable t)
+{
+	Value* lhs = left->interpret(t);
+	Value* rhs = right->interpret(t);
+
+	switch (op)
+	{
+	case And:	return new BoolValue(lhs->getBoolValue() && rhs->getBoolValue());
+	case Or:	return new BoolValue(lhs->getBoolValue() || rhs->getBoolValue());
+	case EQ:	return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
+	case NE:	return new BoolValue(lhs->getIntValue() != rhs->getIntValue());
+	case LE:	return new BoolValue(lhs->getIntValue() <= rhs->getIntValue());
+	case LT:	return new BoolValue(lhs->getIntValue() < rhs->getIntValue());
+	case GE:	return new BoolValue(lhs->getIntValue() >= rhs->getIntValue());
+	case GT:	return new BoolValue(lhs->getIntValue() > rhs->getIntValue());
+	case Plus:	return new IntValue(lhs->getIntValue() + rhs->getIntValue());
+	case Minus:	return new IntValue(lhs->getIntValue() - rhs->getIntValue());
+	case Times:	return new IntValue(lhs->getIntValue() * rhs->getIntValue());
+	case Div:	return new IntValue(lhs->getIntValue() / rhs->getIntValue());
+	case Mod:	return new IntValue(lhs->getIntValue() % rhs->getIntValue());
+	}
+	exit(1);
 }
 
 
@@ -389,11 +646,30 @@ string UnOp::render(string indent)
 	return result;
 }
 
+Value * UnOp::interpret(SymbolTable t)
+{
+	Value* value = expr->interpret(t);
+
+	switch (op)
+	{
+	case Neg:
+		return new IntValue(-value->getIntValue());
+	case Not:
+		return new BoolValue(!value->getBoolValue());
+	}
+	exit(1);
+}
+
 
 string Num::render(string indent)
 {
 	string result = indent + "Num " + to_string(value) + "\n";
 	return result;
+}
+
+Value * Num::interpret(SymbolTable t)
+{
+	return new IntValue(value);
 }
 
 
@@ -403,11 +679,27 @@ string IDExpr::render(string indent)
 	return result;
 }
 
+Value * IDExpr::interpret(SymbolTable t)
+{
+	Value* val = t.lookup(id);
+	if ( val != NULL)
+		return val;
+	else {
+		cout << "Error: Undefined" << id << endl;
+		exit(1);
+	}
+}
+
 
 string True::render(string indent)
 {
 	string result = indent + "True\n";
 	return result;
+}
+
+Value * True::interpret(SymbolTable t)
+{
+	return new BoolValue(boolean);
 }
 
 
@@ -417,89 +709,11 @@ string False::render(string indent)
 	return result;
 }
 
-SymbolTable::SymbolTable()
+Value * False::interpret(SymbolTable t)
 {
-	scopes = stack<pair<string, map<string, Value*>*>>();
+	return new BoolValue(boolean);
 }
 
 
-/*
-* Enter pushes a new id onto the symbol table
-*/
-void SymbolTable::enter(string i)
-{
-	pair<string, map<string, Value*>*> symbols = make_pair(i, new map<string, Value*>());
-	scopes.push(symbols);
-}
 
-/*
-* Exit pops the top off of the symbol table 
-*/
-void SymbolTable::exit()
-{
-	scopes.pop();
-}
 
-void SymbolTable::bind(string id, Value * v)
-{
-
-}
-
-/*
-* Lookup returns the the binding for the id and if none found, 
-* it returns a new value. 
-*/
-Value* SymbolTable::lookup(string id)
-{
-	map<string, Value*>* scope = scopes.top().second;
-	if (scope->find(id) != scope->end) {
-		return scope->at(id);
-	}
-	return new Value();
-}
-
-IntValue::IntValue(int i)
-{
-	integer = i;
-	value = IntegerCell;
-}
-
-BoolValue::BoolValue(bool b)
-{
-	boolean = b;
-	value = BooleanCell;
-}
-
-Value::Value()
-{
-	value = Undefined;
-}
-
-ProcValue::ProcValue(list<ASTParam*> p, ASTBlock * b)
-{
-	param = p;
-	block = b;
-	value = ProcedureValue;
-}
-
-IntCell::IntCell(int i)
-{
-	integer = i;
-	value = IntegerCell;
-}
-
-void IntCell::set(int i)
-{
-	integer = i;
-}
-
-void BoolCell::set(bool b)
-{
-	boolean = b;
-}
-
-BoolCell::BoolCell(bool b)
-{
-	boolean = b;
-	value = BooleanCell;
-}

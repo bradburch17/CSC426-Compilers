@@ -11,14 +11,11 @@
 #include "Scanner.h"
 #include "Wrapper.h"
 #include "Token.h"
-#include "ASTParam.h"
-#include "ASTExpr.h"
-#include "ASTOp1.h"
-#include "ASTOp2.h"
+#include "AST.h"
 
 using namespace std;
 
-Parser::Parser() {
+Parser::Parser(){
 	
 }
 
@@ -48,11 +45,12 @@ int pres(Token tok) {
 	else if (type == MOD) {
 		return 2;
 	} 
+	exit(1);
 }
+
 /*
 * parser() is the main parser function. It sets up the syntax for a YASL program. 
 */
-
 void Parser::parser2() {
 	
 	Wrapper wrapper(cin);
@@ -285,6 +283,7 @@ ASTStmt * Parser::parseStmt()
 		Print* p = new Print(items);
 		return p;
 	}
+	exit(1);
 }
 
 ASTStmt * Parser::parseStmtID(string i)
@@ -342,10 +341,11 @@ ASTExpr * Parser::parseExprRest(ASTExpr * e)
 	if (wrapper.check(EQUAL) || wrapper.check(NOTEQUAL) || wrapper.check(LESS) || wrapper.check(GREATER) || wrapper.check(LESSEQUAL) || wrapper.check(GREATEREQUAL)) {
 		Op2 relOp = parseRelOp();
 		ASTExpr* exp = parseSimpleExpr();
-
 		BinOp* b = new BinOp(e, relOp, exp);
 		return b;
 	}
+	else
+		return e;
 }
 
 ASTExpr * Parser::parseSimpleExpr()
@@ -439,6 +439,7 @@ ASTExpr * Parser::parseFactor()
 	}
 	else
 		cout << "Expecting a NUM, ID, true, false, -, not, or (.Entered: " << wrapper.curr << "." << endl;
+	exit(1);
 }
 
 ASTItem * Parser::parseItem()
@@ -485,6 +486,7 @@ Op2 Parser::parseRelOp()
 	}
 	else
 		cout << "Expecting =, <>, <, >, <=, >=. Entered: " << wrapper.curr << "." << endl;
+	exit(1);
 }
 
 Op2 Parser::parseAddOp()
@@ -507,6 +509,7 @@ Op2 Parser::parseAddOp()
 	else {
 		cout << "Expecting +, -, or. Entered: " << wrapper.curr << "." << endl;
 	}
+	exit(1);
 }
 
 Op2 Parser::parseMulOp()
@@ -533,6 +536,7 @@ Op2 Parser::parseMulOp()
 	}
 	else
 		cout << "Expected *, div, mod, and. Entered: " << wrapper.curr << endl;
+	exit(1);
 }
 
 string Parser::parseSign()

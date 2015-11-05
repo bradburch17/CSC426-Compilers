@@ -7,28 +7,24 @@
 
 #include "Scanner.h"
 #include "Parser.h"
-
 #include <fstream>
 #include <iostream>
 
 using namespace std;
 
 int main() {
-	Parser parser;
-	ASTProgram* start = parser.start();
-	string filename;
+	string file;
 	ifstream input;
-
-	cout << "Enter your file: ";
-	cin >> filename;
-	input.open(filename);
-
+	cout << "Enter the file you would like to run: ";
+	cin >> file;
+	input.open(file);
 	while (input.fail()) {
-		input.clear();
-		cout << "Not a valid file. Enter valid file: ";
-		cin >> filename;
-		input.open(filename);
+		cout << "Could not open file. Try again: ";
+		cin >> file;
+		input.open(file);
 	}
 
-	cout << start->render("");
+	Parser parser;
+	ASTProgram* start = parser.start();
+	start->interpret();
 }
