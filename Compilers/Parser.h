@@ -64,9 +64,6 @@ public:
 	list<ASTExpr*> parseArgsRest();
 	list<ASTItem*> parseItems();
 	list<ASTItem*> parseItemsRest();
-
-	
-
 private:
 	pair<string, string> constant; //This sets up the pairing for constants. It is not the actual hashmap.
 	unordered_map<string, string> con; //This is the actual hashmap that takes in constant. 
