@@ -97,10 +97,10 @@ static States next_state[][CHARACTERS_CLASS] = {
 		INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,  INIT_ST,    INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,   INIT_ST,  INIT_ST,   Q1_ST,    INIT_ST, INIT_ST, INIT_ST
 	}, 
 	{ //LESS_ST
-		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,  INIT_ST, LESS_ST, INIT_ST, INIT_ST
+		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,  INIT_ST, LESS_ST, LESS_ST, LESS_ST
 	}, 
 	{ //GREATER_ST
-		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,  INIT_ST, INIT_ST, GREATER_ST, INIT_ST
+		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,  INIT_ST, INIT_ST, GREATER_ST, GREATER_ST
 	}, 
 	{ //EQUALS_ST
 		INIT_ST,	INIT_ST,   INIT_ST,    INIT_ST, INIT_ST,    INIT_ST,	INIT_ST,   INIT_ST,   INIT_ST,   INIT_ST,    INIT_ST,  INIT_ST, INIT_ST, INIT_ST,  EQUAL_ST
@@ -213,7 +213,7 @@ Token Scanner::next() {
 			done = true;
 			break;		
 		case LESS_ACT:
-			if (token.lexeme == "<=" ) {
+			if (token.lexeme == "<=") {
 				token.type = LESSEQUAL;
 			}
 			else if (token.lexeme == "<") {
@@ -225,7 +225,7 @@ Token Scanner::next() {
 			done = true;
 			break;
 		case GREATER_ACT:
-			if (token.lexeme == "=") {
+			if (token.lexeme == ">=") {
 				token.type = GREATEREQUAL;
 			}
 			else if (token.lexeme == ">") {

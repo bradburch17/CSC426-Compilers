@@ -14,6 +14,7 @@ using namespace std;
 
 enum ValueType { Undefined, IntegerValue, BooleanValue, IntegerCell, BooleanCell, ProcedureValue };
 string checkValueType(ValueType type);
+
 /*
 * Values
 */

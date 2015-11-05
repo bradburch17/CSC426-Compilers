@@ -25,7 +25,6 @@ enum NodeTypes {Val, Expr, Item}; //used to check to see if node is true.
 
 string checkOp1(Op1 op1);
 string checkOp2(Op2 op2);
-//string checkValueType(ValueType type);
 
 /*
 * Abstract Syntax Tree Beginning 

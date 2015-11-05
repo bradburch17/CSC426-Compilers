@@ -1,7 +1,7 @@
 /*
 * AST.cpp
 *
-*  Created on: Aug 30, 2015
+*  Created on: October 12, 2015
 *      Author: Brad Burch
 */
 #include <iostream>
@@ -61,7 +61,9 @@ string checkValueType(ValueType t) {
 	exit(1);
 }
 
-
+/************************
+* Constructors 
+*************************/
 ASTBlock::ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*> p, list<ASTStmt*> b)
 {
 	consts = c;
@@ -223,13 +225,16 @@ ASTVarDecl::ASTVarDecl(string i, Type t)
 	typ = t;
 }
 
+
+/*****************
+* Render 
+******************/
 string ASTProgram::render(string indent)
 {
 	string result = indent + "Program " + name + "\n";
 	result += block->render(indent + "  ");
 	return result;
 }
-
 
 string ASTBlock::render(string indent)
 {
@@ -266,6 +271,141 @@ string ASTProcDecl::render(string indent)
 	return result;
 }
 
+string ValParam::render(string indent)
+{
+	string result = indent + "Val " + id + " : " + checkType(type) + "\n";
+	return result;
+}
+
+string VarParam::render(string indent)
+{
+	string result = indent + "Var " + id + " : " + checkType(type) + "\n";
+	return result;
+}
+
+string Assign::render(string indent)
+{
+	string result = indent + "Assign " + id + "\n";
+	result += expr->render(indent + "  ");
+	return result;
+}
+
+string Call::render(string indent)
+{
+	string result = indent + "Call " + id + "\n";
+	for (ASTExpr* a : args)
+		result += a->render(indent + "  ");
+	return result;
+}
+
+string Seq::render(string indent)
+{
+	string result = indent + "Sequence\n";
+	for (ASTStmt* b : body)
+		result += b->render(indent + "  ");
+	return result;
+}
+
+string IfThen::render(string indent)
+{
+	string result = indent + "IfThen\n";
+	result += test->render(indent + "  ");
+	result += trueClause->render(indent + "  ");
+	return result;
+}
+
+string IfThenElse::render(string indent)
+{
+	string result = indent + "IfThenElse\n";
+	result += test->render(indent + "  ");
+	result += trueClause->render(indent + "  ");
+	result += falseClause->render(indent + "  ");
+	return result;
+}
+
+string While::render(string indent)
+{
+	string result = indent + "While\n";
+	result += test->render(indent + "  ");
+	result += body->render(indent + "  ");
+	return result;
+}
+
+string Prompt::render(string indent)
+{
+	string result = indent + "Prompt " + message + "\n";
+	return result;
+}
+
+string Prompt2::render(string indent)
+{
+	string result = indent + "Prompt2 " + message + ", " + id + "\n";
+	return result;
+}
+
+string Print::render(string indent)
+{
+	string result = indent + "Print\n";
+	for (ASTItem* i : items)
+		result += i->render(indent + "  ");
+	return result;
+}
+
+string ExprItem::render(string indent)
+{
+	string result = indent + "ExprItem\n";
+	result += expr->render(indent + "  ");
+	return result;
+}
+
+string StringItem::render(string indent)
+{
+	string result = indent + "StringItem " + message + "\n";
+	return result;
+}
+
+string BinOp::render(string indent)
+{
+	string result = indent + "BinOp " + checkOp2(op) + "\n";
+	result += left->render(indent + "  ");
+	result += right->render(indent + "  ");
+	return result;
+}
+
+string UnOp::render(string indent)
+{
+	string result = indent + "UnOp " + checkOp1(op) + "\n";
+	result += expr->render(indent + "  ");
+	return result;
+}
+
+string Num::render(string indent)
+{
+	string result = indent + "Num " + to_string(value) + "\n";
+	return result;
+}
+
+string IDExpr::render(string indent)
+{
+	string result = indent + "Id " + id + "\n";
+	return result;
+}
+
+string True::render(string indent)
+{
+	string result = indent + "True\n";
+	return result;
+}
+
+string False::render(string indent)
+{
+	string result = indent + "False\n";
+	return result;
+}
+
+/******************
+* Interpreters 
+********************/
 Value * ASTProgram::interpret()
 {
 	SymbolTable t = SymbolTable();
@@ -298,6 +438,7 @@ Value * ASTConstDecl::interpret(SymbolTable t)
 	t.bind(id, new IntValue(value));
 	return NULL;
 }
+
 Value * ASTVarDecl::interpret(SymbolTable t)
 {
 	if (typ == IntType)
@@ -311,25 +452,6 @@ Value * ASTProcDecl::interpret(SymbolTable t)
 {
 	t.bind(id, new ProcValue(params, block));
 	return NULL;
-}
-
-string ValParam::render(string indent)
-{
-	string result = indent + "Val " + id + " : " + checkType(type) + "\n";
-	return result;
-}
-
-string VarParam::render(string indent)
-{
-	string result = indent + "Var " + id + " : " + checkType(type) + "\n";
-	return result;
-}
-
-string Assign::render(string indent)
-{
-	string result = indent + "Assign " + id + "\n";
-	result += expr->render(indent + "  ");
-	return result;
 }
 
 Value * Assign::interpret(SymbolTable t)
@@ -364,15 +486,6 @@ Value * Assign::interpret(SymbolTable t)
 		exit(1);
 	}
 	return NULL;
-}
-
-
-string Call::render(string indent)
-{
-	string result = indent + "Call " + id + "\n";
-	for (ASTExpr* a : args)
-		result += a->render(indent + "  ");
-	return result;
 }
 
 Value * Call::interpret(SymbolTable t)
@@ -412,6 +525,157 @@ Value * Call::interpret(SymbolTable t)
 	return NULL;
 }
 
+Value * Seq::interpret(SymbolTable t)
+{
+	for (ASTStmt* b : body)
+		b->interpret(t);
+	return NULL;
+}
+
+Value * IfThen::interpret(SymbolTable t)
+{
+	Value* val = test->interpret(t);
+	if (val->getBoolValue())
+		trueClause->interpret(t);
+	return NULL;
+}
+
+Value * IfThenElse::interpret(SymbolTable t)
+{
+	Value* value = test->interpret(t);
+	if (value->getBoolValue())
+		trueClause->interpret(t);
+	else
+		falseClause->interpret(t);
+	return NULL;
+}
+
+Value * While::interpret(SymbolTable t) {
+	Value* value = test->interpret(t);
+	while (value->getBoolValue())
+	{
+		body->interpret(t);
+		value = test->interpret(t);
+	}
+	return NULL;
+}
+
+Value * Prompt::interpret(SymbolTable t)
+{
+	string input;
+	cout << message;
+	getline(cin, input);
+	return NULL;
+}
+
+Value * Prompt2::interpret(SymbolTable t)
+{
+	Value* lhs = t.lookup(id);
+	string input;
+
+	cout << message << " ";
+	getline(cin, input);
+
+	try
+	{
+		lhs->setInt(stoi(input));
+	}
+	catch (std::invalid_argument)
+	{
+		cout << "Error: Input is not an interger" << endl;
+		exit(1);
+	}
+	return NULL;
+}
+
+Value * Print::interpret(SymbolTable t)
+{
+	for (ASTItem* i : items)
+	{
+		if (i->item == Item)
+		{
+			ExprItem* item = dynamic_cast<ExprItem*>(i);
+			Value* value = item->expr->interpret(t);
+			cout << value->getIntValue();
+			delete item;
+		}
+		else
+		{
+			StringItem* item = dynamic_cast<StringItem*>(i);
+			cout << item->message;
+		}
+	}
+	cout << endl;
+	return NULL;
+}
+
+Value * BinOp::interpret(SymbolTable t)
+{
+	Value* lhs = left->interpret(t);
+	Value* rhs = right->interpret(t);
+
+	switch (op)
+	{
+	case And:	return new BoolValue(lhs->getBoolValue() && rhs->getBoolValue());
+	case Or:	return new BoolValue(lhs->getBoolValue() || rhs->getBoolValue());
+	case EQ:	return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
+	case NE:	return new BoolValue(lhs->getIntValue() != rhs->getIntValue());
+	case LE:	return new BoolValue(lhs->getIntValue() <= rhs->getIntValue());
+	case LT:	return new BoolValue(lhs->getIntValue() < rhs->getIntValue());
+	case GE:	return new BoolValue(lhs->getIntValue() >= rhs->getIntValue());
+	case GT:	return new BoolValue(lhs->getIntValue() > rhs->getIntValue());
+	case Plus:	return new IntValue(lhs->getIntValue() + rhs->getIntValue());
+	case Minus:	return new IntValue(lhs->getIntValue() - rhs->getIntValue());
+	case Times:	return new IntValue(lhs->getIntValue() * rhs->getIntValue());
+	case Div:	return new IntValue(lhs->getIntValue() / rhs->getIntValue());
+	case Mod:	return new IntValue(lhs->getIntValue() % rhs->getIntValue());
+	}
+	exit(1);
+}
+
+Value * UnOp::interpret(SymbolTable t)
+{
+	Value* value = expr->interpret(t);
+
+	switch (op)
+	{
+	case Neg:
+		return new IntValue(-value->getIntValue());
+	case Not:
+		return new BoolValue(!value->getBoolValue());
+	}
+	exit(1);
+}
+
+Value * Num::interpret(SymbolTable t)
+{
+	return new IntValue(value);
+}
+
+Value * IDExpr::interpret(SymbolTable t)
+{
+	Value* val = t.lookup(id);
+	if (val != NULL)
+		return val;
+	else {
+		cout << "Error: Undefined" << id << endl;
+		exit(1);
+	}
+}
+
+Value * True::interpret(SymbolTable t)
+{
+	return new BoolValue(boolean);
+}
+
+Value * False::interpret(SymbolTable t)
+{
+	return new BoolValue(boolean);
+}
+
+/******************
+* Call 
+******************/
 void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, SymbolTable t)
 {
 	if (param.empty() && args.empty())
@@ -449,271 +713,5 @@ void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, Sym
 		call(param, block, value, t);
 	}
 }
-
-string Seq::render(string indent)
-{
-	string result = indent + "Sequence\n";
-	for (ASTStmt* b : body)
-		result += b->render(indent + "  ");
-	return result;
-}
-
-Value * Seq::interpret(SymbolTable t)
-{
-	for (ASTStmt* b : body)
-		b->interpret(t);
-	return NULL;
-}
-
-
-string IfThen::render(string indent)
-{
-	string result = indent + "IfThen\n";
-	result += test->render(indent + "  ");
-	result += trueClause->render(indent + "  ");
-	return result;
-}
-
-Value * IfThen::interpret(SymbolTable t)
-{
-	Value* val = test->interpret(t);
-	if (val->getBoolValue())
-		trueClause->interpret(t);
-	return NULL;
-}
-
-string IfThenElse::render(string indent)
-{
-	string result = indent + "IfThenElse\n";
-	result += test->render(indent + "  ");
-	result += trueClause->render(indent + "  ");
-	result += falseClause->render(indent + "  ");
-	return result;
-}
-
-Value * IfThenElse::interpret(SymbolTable t)
-{
-	Value* value = test->interpret(t);
-	if (value->getBoolValue())
-		trueClause->interpret(t);
-	else
-		falseClause->interpret(t);
-	return NULL;
-}
-
-
-string While::render(string indent)
-{
-	string result = indent + "While\n";
-	result += test->render(indent + "  ");
-	result += body->render(indent + "  ");
-	return result;
-}
-
-Value * While::interpret(SymbolTable t) {
-	Value* value = test->interpret( t );
-	while ( value->getBoolValue() )
-	{
-		body->interpret( t );
-		value = test->interpret( t );
-	}
-	return NULL;
-}
-
-
-string Prompt::render(string indent)
-{
-	string result = indent + "Prompt " + message + "\n";
-	return result;
-}
-
-Value * Prompt::interpret(SymbolTable t)
-{
-	string input;
-	cout << message;
-	getline(cin, input);
-	return NULL;
-}
-
-
-string Prompt2::render(string indent)
-{
-	string result = indent + "Prompt2 " + message + ", " + id + "\n";
-	return result;
-}
-
-Value * Prompt2::interpret(SymbolTable t)
-{
-	Value* lhs = t.lookup(id);
-	string input;
-
-	cout << message << " ";
-	getline(cin, input);
-
-	try
-	{
-		lhs->setInt(stoi(input));
-	}
-	catch (std::invalid_argument)
-	{
-		cout << "Error: Input is not an interger" << endl;
-		exit(1);
-	}
-	return NULL;
-}
-
-
-string Print::render(string indent)
-{
-	string result = indent + "Print\n";
-	for (ASTItem* i : items)
-		result += i->render(indent + "  ");
-	return result;
-}
-
-Value * Print::interpret(SymbolTable t)
-{
-	for (ASTItem* i : items)
-	{
-		if (i->item == Item)
-		{
-			ExprItem* item = dynamic_cast<ExprItem*>(i);
-			Value* value = item->expr->interpret(t);
-			cout << value->getIntValue();
-			delete item;
-		}
-		else
-		{
-			StringItem* item = dynamic_cast<StringItem*>(i);
-			cout << item->message;
-		}
-	}
-	cout << endl;
-	return NULL;
-}
-
-
-string ExprItem::render(string indent)
-{
-	string result = indent + "ExprItem\n";
-	result += expr->render(indent + "  ");
-	return result;
-}
-
-string StringItem::render(string indent)
-{
-	string result = indent + "StringItem " + message + "\n";
-	return result;
-}
-
-string BinOp::render(string indent)
-{
-	string result = indent + "BinOp " + checkOp2(op) + "\n";
-	result += left->render(indent + "  ");
-	result += right->render(indent + "  ");
-	return result;
-}
-
-Value * BinOp::interpret(SymbolTable t)
-{
-	Value* lhs = left->interpret(t);
-	Value* rhs = right->interpret(t);
-
-	switch (op)
-	{
-	case And:	return new BoolValue(lhs->getBoolValue() && rhs->getBoolValue());
-	case Or:	return new BoolValue(lhs->getBoolValue() || rhs->getBoolValue());
-	case EQ:	return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
-	case NE:	return new BoolValue(lhs->getIntValue() != rhs->getIntValue());
-	case LE:	return new BoolValue(lhs->getIntValue() <= rhs->getIntValue());
-	case LT:	return new BoolValue(lhs->getIntValue() < rhs->getIntValue());
-	case GE:	return new BoolValue(lhs->getIntValue() >= rhs->getIntValue());
-	case GT:	return new BoolValue(lhs->getIntValue() > rhs->getIntValue());
-	case Plus:	return new IntValue(lhs->getIntValue() + rhs->getIntValue());
-	case Minus:	return new IntValue(lhs->getIntValue() - rhs->getIntValue());
-	case Times:	return new IntValue(lhs->getIntValue() * rhs->getIntValue());
-	case Div:	return new IntValue(lhs->getIntValue() / rhs->getIntValue());
-	case Mod:	return new IntValue(lhs->getIntValue() % rhs->getIntValue());
-	}
-	exit(1);
-}
-
-
-string UnOp::render(string indent)
-{
-	string result = indent + "UnOp " + checkOp1(op) + "\n";
-	result += expr->render(indent + "  ");
-	return result;
-}
-
-Value * UnOp::interpret(SymbolTable t)
-{
-	Value* value = expr->interpret(t);
-
-	switch (op)
-	{
-	case Neg:
-		return new IntValue(-value->getIntValue());
-	case Not:
-		return new BoolValue(!value->getBoolValue());
-	}
-	exit(1);
-}
-
-
-string Num::render(string indent)
-{
-	string result = indent + "Num " + to_string(value) + "\n";
-	return result;
-}
-
-Value * Num::interpret(SymbolTable t)
-{
-	return new IntValue(value);
-}
-
-
-string IDExpr::render(string indent)
-{
-	string result = indent + "Id " + id + "\n";
-	return result;
-}
-
-Value * IDExpr::interpret(SymbolTable t)
-{
-	Value* val = t.lookup(id);
-	if ( val != NULL)
-		return val;
-	else {
-		cout << "Error: Undefined" << id << endl;
-		exit(1);
-	}
-}
-
-
-string True::render(string indent)
-{
-	string result = indent + "True\n";
-	return result;
-}
-
-Value * True::interpret(SymbolTable t)
-{
-	return new BoolValue(boolean);
-}
-
-
-string False::render(string indent)
-{
-	string result = indent + "False\n";
-	return result;
-}
-
-Value * False::interpret(SymbolTable t)
-{
-	return new BoolValue(boolean);
-}
-
-
 
 
