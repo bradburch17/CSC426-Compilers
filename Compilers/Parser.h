@@ -13,12 +13,13 @@
 
 #include "Scanner.h"
 #include "AST.h"
+#include "Wrapper.h"
 
 using namespace std;
 
 class Parser {
 public:
-	Parser();
+	Parser(istream &);
 	void parser2();
 	ASTProgram* start();
 
@@ -67,6 +68,7 @@ public:
 private:
 	pair<string, string> constant; //This sets up the pairing for constants. It is not the actual hashmap.
 	unordered_map<string, string> con; //This is the actual hashmap that takes in constant. 
+	Wrapper wrapper;
 };
 
 #endif /* PARSER_H_ */

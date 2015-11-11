@@ -24,7 +24,7 @@ int main() {
 		input.open(file);
 	}
 
-	Parser parser;
+	Parser parser(input);
 	ASTProgram* start = parser.start();
 	start->interpret();
 }

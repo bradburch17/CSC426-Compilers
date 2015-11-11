@@ -200,9 +200,9 @@ public:
 	Type type;
 };
 
-/**
+/******************
 * Procedure Declaration 
-*/
+********************/
 class ASTProcDecl {
 public:
 	ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b);
@@ -215,9 +215,9 @@ private:
 	ASTBlock* block; 
 };
 
-/**
+/*********************
 * Program
-*/
+***********************/
 class ASTProgram {
 public:
 	ASTProgram(string n, ASTBlock* b);
@@ -229,9 +229,9 @@ private:
 	ASTBlock* block;
 };
 
-/**
+/****************
 * Statements 
-*/
+******************/
 class ASTStmt {  
 public:
 	ASTStmt();
@@ -340,9 +340,9 @@ private:
 
 };
 
-/**
+/***********************
 * Variable Declarations 
-*/
+************************/
 class ASTVarDecl {
 public:
 	ASTVarDecl(string i, Type t);
@@ -353,93 +353,4 @@ private:
 	string id;
 	Type typ;
 };
-
-/*
-* Values
-*/
-//class Value {
-//public:
-//	Value();
-//	ValueType value;
-//	virtual int getIntValue() = 0;
-//	virtual bool getBoolValue() = 0;
-//	virtual void setInt(int i) = 0;
-//	virtual void setBool(bool b) = 0;
-//};
-//
-//class IntValue :public Value {
-//public: 
-//	IntValue(int i);
-//	int integer;
-//	int getIntValue();
-//	bool getBoolValue();
-//	void setInt(int i);
-//	void setBool(bool b);
-//private:
-//	ValueType value;
-//};
-//
-//class BoolValue :public Value {
-//public: 
-//	BoolValue(bool b);
-//	bool boolean;
-//	int getIntValue();
-//	bool getBoolValue();
-//	void setInt(int i);
-//	void setBool(bool b);
-//private:
-//	ValueType value;
-//};
-//
-//class ProcValue :public Value {
-//public: 
-//	ProcValue(list<ASTParam*> p, ASTBlock* b);
-//	list<ASTParam*> param;
-//	ASTBlock* block;
-//	int getIntValue();
-//	bool getBoolValue();
-//	void setInt(int i);
-//	void setBool(bool b);
-//private: 
-//	ValueType value;
-//};
-//
-//class IntCell :public Value {
-//public: 
-//	IntCell(int i);
-//	void set(int i);
-//	int getIntValue();
-//	bool getBoolValue();
-//	void setInt(int i);
-//	void setBool(bool b);
-//private:
-//	int integer;
-//	ValueType value;
-//};
-//
-//class BoolCell :public Value {
-//public: 
-//	BoolCell(bool b);
-//	void set(bool b);
-//	int getIntValue();
-//	bool getBoolValue();
-//	void setInt(int i);
-//	void setBool(bool b);
-//private:
-//	bool boolean;
-//	ValueType value;
-//};
-//
-///*
-//* Symbol Table 
-//*/
-//class SymbolTable {
-//public:
-//	SymbolTable();
-//	void enter(string id);
-//	void exit();
-//	void bind(string id, Value* v);
-//	Value* lookup(string id);
-//	vector<pair<string, map<string, Value*>*>> scopes;	
-//};
 #endif /* AST_H_ */

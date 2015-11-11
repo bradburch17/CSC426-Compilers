@@ -1,0 +1,46 @@
+// This program shows just about all of YASL
+program demo3;
+  { Declare some constants }
+  const x = 6;
+  const y = 7;
+  const z = -120;
+  { Declare some variables }
+  var a: int;
+  var b: bool;
+  var c1: int; var c2: int;
+  { Declare some procedures }
+  proc foo;
+    const a = 42; // local to foo
+    var b: bool;
+    begin
+      c1 = x * y;
+      b = a == c1;
+      if b then
+        print "Hooray!";
+    end;
+  proc bar(n: int, b: bool, var r: int);
+    proc fact(n: int, var r: int);
+      begin
+        if b or not b then
+          if n > 0 then
+          begin
+            fact(n - 1, r);
+            r = r * n;
+          end;
+          else
+            r = (y + x) mod 2;
+      end;
+    begin
+      while b do
+      begin
+        b = not b;
+        foo;
+      end;
+      fact(n, r);
+    end;
+  begin
+    prompt "Enter a number", a;
+    bar(a, x < y, c2);
+    print "The answer is """, c2--z+c1, """!";
+    prompt "Hit ENTER to end";
+  end.

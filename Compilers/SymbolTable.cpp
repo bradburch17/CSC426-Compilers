@@ -71,17 +71,19 @@ int IntValue::getIntValue()
 bool IntValue::getBoolValue()
 {
 	cout << "Error: Cannot retrieve " << checkValueType(BooleanValue) << endl;
-	return NULL;
+	exit(1);
 }
 
 void IntValue::setInt(int i)
 {
 	cout << "Error: Cannot set " << checkValueType(IntegerValue) << endl;
+	exit(1);
 }
 
 void IntValue::setBool(bool b)
 {
 	cout << "Error: Cannot set " << checkValueType(BooleanValue) << endl;
+	exit(1);
 }
 
 
@@ -94,7 +96,7 @@ BoolValue::BoolValue(bool b)
 int BoolValue::getIntValue()
 {
 	cout << "Error: Cannot retrieve " << checkValueType(IntegerValue) << endl;
-	return NULL;
+	exit(1);
 }
 
 bool BoolValue::getBoolValue()
@@ -105,17 +107,19 @@ bool BoolValue::getBoolValue()
 void BoolValue::setInt(int i)
 {
 	cout << "Error: Cannot set " << checkValueType(IntegerValue) << endl;
+	exit(1);
 }
 
 void BoolValue::setBool(bool b)
 {
 	cout << "Error: Cannot set " << checkValueType(BooleanValue) << endl;
+	exit(1);
 }
 
 int BoolCell::getIntValue()
 {
 	cout << "Error: Cannot retrieve " << checkValueType(IntegerValue) << endl;
-	return NULL;
+	exit(1);
 }
 
 bool BoolCell::getBoolValue()
@@ -126,6 +130,7 @@ bool BoolCell::getBoolValue()
 void BoolCell::setInt(int i)
 {
 	cout << "Error: Cannot set " << checkValueType(IntegerValue) << endl;
+	exit(1);
 }
 
 void BoolCell::setBool(bool b)
@@ -141,7 +146,7 @@ int IntCell::getIntValue()
 bool IntCell::getBoolValue()
 {
 	cout << "Error: Cannot retrieve " << checkValueType(BooleanValue) << endl;
-	return NULL;
+	exit(1);
 }
 
 void IntCell::setInt(int i)
@@ -152,28 +157,31 @@ void IntCell::setInt(int i)
 void IntCell::setBool(bool b)
 {
 	cout << "Error: Cannot set " << checkValueType(BooleanValue) << endl;
+	exit(1);
 }
 
 int ProcValue::getIntValue()
 {
 	cout << "Error: Cannot retrieve " << checkValueType(IntegerValue) << endl;
-	return NULL;
+	exit(1);
 }
 
 bool ProcValue::getBoolValue()
 {
 	cout << "Error: Cannot retrieve " << checkValueType(BooleanValue) << endl;
-	return NULL;
+	exit(1);
 }
 
 void ProcValue::setInt(int i)
 {
 	cout << "Error: Cannot set " << checkValueType(IntegerValue) << endl;
+	exit(1);
 }
 
 void ProcValue::setBool(bool b)
 {
 	cout << "Error: Cannot set " << checkValueType(BooleanValue) << endl;
+	exit(1);
 }
 
 Value::Value()

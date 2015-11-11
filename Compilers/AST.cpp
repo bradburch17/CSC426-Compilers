@@ -19,7 +19,6 @@ string checkOp1(Op1 op1)
 	case Neg: return "Neg";
 	case Not: return "Not";
 	}
-	exit(1);
 }
 string checkOp2(Op2 op2)
 {
@@ -38,7 +37,6 @@ string checkOp2(Op2 op2)
 	case And: return "And";
 	case Or: return "Or";
 	}
-	exit(1);
 }
 
 string checkType(Type t) {
@@ -46,7 +44,6 @@ string checkType(Type t) {
 	case IntType: return "Int";
 	case BoolType: return "Bool";
 	}
-	exit(1);
 }
 
 string checkValueType(ValueType t) {
@@ -58,7 +55,6 @@ string checkValueType(ValueType t) {
 	case BooleanCell: return "Boolean Cell";
 	case ProcedureValue: return "Procedure Value";
 	}
-	exit(1);
 }
 
 /************************
@@ -458,32 +454,16 @@ Value * Assign::interpret(SymbolTable t)
 {
 	Value* lhs = t.lookup(id);
 
-	if (lhs->value == IntegerCell || lhs->value == BooleanCell)
-	{
-		Value* rhs = expr->interpret(t);
+	Value* rhs = expr->interpret(t);
 
-		if (lhs->value == IntegerCell && rhs->value == IntegerValue)
-		{
-			IntCell* cell = dynamic_cast<IntCell*>(lhs);
-			IntValue* value = dynamic_cast<IntValue*>(rhs);
-			cell->set(value->integer);
-		}
-		else if (lhs->value == BooleanCell && rhs->value == BooleanValue)
-		{
-			BoolCell* cell = dynamic_cast<BoolCell*>(lhs);
-			BoolValue* value = dynamic_cast<BoolValue*>(rhs);
-			cell->set(value->boolean);
-		}
-		else
-		{
-			cout << "Error: Cannot assign " << (rhs->value) << endl;
-			exit(1);
-		}
-	}
+	if (lhs->value == IntegerCell)
+		lhs->setInt(rhs->getIntValue());
+	else if (lhs->value == BooleanCell)
+		lhs->setBool(rhs->getBoolValue());
 	else
 	{
-		cout << "Error: Cannot assign to " << id;
-		exit(1);
+		cout << "Error: Cannot find " << id << endl;
+
 	}
 	return NULL;
 }
@@ -492,19 +472,15 @@ Value * Call::interpret(SymbolTable t)
 {
 	Value* look_up = t.lookup(id);
 
-	if (look_up == NULL)
-	{
+	if (look_up == NULL) {
 		cout << "Error: Expected " << checkValueType(ProcedureValue) << endl;
-		exit(1);
 	}
 
-	if (look_up->value != ProcedureValue)
-	{
+	if (look_up->value != ProcedureValue) {
 		cout << "Error: Expected " << checkValueType(ProcedureValue) << endl;
-		exit(1);
 	}
 
-	ProcValue* value = dynamic_cast<ProcValue*>(t.lookup(id));
+	ProcValue* val = dynamic_cast<ProcValue*>(t.lookup(id));
 	list<Value*> arguments;
 
 	for (ASTExpr* arg : args) {
@@ -513,14 +489,12 @@ Value * Call::interpret(SymbolTable t)
 	}
 
 
-	if (value->param.size() != arguments.size())
-	{
+	if (val->param.size() != arguments.size()) {
 		cout << "Error: Parameters do not match in " << id << endl;
-		exit(1);
 	}
 
 	t.enter(id);
-	call(value->param, value->block, arguments, t);
+	call(val->param, val->block, arguments, t);
 	t.exit();
 	return NULL;
 }
@@ -575,12 +549,10 @@ Value * Prompt2::interpret(SymbolTable t)
 
 	cout << message << " ";
 	getline(cin, input);
-
-	try
-	{
+	try	{
 		lhs->setInt(stoi(input));
 	}
-	catch (std::invalid_argument)
+	catch (invalid_argument)
 	{
 		cout << "Error: Input is not an interger" << endl;
 		exit(1);
@@ -590,17 +562,14 @@ Value * Prompt2::interpret(SymbolTable t)
 
 Value * Print::interpret(SymbolTable t)
 {
-	for (ASTItem* i : items)
-	{
-		if (i->item == Item)
-		{
+	for (ASTItem* i : items) {
+		if (i->item == Item) {
 			ExprItem* item = dynamic_cast<ExprItem*>(i);
 			Value* value = item->expr->interpret(t);
 			cout << value->getIntValue();
 			delete item;
 		}
-		else
-		{
+		else {
 			StringItem* item = dynamic_cast<StringItem*>(i);
 			cout << item->message;
 		}
@@ -614,8 +583,7 @@ Value * BinOp::interpret(SymbolTable t)
 	Value* lhs = left->interpret(t);
 	Value* rhs = right->interpret(t);
 
-	switch (op)
-	{
+	switch (op) {
 	case And:	return new BoolValue(lhs->getBoolValue() && rhs->getBoolValue());
 	case Or:	return new BoolValue(lhs->getBoolValue() || rhs->getBoolValue());
 	case EQ:	return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
@@ -630,7 +598,6 @@ Value * BinOp::interpret(SymbolTable t)
 	case Div:	return new IntValue(lhs->getIntValue() / rhs->getIntValue());
 	case Mod:	return new IntValue(lhs->getIntValue() % rhs->getIntValue());
 	}
-	exit(1);
 }
 
 Value * UnOp::interpret(SymbolTable t)
@@ -644,7 +611,6 @@ Value * UnOp::interpret(SymbolTable t)
 	case Not:
 		return new BoolValue(!value->getBoolValue());
 	}
-	exit(1);
 }
 
 Value * Num::interpret(SymbolTable t)
@@ -707,7 +673,6 @@ void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, Sym
 			else
 			{
 				cout << "Error: Cannot pass " << checkValueType(arg->value) << endl;
-				exit(1);
 			}
 		}
 		call(param, block, value, t);

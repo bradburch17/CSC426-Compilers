@@ -13,7 +13,7 @@
 
 using namespace std;
 
-Scanner::Scanner(istream& in) :	in(in) {
+Scanner::Scanner(istream &in) :	in(in) {
 	line_num = 1;
 	column_num = 1;
 	getline(in, line);

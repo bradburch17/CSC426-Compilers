@@ -15,8 +15,8 @@
 
 using namespace std;
 
-Parser::Parser(){
-	
+Parser::Parser(istream &in) : wrapper(in) {
+
 }
 
 /*
@@ -45,7 +45,6 @@ int pres(Token tok) {
 	else if (type == MOD) {
 		return 2;
 	} 
-	exit(1);
 }
 
 /*
@@ -137,8 +136,6 @@ void Parser::parser2() {
 	wrapper.match(PERIOD);
 }
 
-Wrapper wrapper(cin);
-
 ASTProgram* Parser::start() {
 	ASTProgram* stmt = parseProgram();
 	wrapper.match(EOFILE);
@@ -173,12 +170,12 @@ ASTConstDecl * Parser::parseConstDecl()
 {
 	Token constant = wrapper.match(CONST);
 	Token id = wrapper.match(ID);
-	Token assign = wrapper.match(ASSIGN);
+	wrapper.match(ASSIGN);
 	string sign = parseSign();
-	Token num = wrapper.match(NUM);
+	Token value = wrapper.match(NUM);
 	wrapper.match(SEMI);
 
-	int val = stoi(num.lexeme);
+	int val = stoi(value.lexeme);
 	if (sign.compare("-") == 0)
 		val = -val;
 
@@ -210,6 +207,8 @@ ASTProcDecl * Parser::parseProcDecl()
 	ASTProcDecl* p = new ASTProcDecl(id.lexeme, paramList, block);
 	return p;
 }
+
+
 
 ASTParam * Parser::parseParam()
 {
@@ -283,7 +282,6 @@ ASTStmt * Parser::parseStmt()
 		Print* p = new Print(items);
 		return p;
 	}
-	exit(1);
 }
 
 ASTStmt * Parser::parseStmtID(string i)
@@ -419,14 +417,14 @@ ASTExpr * Parser::parseFactor()
 	else if (wrapper.check(MINUS)) {
 		Token unOp = wrapper.match(MINUS);
 		ASTExpr* factor = parseFactor();
-		UnOp* n = new UnOp(Neg, factor); //***********************************
+		UnOp* n = new UnOp(Neg, factor); 
 
 		return n;
 	}
 	else if (wrapper.check(NOT)) {
 		Token unOp = wrapper.match(NOT);
 		ASTExpr* factor = parseFactor();
-		UnOp* n = new UnOp(Not, factor); //*************************************
+		UnOp* n = new UnOp(Not, factor); 
 
 		return n;
 	}
@@ -439,7 +437,6 @@ ASTExpr * Parser::parseFactor()
 	}
 	else
 		cout << "Expecting a NUM, ID, true, false, -, not, or (.Entered: " << wrapper.curr << "." << endl;
-	exit(1);
 }
 
 ASTItem * Parser::parseItem()
@@ -486,7 +483,6 @@ Op2 Parser::parseRelOp()
 	}
 	else
 		cout << "Expecting =, <>, <, >, <=, >=. Entered: " << wrapper.curr << "." << endl;
-	exit(1);
 }
 
 Op2 Parser::parseAddOp()
@@ -494,55 +490,48 @@ Op2 Parser::parseAddOp()
 	if (wrapper.check(PLUS))
 	{
 		wrapper.match(PLUS);
-		return Plus; //****************************************************
+		return Plus; 
 	}
 	else if (wrapper.check(MINUS))
 	{
 		wrapper.match(MINUS);
-		return Minus; //****************************************************
+		return Minus; 
 	}
 	else if (wrapper.check(OR))
 	{
 		wrapper.match(OR);
-		return Or; //**********************************************************
+		return Or;
 	}
 	else {
 		cout << "Expecting +, -, or. Entered: " << wrapper.curr << "." << endl;
 	}
-	exit(1);
 }
 
 Op2 Parser::parseMulOp()
 {
-	if (wrapper.check(STAR))
-	{
+	if (wrapper.check(STAR)) {
 		wrapper.match(STAR);
 		return Times; 
 	}
-	else if (wrapper.check(DIV))
-	{
+	else if (wrapper.check(DIV)) {
 		wrapper.match(DIV);
 		return Div; 
 	}
-	else if (wrapper.check(MOD))
-	{
+	else if (wrapper.check(MOD)) {
 		wrapper.match(MOD); 
 		return Mod; 
 	}
-	else if (wrapper.check(AND))
-	{
+	else if (wrapper.check(AND)) {
 		wrapper.match(AND);
 		return And; 
 	}
 	else
 		cout << "Expected *, div, mod, and. Entered: " << wrapper.curr << endl;
-	exit(1);
 }
 
 string Parser::parseSign()
 {
-	if (wrapper.check(MINUS))
-	{
+	if (wrapper.check(MINUS)) {
 		wrapper.match(MINUS);
 		return "-";
 	}
@@ -552,13 +541,11 @@ string Parser::parseSign()
 
 Type Parser::parseType()
 {
-	if (wrapper.check(INT))
-	{
+	if (wrapper.check(INT))	{
 		wrapper.match(INT);
 		return IntType; 
 	}
-	else
-	{
+	else {
 		wrapper.match(BOOL);
 		return BoolType; 
 	}
@@ -690,8 +677,7 @@ list<ASTItem*> Parser::parseItems()
 
 list<ASTItem*> Parser::parseItemsRest()
 {
-	if (wrapper.check(COMMA))
-	{
+	if (wrapper.check(COMMA)) {
 		wrapper.match(COMMA);
 		list<ASTItem*> items = parseItems();
 		return items;

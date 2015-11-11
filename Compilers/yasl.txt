@@ -1,0 +1,4 @@
+program demo3;
+	begin
+	print "Hello World";
+end.
