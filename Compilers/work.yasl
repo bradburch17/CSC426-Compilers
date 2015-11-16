@@ -1,0 +1,10 @@
+program demo3;
+  { Declare some procedures }
+  proc foo;
+    begin
+        print "Hooray!";
+    end;
+  begin
+    print "The answer is !";
+    prompt "Hit ENTER to end";
+  end.

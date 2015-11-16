@@ -405,16 +405,18 @@ string False::render(string indent)
 Value * ASTProgram::interpret()
 {
 	SymbolTable t = SymbolTable();
-	t.enter(name);
+	t.entertbl(name);
 	block->interpret(t);
-	t.exit();
+	t.exittbl();
 	return NULL;
 }
 
+/**********************************************************
 Value * ASTStmt::interpret(SymbolTable t)
 {
 	return NULL;
 }
+************************************************************/
 
 Value * ASTBlock::interpret(SymbolTable t)
 {
@@ -424,8 +426,8 @@ Value * ASTBlock::interpret(SymbolTable t)
 		v->interpret(t);
 	for (ASTProcDecl* p : procs)
 		p->interpret(t);
-	for (ASTStmt* s : body)
-		s->interpret(t);
+	for (ASTStmt* b : body)
+		b->interpret(t);
 	return NULL;
 }
 
@@ -439,7 +441,7 @@ Value * ASTVarDecl::interpret(SymbolTable t)
 {
 	if (typ == IntType)
 		t.bind(id, new IntCell(0));
-	else 
+	else
 		t.bind(id, new BoolCell(false));
 	return NULL;
 }
@@ -453,7 +455,6 @@ Value * ASTProcDecl::interpret(SymbolTable t)
 Value * Assign::interpret(SymbolTable t)
 {
 	Value* lhs = t.lookup(id);
-
 	Value* rhs = expr->interpret(t);
 
 	if (lhs->value == IntegerCell)
@@ -462,40 +463,40 @@ Value * Assign::interpret(SymbolTable t)
 		lhs->setBool(rhs->getBoolValue());
 	else
 	{
-		cout << "Error: Cannot find " << id << endl;
-
+		cout << "Error: " << id << "is not " << checkValueType(lhs->value) << endl;
+		exit(1);
 	}
 	return NULL;
 }
 
 Value * Call::interpret(SymbolTable t)
 {
-	Value* look_up = t.lookup(id);
-
-	if (look_up == NULL) {
-		cout << "Error: Expected " << checkValueType(ProcedureValue) << endl;
-	}
-
-	if (look_up->value != ProcedureValue) {
-		cout << "Error: Expected " << checkValueType(ProcedureValue) << endl;
-	}
-
-	ProcValue* val = dynamic_cast<ProcValue*>(t.lookup(id));
+	Value* lkup = t.lookup(id);
+	ProcValue* value = dynamic_cast<ProcValue*>(lkup);
 	list<Value*> arguments;
 
+	if (lkup == NULL) {
+		cout << "Error: Expected " << checkValueType(ProcedureValue) << " but found " << checkValueType(Undefined) << endl;
+		exit(1);
+	}
+	if (lkup->value != ProcedureValue) {
+		cout << "Error: Expected " << checkValueType(ProcedureValue) << " but found " << checkValueType(lkup->value) << endl;
+		exit(1);
+	}
+	
 	for (ASTExpr* arg : args) {
 		Value* v = arg->interpret(t);
 		arguments.push_back(v);
 	}
 
-
-	if (val->param.size() != arguments.size()) {
-		cout << "Error: Parameters do not match in " << id << endl;
+	if (value->param.size() != arguments.size()) {
+		cout << "Error: Number of parameters does not match " << id << " number of arguments." << endl;
+		exit(1);
 	}
 
-	t.enter(id);
-	call(val->param, val->block, arguments, t);
-	t.exit();
+	t.entertbl(id);
+	call(value->param, value->block, arguments, t);
+	t.exittbl();
 	return NULL;
 }
 
@@ -508,8 +509,8 @@ Value * Seq::interpret(SymbolTable t)
 
 Value * IfThen::interpret(SymbolTable t)
 {
-	Value* val = test->interpret(t);
-	if (val->getBoolValue())
+	Value* value = test->interpret(t);
+	if (value->getBoolValue())
 		trueClause->interpret(t);
 	return NULL;
 }
@@ -549,18 +550,18 @@ Value * Prompt2::interpret(SymbolTable t)
 
 	cout << message << " ";
 	getline(cin, input);
-	try	{
+
+	try {
 		lhs->setInt(stoi(input));
 	}
-	catch (invalid_argument)
-	{
-		cout << "Error: Input is not an interger" << endl;
+	catch (std::invalid_argument) {
+		cout << "Error: Input is not an interger." << endl;
 		exit(1);
 	}
 	return NULL;
 }
 
-Value * Print::interpret(SymbolTable t)
+Value * Print::interpret(SymbolTable t)///////////////////////////////////////////
 {
 	for (ASTItem* i : items) {
 		if (i->item == Item) {
@@ -583,7 +584,8 @@ Value * BinOp::interpret(SymbolTable t)
 	Value* lhs = left->interpret(t);
 	Value* rhs = right->interpret(t);
 
-	switch (op) {
+	switch (op)
+	{
 	case And:	return new BoolValue(lhs->getBoolValue() && rhs->getBoolValue());
 	case Or:	return new BoolValue(lhs->getBoolValue() || rhs->getBoolValue());
 	case EQ:	return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
@@ -620,11 +622,12 @@ Value * Num::interpret(SymbolTable t)
 
 Value * IDExpr::interpret(SymbolTable t)
 {
-	Value* val = t.lookup(id);
-	if (val != NULL)
-		return val;
-	else {
-		cout << "Error: Undefined" << id << endl;
+	Value* value = t.lookup(id);
+	if (value != NULL)
+		return value;
+	else
+	{
+		cout << "Error: Undefined " << id << endl;
 		exit(1);
 	}
 }
@@ -672,7 +675,8 @@ void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, Sym
 				t.bind(param->id, dynamic_cast<BoolCell*>(arg));
 			else
 			{
-				cout << "Error: Cannot pass " << checkValueType(arg->value) << endl;
+				cout << "Error: Cannot pass " << checkValueType(arg->value)	<< " " << id << " defined at " << " to a parameter of type " << checkType(param->type) << endl;
+				exit(1);
 			}
 		}
 		call(param, block, value, t);

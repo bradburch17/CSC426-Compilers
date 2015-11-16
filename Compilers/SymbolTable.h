@@ -97,8 +97,8 @@ private:
 class SymbolTable {
 public:
 	SymbolTable();
-	void enter(string id);
-	void exit();
+	void entertbl(string id);
+	void exittbl();
 	void bind(string id, Value* v);
 	Value* lookup(string id);
 	vector<pair<string, map<string, Value*>*>> scopes;

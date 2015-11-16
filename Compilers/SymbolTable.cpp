@@ -17,7 +17,7 @@ SymbolTable::SymbolTable()
 /*
 * Enter pushes a new id onto the symbol table
 */
-void SymbolTable::enter(string i)
+void SymbolTable::entertbl(string i)
 {
 	pair<string, map<string, Value*>* > symbol = make_pair(i, new map<string, Value*>());
 	scopes.push_back(symbol);
@@ -26,7 +26,7 @@ void SymbolTable::enter(string i)
 /*
 * Exit pops the top off of the symbol table
 */
-void SymbolTable::exit()
+void SymbolTable::exittbl()
 {
 	scopes.pop_back();
 }

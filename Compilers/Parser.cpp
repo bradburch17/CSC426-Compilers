@@ -139,6 +139,7 @@ void Parser::parser2() {
 ASTProgram* Parser::start() {
 	ASTProgram* stmt = parseProgram();
 	wrapper.match(EOFILE);
+
 	return stmt;
 }
 
@@ -176,6 +177,7 @@ ASTConstDecl * Parser::parseConstDecl()
 	wrapper.match(SEMI);
 
 	int val = stoi(value.lexeme);
+
 	if (sign.compare("-") == 0)
 		val = -val;
 
@@ -209,7 +211,7 @@ ASTProcDecl * Parser::parseProcDecl()
 }
 
 
-
+/****************************************************************************/
 ASTParam * Parser::parseParam()
 {
 	if (wrapper.check(ID)) {
@@ -244,12 +246,12 @@ ASTStmt * Parser::parseStmt()
 		list<ASTStmt*> stmts = parseStmts();
 		wrapper.match(END);
 		wrapper.match(SEMI);
-
 		Seq* s = new Seq(stmts);
+
 		return s;
 	}
 	else if (wrapper.check(IF)) {
-		Token ift = wrapper.match(IF);
+		Token iftoken = wrapper.match(IF);
 		ASTExpr* expr = parseExpr();
 		wrapper.match(THEN);
 		ASTStmt* stmt = parseStmt();
@@ -262,8 +264,8 @@ ASTStmt * Parser::parseStmt()
 		ASTExpr* expr = parseExpr();
 		wrapper.match(DO);
 		ASTStmt* stmt = parseStmt();
-
 		While* w = new While(expr, stmt);
+
 		return w;
 	}
 	else if (wrapper.check(PROMPT)) {
@@ -278,8 +280,8 @@ ASTStmt * Parser::parseStmt()
 		Token print = wrapper.match(PRINT);
 		list<ASTItem*> items = parseItems();
 		wrapper.match(SEMI);
-
 		Print* p = new Print(items);
+
 		return p;
 	}
 }
@@ -290,11 +292,13 @@ ASTStmt * Parser::parseStmtID(string i)
 		wrapper.match(ASSIGN);
 		ASTExpr* expr = parseExpr();
 		Assign* a = new Assign(i, expr);
+
 		return a;
 	}
 	else {
 		list<ASTExpr*> args = parseArgList();
 		Call* c = new Call(i, args);
+
 		return c;
 	}
 }
@@ -305,10 +309,12 @@ ASTStmt * Parser::parseStmtIf(ASTExpr * t, ASTStmt * tr)
 		wrapper.match(ELSE);
 		ASTStmt* stmt = parseStmt();
 		IfThenElse* i = new IfThenElse(t, tr, stmt);
+
 		return i;
 	}
 	else {
 		IfThen* i = new IfThen(t, tr);
+
 		return i;
 	}
 }
@@ -319,10 +325,12 @@ ASTStmt * Parser::parseStmtPrompt(string m)
 		wrapper.match(COMMA);
 		Token id = wrapper.match(ID);
 		Prompt2* p = new Prompt2(m, id.lexeme);
+
 		return p;
 	}
 	else {
 		Prompt* p = new Prompt(m);
+
 		return p;
 	}
 }
@@ -331,6 +339,7 @@ ASTExpr * Parser::parseExpr()
 {
 	ASTExpr* expr = parseSimpleExpr();
 	ASTExpr* e = parseExprRest(expr);
+
 	return e;
 }
 
@@ -340,6 +349,7 @@ ASTExpr * Parser::parseExprRest(ASTExpr * e)
 		Op2 relOp = parseRelOp();
 		ASTExpr* exp = parseSimpleExpr();
 		BinOp* b = new BinOp(e, relOp, exp);
+
 		return b;
 	}
 	else
@@ -361,6 +371,7 @@ ASTExpr * Parser::parseSimpleExprRest(ASTExpr * e)
 		ASTExpr* term = parseTerm();
 		BinOp* binOp = new BinOp(e, addOp, term);
 		ASTExpr* n = parseSimpleExprRest(binOp);
+
 		return n;
 	}
 	else
@@ -371,6 +382,7 @@ ASTExpr * Parser::parseTerm()
 {
 	ASTExpr* factor = parseFactor();
 	ASTExpr* n = parseTermRest(factor);
+
 	return n;
 }
 
@@ -417,35 +429,34 @@ ASTExpr * Parser::parseFactor()
 	else if (wrapper.check(MINUS)) {
 		Token unOp = wrapper.match(MINUS);
 		ASTExpr* factor = parseFactor();
-		UnOp* n = new UnOp(Neg, factor); 
+		UnOp* n = new UnOp(Neg, factor);
 
 		return n;
 	}
 	else if (wrapper.check(NOT)) {
 		Token unOp = wrapper.match(NOT);
 		ASTExpr* factor = parseFactor();
-		UnOp* n = new UnOp(Not, factor); 
-
-		return n;
-	}
-	else if (wrapper.check(LPAREN)) {
-		Token leftParen = wrapper.match(LPAREN);
-		ASTExpr* n = parseExpr();
-		wrapper.match(RPAREN);
+		UnOp* n = new UnOp(Not, factor);
 
 		return n;
 	}
 	else
-		cout << "Expecting a NUM, ID, true, false, -, not, or (.Entered: " << wrapper.curr << "." << endl;
+	{
+		Token leftParen = wrapper.match(LPAREN);
+		ASTExpr* exp = parseExpr();
+		wrapper.match(RPAREN);
+
+		return exp;
+	}
 }
 
 ASTItem * Parser::parseItem()
 {
 	if (wrapper.check(STRING)) {
 		Token stringToken = wrapper.match(STRING);
-		StringItem* node = new StringItem(stringToken.lexeme);
+		StringItem* i = new StringItem(stringToken.lexeme);
 
-		return node;
+		return i;
 	}
 	else {
 		ASTExpr* expr = parseExpr();
@@ -557,6 +568,7 @@ list<ASTConstDecl*> Parser::parseConstDecls()
 		ASTConstDecl* constDecl = parseConstDecl();
 		list<ASTConstDecl*> constDecls = parseConstDecls();
 		constDecls.push_front(constDecl);
+
 		return constDecls;
 	}
 	else
@@ -569,6 +581,7 @@ list<ASTVarDecl*> Parser::parseVarDecls()
 		ASTVarDecl* varDecl = parseVarDecl();
 		list<ASTVarDecl*> varDecls = parseVarDecls();
 		varDecls.push_front(varDecl);
+
 		return varDecls;
 	}
 	else
@@ -582,6 +595,7 @@ list<ASTProcDecl*> Parser::parseProcDecls()
 		ASTProcDecl* procDecl = parseProcDecl();
 		list<ASTProcDecl*> procDecls = parseProcDecls();
 		procDecls.push_front(procDecl);
+
 		return procDecls;
 	}
 	else
@@ -595,6 +609,7 @@ list<ASTStmt*> Parser::parseStmts()
 		ASTStmt* stmt = parseStmt();
 		list<ASTStmt*> stmts = parseStmts();
 		stmts.push_front(stmt);
+
 		return stmts;
 	}
 	else
@@ -608,6 +623,7 @@ list<ASTParam*> Parser::parseParamList()
 		wrapper.match(LPAREN);
 		list<ASTParam*> params = parseParams();
 		wrapper.match(RPAREN);
+
 		return params;
 	}
 	else
@@ -619,15 +635,16 @@ list<ASTParam*> Parser::parseParams()
 	ASTParam* param = parseParam();
 	list<ASTParam*> paramRest = parseParamRest();
 	paramRest.push_front(param);
+
 	return paramRest;
 }
 
 list<ASTParam*> Parser::parseParamRest()
 {
-	if (wrapper.check(COMMA))
-	{
+	if (wrapper.check(COMMA)) {
 		wrapper.match(COMMA);
 		list<ASTParam*> params = parseParams();
+
 		return params;
 	}
 	else
@@ -641,6 +658,7 @@ list<ASTExpr*> Parser::parseArgList()
 		wrapper.match(LPAREN);
 		list<ASTExpr*> args = parseArgs();
 		wrapper.match(RPAREN);
+
 		return args;
 	}
 	else
@@ -652,6 +670,7 @@ list<ASTExpr*> Parser::parseArgs()
 	ASTExpr* expr = parseExpr();
 	list<ASTExpr*> argsRest = parseArgsRest();
 	argsRest.push_front(expr);
+
 	return argsRest;
 }
 
@@ -661,6 +680,7 @@ list<ASTExpr*> Parser::parseArgsRest()
 	{
 		wrapper.match(COMMA);
 		list<ASTExpr*> args = parseArgs();
+
 		return args;
 	}
 	else
@@ -672,6 +692,7 @@ list<ASTItem*> Parser::parseItems()
 	ASTItem* item = parseItem();
 	list<ASTItem*> itemRest = parseItemsRest();
 	itemRest.push_front(item);
+
 	return itemRest;
 }
 
@@ -680,6 +701,7 @@ list<ASTItem*> Parser::parseItemsRest()
 	if (wrapper.check(COMMA)) {
 		wrapper.match(COMMA);
 		list<ASTItem*> items = parseItems();
+
 		return items;
 	}
 	else
