@@ -408,11 +408,9 @@ Value * ASTProgram::interpret()
 {
 	SymbolTable t = SymbolTable();
 	t.entertbl(name);
-	cout << "hey1";
 	block->interpret(t);
-	cout << "hey2";
 	t.exittbl();
-	cout << "hey3";
+
 	return NULL;
 }
 
@@ -549,12 +547,14 @@ Value * Prompt2::interpret(SymbolTable t)
 	string input;
 
 	cout << message << " ";
-	getline(cin, input);
+	cin >> input;
+	//getline(cin, input);
 
 	try {
-		lhs->setInt(stoi(input));
-	}
-	catch (std::invalid_argument) {
+		int n = stoi(input);
+		lhs->setInt(n);
+		}
+	catch (invalid_argument) {
 		cout << "Error: Input is not an interger." << endl;
 		exit(1);
 	}
@@ -623,7 +623,6 @@ Value * Num::interpret(SymbolTable t)
 
 Value * IDExpr::interpret(SymbolTable t)
 {
-	cout << "I AM HERE";
 	Value* value = t.lookup(id);
 	if (value != NULL)
 		return value;

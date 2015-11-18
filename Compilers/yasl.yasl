@@ -21,26 +21,28 @@ program demo3;
   proc bar(n: int, b: bool, var r: int);
     proc fact(n: int, var r: int);
       begin
-        if b or not b then
-          if n > 0 then
-          begin
-            fact(n - 1, r);
-            r = r * n;
-          end;
-          else
-            r = (y + x) mod 2;
+       // if b or not b then
+         // if n > 0 then
+          //begin
+           // fact(n - 1, r);
+            //r = r * n;
+          //end;
+          //else
+           // r = (y + x) mod 2;
+		   print "idiot";
       end;
     begin
-      while b do
-      begin
-        b = not b;
-        foo;
-      end;
-      fact(n, r);
+      //while b do
+      //begin
+        //b = not b;
+        //foo;
+      ///end;
+      //fact(n, r);
+	  print "I'm here idiot";
     end;
   begin
     prompt "Enter a number", a;
-    bar(a, x < y, c2);
-    print "The answer is """, c2--z+c1, """!";
+    //bar(a, x < y, c2);
+   // print "The answer is """, c2--z+c1, """!";
     prompt "Hit ENTER to end";
   end.
