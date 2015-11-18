@@ -121,11 +121,13 @@ ASTItem::ASTItem()
 ExprItem::ExprItem(ASTExpr * e)
 {
 	expr = e;
+	item = Item;
 }
 
 StringItem::StringItem(string m)
 {
 	message = m;
+	item = String;
 }
 
 ASTParam::ASTParam()
@@ -406,17 +408,13 @@ Value * ASTProgram::interpret()
 {
 	SymbolTable t = SymbolTable();
 	t.entertbl(name);
+	cout << "hey1";
 	block->interpret(t);
+	cout << "hey2";
 	t.exittbl();
+	cout << "hey3";
 	return NULL;
 }
-
-/**********************************************************
-Value * ASTStmt::interpret(SymbolTable t)
-{
-	return NULL;
-}
-************************************************************/
 
 Value * ASTBlock::interpret(SymbolTable t)
 {
@@ -426,8 +424,9 @@ Value * ASTBlock::interpret(SymbolTable t)
 		v->interpret(t);
 	for (ASTProcDecl* p : procs)
 		p->interpret(t);
-	for (ASTStmt* b : body)
+	for (ASTStmt* b : body) {
 		b->interpret(t);
+	}
 	return NULL;
 }
 
@@ -472,6 +471,7 @@ Value * Assign::interpret(SymbolTable t)
 Value * Call::interpret(SymbolTable t)
 {
 	Value* lkup = t.lookup(id);
+	
 	ProcValue* value = dynamic_cast<ProcValue*>(lkup);
 	list<Value*> arguments;
 
@@ -565,10 +565,11 @@ Value * Print::interpret(SymbolTable t)/////////////////////////////////////////
 {
 	for (ASTItem* i : items) {
 		if (i->item == Item) {
-			ExprItem* item = dynamic_cast<ExprItem*>(i);
-			Value* value = item->expr->interpret(t);
+			
+			ExprItem* j = dynamic_cast<ExprItem*>(i);
+			Value* value = j->expr->interpret(t); /////////////////////////This line
 			cout << value->getIntValue();
-			delete item;
+			delete j;
 		}
 		else {
 			StringItem* item = dynamic_cast<StringItem*>(i);
@@ -622,6 +623,7 @@ Value * Num::interpret(SymbolTable t)
 
 Value * IDExpr::interpret(SymbolTable t)
 {
+	cout << "I AM HERE";
 	Value* value = t.lookup(id);
 	if (value != NULL)
 		return value;

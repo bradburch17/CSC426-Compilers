@@ -37,7 +37,6 @@ public:
 	void setInt(int i);
 	void setBool(bool b);
 private:
-	ValueType value;
 };
 
 class BoolValue :public Value {
@@ -49,7 +48,7 @@ public:
 	void setInt(int i);
 	void setBool(bool b);
 private:
-	ValueType value;
+
 };
 
 class ProcValue :public Value {
@@ -62,7 +61,7 @@ public:
 	void setInt(int i);
 	void setBool(bool b);
 private:
-	ValueType value;
+
 };
 
 class IntCell :public Value {
@@ -75,7 +74,7 @@ public:
 	void setBool(bool b);
 private:
 	int integer;
-	ValueType value;
+
 };
 
 class BoolCell :public Value {
@@ -88,7 +87,7 @@ public:
 	void setBool(bool b);
 private:
 	bool boolean;
-	ValueType value;
+
 };
 
 /*

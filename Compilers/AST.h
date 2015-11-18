@@ -21,7 +21,7 @@ enum Op1 { Neg, Not };
 enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
 enum Type { IntType, BoolType };
 
-enum NodeTypes {Val, Expr, Item}; //used to check to see if node is true.
+enum NodeTypes {Val, Expr, Item, String}; //used to check to see if node is true.
 
 string checkOp1(Op1 op1);
 string checkOp2(Op2 op2);
@@ -163,6 +163,7 @@ public:
 	ExprItem(ASTExpr* e);
 	string render(string indent);
 	ASTExpr* expr;
+	NodeTypes n;
 };
 
 class StringItem : public ASTItem {
@@ -170,6 +171,7 @@ public:
 	StringItem(string m);
 	string render(string indent);
 	string message;
+	NodeTypes n;
 };
 
 

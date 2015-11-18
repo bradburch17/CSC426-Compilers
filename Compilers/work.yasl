@@ -5,6 +5,7 @@ program demo3;
         print "Hooray!";
     end;
   begin
+  foo;
     print "The answer is !";
     prompt "Hit ENTER to end";
   end.

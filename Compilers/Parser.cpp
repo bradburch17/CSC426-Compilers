@@ -210,14 +210,13 @@ ASTProcDecl * Parser::parseProcDecl()
 	return p;
 }
 
-
-/****************************************************************************/
 ASTParam * Parser::parseParam()
 {
 	if (wrapper.check(ID)) {
 		Token id = wrapper.match(ID);
 		wrapper.match(COLON);
 		Type type = parseType();
+
 		ValParam* v = new ValParam(id.lexeme, type);
 		return v;
 	}
