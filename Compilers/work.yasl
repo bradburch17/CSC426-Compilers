@@ -1,11 +1,39 @@
 program demo3;
   { Declare some procedures }
+  var a: int;
+  var b: bool;
   proc foo;
     begin
         print "Hooray!";
     end;
+  proc bar(x: bool, n: int);
+	begin
+	  print "FIREST";
+		while b do
+		begin
+			print "hey";
+			b = not b;
+		end;
+		
+		while x do
+		begin
+		   x = not x;
+		   print "1738";		   
+		end;
+		print "Yup yup yup ";
+	end;
+	proc car(n: int);
+    begin
+      while b do
+      begin
+        b = not b;
+        foo;
+      end;
+    end;
   begin
   foo;
-    print "The answer is !";
+	prompt "Enter a number", a;
+	bar(b, a);
+	car(a);
     prompt "Hit ENTER to end";
   end.

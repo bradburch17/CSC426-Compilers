@@ -451,8 +451,11 @@ Value * ASTProcDecl::interpret(SymbolTable t)
 
 Value * Assign::interpret(SymbolTable t)
 {
+	cout << "1" << endl;
 	Value* lhs = t.lookup(id);
+	cout << "2" << endl;
 	Value* rhs = expr->interpret(t);
+	cout << "3" << endl;
 
 	if (lhs->value == IntegerCell)
 		lhs->setInt(rhs->getIntValue());
@@ -525,7 +528,7 @@ Value * IfThenElse::interpret(SymbolTable t)
 
 Value * While::interpret(SymbolTable t) {
 	Value* value = test->interpret(t);
-	while (value->getBoolValue())
+	while (!value->getBoolValue())/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	{
 		body->interpret(t);
 		value = test->interpret(t);
@@ -561,13 +564,13 @@ Value * Prompt2::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * Print::interpret(SymbolTable t)///////////////////////////////////////////
+Value * Print::interpret(SymbolTable t)
 {
 	for (ASTItem* i : items) {
 		if (i->item == Item) {
 			
 			ExprItem* j = dynamic_cast<ExprItem*>(i);
-			Value* value = j->expr->interpret(t); /////////////////////////This line
+			Value* value = j->expr->interpret(t); 
 			cout << value->getIntValue();
 			delete j;
 		}

@@ -36,7 +36,6 @@ public:
 	bool getBoolValue();
 	void setInt(int i);
 	void setBool(bool b);
-private:
 };
 
 class BoolValue :public Value {
@@ -47,7 +46,6 @@ public:
 	bool getBoolValue();
 	void setInt(int i);
 	void setBool(bool b);
-private:
 
 };
 
@@ -60,8 +58,6 @@ public:
 	bool getBoolValue();
 	void setInt(int i);
 	void setBool(bool b);
-private:
-
 };
 
 class IntCell :public Value {

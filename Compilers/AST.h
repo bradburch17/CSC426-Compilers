@@ -355,4 +355,13 @@ private:
 	string id;
 	Type typ;
 };
+
+/***********************
+* Variable Declarations
+************************/
+class Val {
+public: 
+	Val();
+	virtual bool isVariable() = 0;
+};
 #endif /* AST_H_ */

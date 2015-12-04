@@ -14,6 +14,7 @@ SymbolTable::SymbolTable()
 {
 	scopes = vector<pair<string, map<string, Value*>*>>();
 }
+
 /*
 * Enter pushes a new id onto the symbol table
 */
@@ -70,7 +71,6 @@ int IntValue::getIntValue()
 
 bool IntValue::getBoolValue()
 {
-	cout << "1";
 	cout << "Error: Cannot retrieve " << checkValueType(BooleanValue) << endl;
 	exit(1);
 }
@@ -96,7 +96,6 @@ BoolValue::BoolValue(bool b)
 
 int BoolValue::getIntValue()
 {
-	cout << "2";
 	cout << "Error: Cannot retrieve " << checkValueType(IntegerValue) << endl;
 	exit(1);
 }
@@ -120,7 +119,6 @@ void BoolValue::setBool(bool b)
 
 int BoolCell::getIntValue()
 {
-	cout << "3";
 	cout << "Error: Cannot retrieve " << checkValueType(IntegerValue) << endl;
 	exit(1);
 }
@@ -153,12 +151,9 @@ int IntCell::getIntValue()
 
 bool IntCell::getBoolValue()
 {
-	cout << "4";
 	cout << "Error: Cannot retrieve " << checkValueType(BooleanValue) << endl;
 	exit(1);
 }
-
-
 
 void IntCell::setBool(bool b)
 {
@@ -168,14 +163,12 @@ void IntCell::setBool(bool b)
 
 int ProcValue::getIntValue()
 {
-	cout << "5";
 	cout << "Error: Cannot retrieve " << checkValueType(IntegerValue) << endl;
 	exit(1);
 }
 
 bool ProcValue::getBoolValue()
 {
-	cout << "6";
 	cout << "Error: Cannot retrieve " << checkValueType(BooleanValue) << endl;
 	exit(1);
 }
