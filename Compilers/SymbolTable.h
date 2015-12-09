@@ -89,6 +89,7 @@ private:
 /*
 * Symbol Table
 */
+template <typename T>
 class SymbolTable {
 public:
 	SymbolTable();
@@ -97,5 +98,7 @@ public:
 	void bind(string id, Value* v);
 	Value* lookup(string id);
 	vector<pair<string, map<string, Value*>*>> scopes;
+	int getLevel();
+	string newLabel();
 };
 #endif /*SymbolTable_H_*/

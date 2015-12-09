@@ -14,21 +14,24 @@
 #include <stack>
 #include <vector>
 #include <map>
+#include "SymbolTable.h"
 
 using namespace std;
 
 enum Op1 { Neg, Not };
 enum Op2 { EQ, NE, LE, GE, LT, GT, Plus, Minus, Times, Div, Mod, And, Or };
 enum Type { IntType, BoolType };
+enum InfoType { Undefined_Info, ConstInfo_Info, VarInfo_Info, RefInfo_Info, ProcInfo_Info }; 
+enum ValType { Undefined_Val, IntVal_Val, BoolVal_Val, IntVar_Val, BoolVar_Val, ProcVal_Val };
 
-enum NodeTypes {Val, Expr, Item, String}; //used to check to see if node is true.
+enum NodeTypes {Values, Expr, Item, String}; //used to check to see if node is true.
 
 string checkOp1(Op1 op1);
 string checkOp2(Op2 op2);
 
-/*
+/******************
 * Abstract Syntax Tree Beginning 
-*/
+*******************/
 class ASTConstDecl;
 class ASTVarDecl;
 class ASTProcDecl;
@@ -43,15 +46,17 @@ class SymbolTable;
 
 
 
-/**
+/*****************
 * Block
-*/
+******************/
 class ASTBlock {
 public:
 	ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*> p, list<ASTStmt*> b);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
-
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+	
 private:
 	list<ASTConstDecl*> consts;
 	list<ASTVarDecl*> vars;
@@ -68,6 +73,8 @@ public:
 	ASTConstDecl(string i, int v);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	string id;
@@ -82,6 +89,8 @@ public:
 	ASTExpr();
 	virtual string render(string indent) = 0;
 	virtual Value* interpret(SymbolTable t) = 0;
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 	NodeTypes expr;
 };
 
@@ -90,6 +99,8 @@ public:
 	BinOp(ASTExpr* l, Op2 o, ASTExpr* r);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	ASTExpr* left;
@@ -102,6 +113,9 @@ public:
 	IDExpr(string i);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+	Info* generate(SymbolTable<Info>* t, string y, string n);
 
 private:
 	string id;
@@ -112,6 +126,9 @@ public:
 	Num(int v);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+	Info* generate(SymbolTable<Info>* t, string y, string n);
 
 private:
 	int value;
@@ -122,6 +139,9 @@ public:
 	UnOp(Op1 o, ASTExpr* e);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+	Info* generate(SymbolTable<Info>* t, string y, string n);
 
 private:
 	Op1 op;
@@ -134,6 +154,10 @@ public:
 	True();
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+	Info* generate(SymbolTable<Info>* t, string y, string n);
+
 private:
 	bool boolean;
 };
@@ -143,6 +167,9 @@ public:
 	False();
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+	Info* generate(SymbolTable<Info>* t, string y, string n);
 
 private:
 	bool boolean;
@@ -182,13 +209,16 @@ class ASTParam {
 public:
 	ASTParam();
 	virtual string render(string indent) = 0;
+	virtual Info* generate(SymbolTable<Info>* t) = 0;
 	NodeTypes val;
+	string id;
 };
 
 class ValParam : public ASTParam {
 public:
 	ValParam(string i, Type t);
 	string render(string indent);
+	Info* generate(SymbolTable<Info>* t);
 	string id;
 	Type type;
 	NodeTypes val;
@@ -198,6 +228,7 @@ class VarParam : public ASTParam {
 public:
 	VarParam(string i, Type t);
 	string render(string indent);
+	Info* generate(SymbolTable<Info>* t);
 	string id;
 	Type type;
 };
@@ -210,6 +241,8 @@ public:
 	ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	string id;
@@ -225,6 +258,8 @@ public:
 	ASTProgram(string n, ASTBlock* b);
 	string render(string indent);
 	Value* interpret();
+	Val* typecheck();
+	Info* generate();
 
 private:
 	string name;
@@ -239,6 +274,8 @@ public:
 	ASTStmt();
 	virtual string render(string indent) = 0;
 	virtual Value* interpret(SymbolTable t) = 0;
+	virtual Val* typecheck(SymbolTable<Val>* t) = 0;
+	virtual Info* generate(SymbolTable<Info>* t) = 0;
 };
 
 class Assign : public ASTStmt {
@@ -246,6 +283,8 @@ public:
 	Assign(string i, ASTExpr* e);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	string id;
@@ -258,7 +297,11 @@ public:
 	string render(string indent);
 	Value* interpret(SymbolTable t);
 	void call(list<ASTParam*> p, ASTBlock* b, list<Value*> v, SymbolTable t);
-private:
+	void match(list<ASTParam*> params, list<Val*> args);
+	void setup(list<ASTParam*> params, list<ASTExpr*> args, SymbolTable<Info>* t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
+
 	string id;
 	list<ASTExpr*> args;
 };
@@ -269,6 +312,8 @@ public:
 	IfThen(ASTExpr* t, ASTStmt* tc);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 private:
 	ASTExpr* test;
 	ASTStmt* trueClause;
@@ -279,6 +324,8 @@ public:
 	IfThenElse(ASTExpr* t, ASTStmt* tc, ASTStmt* fc);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	ASTExpr* test;
@@ -291,6 +338,8 @@ public:
 	Print(list<ASTItem*> i);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	list<ASTItem*> items;
@@ -302,6 +351,8 @@ public:
 	Prompt(string m);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 private:
 	string message;
 
@@ -312,6 +363,8 @@ public:
 	Prompt2(string m, string i);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	string message;
@@ -324,6 +377,8 @@ public:
 	Seq(list<ASTStmt*> b);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	list<ASTStmt*> body;
@@ -335,6 +390,8 @@ public:
 	While(ASTExpr* t, ASTStmt* b);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	ASTExpr* test;
@@ -350,6 +407,8 @@ public:
 	ASTVarDecl(string i, Type t);
 	string render(string indent);
 	Value* interpret(SymbolTable t);
+	Val* typecheck(SymbolTable<Val>* t);
+	Info* generate(SymbolTable<Info>* t);
 
 private:
 	string id;
@@ -363,5 +422,73 @@ class Val {
 public: 
 	Val();
 	virtual bool isVariable() = 0;
+	ValType valtype;
+};
+
+class IntVal : Val {
+public:
+	IntVal();
+	bool isVariable();
+};
+
+class BoolVal : Val {
+public:
+	BoolVal();
+	bool isVariable();
+};
+
+class IntVar : Val {
+public:
+	IntVar();
+	bool isVariable();
+};
+
+class BoolVar : Val {
+public:
+	BoolVar();
+	bool isVariable();
+};
+
+class ProcVal : Val {
+public:
+	ProcVal(list<ASTParam*>	p);
+	bool isVariable();
+	list<ASTParam*> params;
+};
+
+/***********************
+* Info Declarations
+************************/
+class Info {
+public:
+	Info();
+	InfoType infotype;
+};
+
+class ConstInfo : Info {
+public: 
+	ConstInfo(int cnst);
+	int constant;
+};
+
+class VarInfo : Info {
+public:
+	VarInfo(int l, int o);
+	int level;
+	int offset;
+};
+
+class RefInfo : Info {
+public: 
+	RefInfo(int l, int o);
+	int level;
+	int offset;
+};
+
+class ProcInfo :Info {
+public:
+	ProcInfo(string l, list<ASTParam*> p);
+	string label;
+	list<ASTParam*> params;
 };
 #endif /* AST_H_ */

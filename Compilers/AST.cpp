@@ -223,6 +223,57 @@ ASTVarDecl::ASTVarDecl(string i, Type t)
 	typ = t;
 }
 
+Val::Val() {
+	valtype = Undefined_Val;
+}
+
+BoolVal::BoolVal() {
+	valtype = BoolVal_Val;
+}
+
+IntVar::IntVar() {
+	valtype = IntVar_Val;
+}
+
+BoolVar::BoolVar() {
+	valtype = BoolVar_Val;
+}
+
+ProcVal::ProcVal(list<ASTParam*> p) {
+	params = p;
+	valtype = ProcVal_Val;
+}
+
+IntVal::IntVal() {
+	valtype = IntVal_Val;
+}
+
+Info::Info() {
+	infotype = Undefined_Info;
+}
+
+ConstInfo::ConstInfo(int cnst) {
+	constant = cnst;
+	infotype = ConstInfo_Info;
+}
+
+VarInfo::VarInfo(int l, int o) {
+	level = l;
+	offset = o;
+	infotype = VarInfo_Info;
+}
+
+RefInfo::RefInfo(int l, int o) {
+	level = l;
+	offset = o;
+	infotype = RefInfo_Info;
+}
+
+ProcInfo::ProcInfo(string l, list<ASTParam*> p) {
+	params = p;
+	label = l;
+	infotype = ProcInfo_Info;
+}
 
 /*****************
 * Render 
@@ -687,4 +738,774 @@ void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, Sym
 	}
 }
 
+/*****************
+* Typecheckers 
+******************/
+Val* ASTProgram::typecheck() {
+	SymbolTable<Val>* t = new SymbolTable<Val>;
+	t->entertbl(name);
+	block->typecheck(t);
+	t->exittbl();
+	return NULL;
+}
 
+Val* ASTBlock::typecheck(SymbolTable<Val>* t) {
+	for (ASTConstDecl* c : consts)
+		c->typecheck(t);
+	for (ASTVarDecl* v : vars)
+		v->typecheck(t);
+	for (ASTProcDecl* p : procs)
+		t->bind(p->id, new ProcVal(p->params));
+	for (ASTProcDecl* p : procs)
+		p->typecheck(t);
+	for (ASTStmt* b : body)
+		b->typecheck(t);
+	return NULL;
+}
+
+Val* ASTConstDecl::typecheck(SymbolTable<Val>* t) {
+	t->bind(id, new IntVal());
+	return  NULL;
+}
+
+
+Val* ASTVarDecl::typecheck(SymbolTable<Val>* t) {
+	if (typ == IntType)
+		t->bind(id, new IntVar());
+	else
+		t->bind(id, new BoolVar());
+	return NULL;
+}
+
+
+Val* ASTProcDecl::typecheck(SymbolTable<Val>* t)
+{
+	t->entertbl(id);
+	for (ASTParam* p : params)
+	{
+		if (p->id == IntType) //////////////////////////////////////
+			t->bind(p->id, new IntVar();//////////////////////////////////////////////////////////////////////////////////////
+		else
+			t->bind(p->id, new BoolVar());
+	}
+
+	block->typecheck(t);
+	t->exittbl();
+	return NULL;
+}
+
+
+Val* Assign::typecheck(SymbolTable<Val>* t)
+{
+	Val* lhs = t->lookup(id);
+	Val* rhs = expr->typecheck(t);
+
+	if (!lhs->isVariable())
+	{
+		cout << "Error: Expected " << id << endl;
+		exit(1);
+	}
+	if (checkValueType(lhs->valtype).compare(checkValueType(rhs->valtype)) != 0)
+	{
+		cout << "Error: Cannot assign a value typed " << checkValueType(rhs->valtype) << " to " << id << endl;
+		exit(1);
+	}
+	return NULL;
+}
+
+
+Val* Call::typecheck(SymbolTable<Val>* t)
+{
+	Val* look_up = t->lookup(id);
+
+
+	if (look_up == NULL || look_up->valtype != ProcedureValue)
+	{
+		cout << "Error: No procedure identified" << endl;
+		exit(1);
+	}
+
+	ProcVal* proc_val = dynamic_cast<ProcVal*>(look_up);
+	list<Val*> arguments;
+
+
+	for (ASTExpr* arg : args)
+	{
+		Val* v = arg->typecheck(t);
+		arguments.push_back(v);
+	}
+	if (proc_val->params.size() != arguments.size())
+	{
+		cout << "(!) The number of parameters does not match the number of arguments of " << id << endl;
+		exit(1);
+	}
+
+
+	match(proc_val->params, arguments);
+	return NULL;
+}
+
+Val* Seq::typecheck(SymbolTable<Val>* t) {
+	for (ASTStmt* b : body)
+		b->typecheck(t);
+	return NULL;
+}
+
+Val* IfThen::typecheck(SymbolTable<Val>* t) {
+	Val* value = test->typecheck(t);
+	if (checkValueType(value->valtype).compare("bool") != 0) {
+		cout << "Error: Expected boolean" << endl;
+		exit(1);
+	}
+	trueClause->typecheck(t);
+	return NULL;
+}
+
+Val* IfThenElse::typecheck(SymbolTable<Val>* t) {
+	Val* value = test->typecheck(t);
+	if (checkValueType(value->valtype).compare("bool") != 0) {
+		cout << "Error: Expected boolean" << endl;
+		exit(1);
+	}
+	trueClause->typecheck(t);
+	falseClause->typecheck(t);
+	return NULL;
+}
+
+Val* While::typecheck(SymbolTable<Val>* t)
+{
+	Val* value = test->typecheck(t);
+	if (checkValueType(value->valtype).compare("bool") != 0) {
+		cout << "Error: Expected boolean" << endl;
+		exit(1);
+	}
+	body->typecheck(t);
+	return NULL;
+}
+
+Val* Prompt::typecheck(SymbolTable<Val>* t) {
+	return NULL;
+}
+
+
+Val* Prompt2::typecheck(SymbolTable<Val>* t) {
+	Val* lhs = t->lookup(id);
+	if (lhs->valtype != IntVar_Val) {
+		cout << "(!) Expected an integer variable at " << line << ":" << column << endl;
+		exit(1);
+	}
+	return NULL;
+}
+
+Val* Print::typecheck(SymbolTable<Val>* t) {
+	for (ASTItem* i : items) {
+		if (i->node_type == Node_ExprItem) {
+			ExprItem* item = dynamic_cast<ExprItem*>(i);
+			Val* value = item->expr->typecheck(t);
+			if (checkValueType(value->valtype).compare("int") != 0)
+			{
+				cout << "Error: Expected integer" << endl;
+				exit(1);
+			}
+		}
+		else {}
+	}
+	return NULL;
+}
+
+Val* BinOp::typecheck(SymbolTable<Val>* t) {
+	Val* lhs = left->typecheck(t);
+	Val* rhs = right->typecheck(t);
+
+	switch (op)	{
+	case And:
+		if (checkValueType(lhs->valtype).compare("bool") == 0 && checkValueType(rhs->valtype).compare("bool") == 0) {}
+		else {
+			cout << "Error: Expected boolean" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case Or:
+		if (checkValueType(lhs->valtype).compare("bool") == 0 && checkValueType(rhs->valtype).compare("bool") == 0) {}
+		else {
+			cout << "Error: Expected boolean" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case EQ:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case NE:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case LE:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case LT:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case GE:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case GT:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	case Plus:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new IntVal();
+	case Minus:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new IntVal();
+	case Times:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new IntVal();
+	case Div:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new IntVal();
+	case Mod:
+		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		else {
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new IntVal();
+	}
+}
+
+Val* UnOp::typecheck(SymbolTable<Val>* t) {
+	Val* value = expr->typecheck(t);
+
+	switch (op)	{
+	case Neg:
+		if (checkValueType(value->valtype).compare("int") != 0)	{
+			cout << "Error: Expected integer" << endl;
+			exit(1);
+		}
+		return new IntVal();
+	case Not:
+		if (checkValueType(value->valtype).compare("bool") != 0) {
+			cout << "Error: Expected boolean" << endl;
+			exit(1);
+		}
+		return new BoolVal();
+	}
+}
+
+Val* Num::typecheck(SymbolTable<Val>* t) {
+	return new IntVal();
+}
+
+
+Val* IDExpr::typecheck(SymbolTable<Val>* t) {
+	return t->lookup(id);
+}
+
+
+Val* True::typecheck(SymbolTable<Val>* t) {
+	return new BoolVal();
+}
+
+
+Val* False::typecheck(SymbolTable<Val>* t) {
+	return new BoolVal();
+}
+
+
+/*****************
+* Call Match
+*******************/
+void Call::match(list<ASTParam*> params, list<Val*> args) {
+	if (params.empty() && args.empty()) {}
+	else
+	{
+		ASTParam* par = params.front();
+		Val* arg = args.front();
+		params.pop_front();
+		args.pop_front();
+
+		if (par->node_type == Node_ValParam)
+		{
+			if (checkValueType(arg->valtype).compare("int") == 0 || checkValueType(arg->valtype).compare("bool") == 0) {}
+			else
+			{
+				cout << "Error: Expected either an integer or a boolean" << endl;
+				exit(1);
+			}
+		}
+		else // Node_VarParam
+		{
+			if (arg->valtype == IntVar_Val || arg->valtype == BoolVar_Val) {}
+			else
+			{
+				cout << "Error: Expected integer variable or a boolean variable" << endl;
+				exit(1);
+			}
+		}
+		match(params, args);
+	}
+}
+
+/***************
+* isVariable() checcks variable types
+*****************/
+bool IntVal::isVariable() {
+	return false;
+}
+
+bool BoolVal::isVariable() {
+	return false;
+}
+
+bool IntVar::isVariable() {
+	return true;
+}
+
+bool BoolVar::isVariable() {
+	return true;
+}
+
+bool ProcVal::isVariable() {
+	return false;
+}
+
+/**************
+* Generate 
+***************/
+Info* ASTProgram::generate() {
+	SymbolTable<Info>* t = new SymbolTable<Info>();
+	t->entertbl(name);
+	block->generate(t);
+	t->exittbl();
+	cout << "HALT" << endl;
+	return NULL;
+}
+
+Info* ASTBlock::generate(SymbolTable<Info>* t) {
+	string s = t->newLabel();
+	cout << "BRANCH " << s << endl;
+
+	for (ASTConstDecl* c : consts)
+		c->generate(t);
+
+	t->offset = 0;
+
+	for (ASTVarDecl* v : vars)
+		v->generate(t);
+	for (ASTProcDecl* p : procs)
+		t->bind(p->id, new ProcInfo(t->newLabel(), p->params));
+	for (ASTProcDecl* p : procs)
+		p->generate(t);
+
+	cout << "LABEL " << s << endl;
+	int n = (int)vars.size();
+	int l = t->level;
+	cout << "ENTER " << l << endl;
+	cout << "RESERVE " << n << endl;
+
+	for (ASTStmt* b : body)
+		b->generate(t);
+
+	cout << "DROP " << n << endl;
+	cout << "EXIT " << l << endl;
+	return NULL;
+}
+
+Info* ASTConstDecl::generate(SymbolTable<Info>* t) {
+	t->bind(id, new ConstInfo(value));
+	return NULL;
+}
+
+Info* ASTVarDecl::generate(SymbolTable<Info>* t) {
+	t->offset -= 1;
+	t->bind(id, new VarInfo(t->level, t->offset));
+	return NULL;
+}
+
+Info* ASTProcDecl::generate(SymbolTable<Info>* t)
+{
+	ProcInfo* proc_info = dynamic_cast<ProcInfo*>(t->lookup (id));
+	t->entertbl(id);
+	t->param = 1;
+
+	params.reverse();
+	for (ASTParam* p : params)
+		p->generate(t);
+
+	cout << "LABEL " << proc_info->label << endl;
+	block->generate(t);
+	cout << "RETURN" << endl;
+	t->exittbl();
+	return NULL;
+}
+
+Info* ValParam::generate(SymbolTable<Info>* t) {
+	t->param += 1;
+	t->bind(id, new VarInfo(t->level, t->param));
+	return NULL;
+}
+
+Info* VarParam::generate(SymbolTable<Info>* t) {
+	t->param += 1;
+	t->bind(id, new RefInfo(t->level, t->param));
+	return NULL;
+}
+
+Info* Assign::generate(SymbolTable<Info>* t) {
+	expr->generate(t);
+	lvalue(id, t);
+	cout << "STORE" << endl;
+	return NULL;
+}
+
+Info* Call::generate(SymbolTable<Info>* t) {
+	ProcInfo* proc_info = dynamic_cast<ProcInfo*>(t->lookup(id));
+	setup(proc_info->params, args, t);
+	cout << "CALL " << proc_info->label << endl;
+	cout << "DROP " << proc_info->params.size() << endl;
+	return NULL;
+}
+
+void Call::setup(list<ASTParam*> params, list<ASTExpr*> args, SymbolTable<Info>* t) {
+	if (params.empty() && args.empty()) {}
+	else {
+		ASTParam* par = params.front();
+		Expr* arg = args.front();
+		params.pop_front();
+		args.pop_front();
+
+		if (par->node_type == Node_ValParam)
+			arg->generate(t);
+		else // Node_VarParam == reference parameter
+		{
+			IDExpr* ID2 = dynamic_cast<IDExpr*>(arg);
+			lvalue(ID2->id, t);
+		}
+		setup(params, args, t);
+	}
+}
+
+Info* Seq::generate(SymbolTable<Info>* t) {
+	for (ASTStmt* b : body)
+		b->generate(t);
+	return NULL;
+}
+
+Info* IfThen::generate(SymbolTable<Info>* t) {
+	string y = t->newLabel();
+	string n = t->newLabel();
+	test->generate(t, y, n);
+	cout << "LABEL " << y << endl;
+	trueClause->generate(t);
+	cout << "LABEL " << n << endl;
+	return NULL;
+}
+
+Info* IfThenElse::generate(SymbolTable<Info>* t) {
+	string y = t->newLabel();
+	string n = t->newLabel();
+	string s = t->newLabel();
+	test->generate(t, y, n);
+	cout << "LABEL " << y << endl;
+	trueClause->generate(t);
+	cout << "BRANCH " << s << endl;
+	cout << "LABEL " << n << endl;
+	falseClause->generate(t);
+	cout << "LABEL " << s << endl;
+	return NULL;
+}
+
+Info* While::generate(SymbolTable<Info>* t) {
+	string y = t->newLabel();
+	string n = t->newLabel();
+	string s = t->newLabel();
+	cout << "LABEL " << s << endl;
+	test->generate(t, y, n);
+	cout << "LABEL " << y << endl;
+	body->generate(t);
+	cout << "BRANCH " << s << endl;
+	cout << "LABEL " << n << endl;
+	return NULL;
+}
+
+Info* Prompt::generate(SymbolTable<Info>* t) {
+	printChar(message);
+	cout << "READLINE" << endl;
+	return NULL;
+}
+
+Info* Prompt2::generate(SymbolTable<Info>* t) {
+	printChar(message + " ");
+	cout << "READINT" << endl;
+	lvalue(id, t);
+	cout << "STORE" << endl;
+	return NULL;
+}
+
+Info* Print::generate(SymbolTable<Info>* t) {
+	for (ASTItem* i : items) {
+		if (i->node_type == Node_ExprItem)
+		{
+			ExprItem* item = dynamic_cast<ExprItem*>(i);
+			item->expr->generate(t);
+			cout << "WRITEINT" << endl;
+		}
+		else // Node_StringItem
+		{
+			StringItem* item = dynamic_cast<StringItem*>(i);
+			printChar(item->message);
+		}
+	}
+	cout << "WRITELINE" << endl;
+	return NULL;
+}
+
+Info* BinOp::generate(SymbolTable<Info>* t) {
+	string y, n, s;
+	switch (op)	{
+	case Plus:
+		left->generate(t);
+		right->generate(t);
+		cout << "ADD" << endl;
+		break;
+	case Minus:
+		left->generate(t);
+		right->generate(t);
+		cout << "SUB" << endl;
+		break;
+	case Times:
+		left->generate(t);
+		right->generate(t);
+		cout << "MUL" << endl;
+		break;
+	case Div:
+		left->generate(t);
+		right->generate(t);
+		cout << "DIV" << endl;
+		break;
+	case Mod:
+		left->generate(t);
+		right->generate(t);
+		cout << "MOD" << endl;
+		break;
+	default:
+		y = t->newLabel();
+		n = t->newLabel();
+		s = t->newLabel();
+		this->generate(t, y, n);
+		cout << "LABEL " << y << endl;
+		cout << "CONSTANT 1" << endl;
+		cout << "BRANCH " << s << endl;
+		cout << "LABEL " << n << endl;
+		cout << "CONSTANT 0" << endl;
+		cout << "LABEL " << s << endl;
+		break;
+	}
+	return NULL;
+}
+
+Info* BinOp::generate(SymbolTable<Info>* t, string y, string n) {
+	string s;
+	switch (op) {
+	case And:
+		s = t->newLabel();
+		left->generate(t, s, n);
+		cout << "LABEL " << s << endl;
+		right->generate(t, y, n);
+		break;
+	case Or:
+		s = t->newLabel();
+		left->generate(t, y, s);
+		cout << "LABEL " << s << endl;
+		right->generate(t, y, n);
+		break;
+	case EQ:
+		left->generate(t);
+		right->generate(t);
+		cout << "SUB" << endl;
+		cout << "BRANCHZERO " << y << endl;
+		cout << "BRANCH " << n << endl;
+		break;
+	case NE:
+		left->generate(t);
+		right->generate(t);
+		cout << "SUB" << endl;
+		cout << "BRANCHZERO " << n << endl;
+		cout << "BRANCH " << y << endl;
+		break;
+	case LT:
+		left->generate(t);
+		right->generate(t);
+		cout << "SUB" << endl;
+		cout << "BRANCHNEG " << y << endl;
+		cout << "BRANCH " << n << endl;
+		break;
+	case GE:
+		left->generate(t);
+		right->generate(t);
+		cout << "SUB" << endl;
+		cout << "BRANCHNEG " << n << endl;
+		cout << "BRANCH " << y << endl;
+		break;
+	case GT:
+		right->generate(t);
+		left->generate(t);
+		cout << "SUB" << endl;
+		cout << "BRANCHNEG " << y << endl;
+		cout << "BRANCH " << n << endl;
+		break;
+	case LE:
+		right->generate(t);
+		left->generate(t);
+		cout << "SUB" << endl;
+		cout << "BRANCHNEG " << n << endl;
+		cout << "BRANCH " << y << endl;
+		break;
+	default: break;
+	}
+	return NULL;
+}
+
+Info* UnOp::generate(SymbolTable<Info>* t) {
+	string y, n, s;
+	switch (op) {
+	case Neg:
+		cout << "CONSTANT 0" << endl;
+		expr->generate(t);
+		cout << "SUB" << endl;
+		break;
+	default:
+		y = t->newLabel();
+		n = t->newLabel();
+		s = t->newLabel();
+		this->generate(t, y, n);
+		cout << "LABEL " << y << endl;
+		cout << "CONSTANT 1" << endl;
+		cout << "BRANCH " << s << endl;
+		cout << "LABEL " << n << endl;
+		cout << "CONSTANT 0" << endl;
+		cout << "LABEL " << s << endl;
+		break;
+	}
+	return NULL;
+}
+
+Info* UnOp::generate(SymbolTable<Info>* t, string y, string n) {
+	expr->generate(t, n, y);
+	return NULL;
+}
+
+Info* Num::generate(SymbolTable<Info>* t) {
+	cout << "CONSTANT " << value << endl;
+	return NULL;
+}
+
+Info* Num::generate(SymbolTable<Info>* t, string y, string n) {
+	return NULL;
+}
+
+Info* IDExpr::generate(SymbolTable<Info>* t) {
+	Info* look_up = t->lookup(id);
+	if (look_up->infotype == ConstInfo_Info) 	{
+		ConstInfo* info = dynamic_cast<ConstInfo*>(look_up);
+		cout << "CONSTANT " << info->constant << endl;
+	}
+	else {
+		lvalue(id, t);
+		cout << "LOAD" << endl;
+	}
+	return NULL;
+}
+
+Info* IDExpr::generate(SymbolTable<Info>* t, string y, string n) {
+	lvalue(id, t);
+	cout << "LOAD" << endl;
+	cout << "BRANCHZERO " << n << endl;
+	cout << "BRANCH " << y << endl;
+	return NULL;
+}
+
+Info* True::generate(SymbolTable<Info>* t) {
+	cout << "CONSTANT 1" << endl;
+	return NULL;
+}
+
+Info* True::generate(SymbolTable<Info>* t, string y, string n) {
+	cout << "BRANCH " << y << endl;
+	return NULL;
+}
+
+Info* False::generate(SymbolTable<Info>* t) {
+	cout << "CONSTANT 0" << endl;
+	return NULL;
+}
+
+Info* False::generate(SymbolTable<Info>* t, string y, string n) {
+	cout << "BRANCH " << n << endl;
+	return NULL;
+}
+
+/**************
+* lvalue pushes address 
+***************/
+void lvalue(string id, SymbolTable<Info>* t) {
+	Info* look_up = t->lookup(id);
+	if (look_up->infotype == VarInfo_Info) 	{
+		VarInfo* info = dynamic_cast<VarInfo*>(look_up);
+		cout << "ADDRESS " << info->level << ", " << info->offset << endl;
+	}
+	else {
+		RefInfo* info = dynamic_cast<RefInfo*>(look_up);
+		cout << "ADDRESS " << info->level << ", " << info->offset << endl;
+		cout << "LOAD" << endl;
+	}
+}
+
+/****************
+* Converts string to print char
+******************/
+void printChar(string str) {
+	for (char c : str) 	{
+		cout << "CONSTANT " << (int)c << endl;
+		cout << "WRITECHAR" << endl;
+	}
+}
