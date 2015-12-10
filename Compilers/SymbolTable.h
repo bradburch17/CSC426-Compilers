@@ -46,7 +46,6 @@ public:
 	bool getBoolValue();
 	void setInt(int i);
 	void setBool(bool b);
-
 };
 
 class ProcValue :public Value {
@@ -86,19 +85,24 @@ private:
 
 };
 
-/*
+/****************
 * Symbol Table
-*/
+******************/
 template <typename T>
 class SymbolTable {
 public:
 	SymbolTable();
 	void entertbl(string id);
 	void exittbl();
-	void bind(string id, Value* v);
+	void bind(string id, T* v);
 	Value* lookup(string id);
-	vector<pair<string, map<string, Value*>*>> scopes;
 	int getLevel();
 	string newLabel();
+	vector<pair<string, map<string, T*>*>> scopes;
+
+	int level;
+	int offset;
+	int param;
+	int sequence;
 };
 #endif /*SymbolTable_H_*/

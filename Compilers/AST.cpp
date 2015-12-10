@@ -66,6 +66,7 @@ ASTBlock::ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*
 	vars = v;
 	procs = p;
 	body = b;
+	node = BlockNode;
 }
 
 
@@ -73,11 +74,12 @@ ASTConstDecl::ASTConstDecl(string i, int v)
 {
 	id= i;
 	value = v;
+	node = ConstDeclNode;
 }
 
 ASTExpr::ASTExpr()
 {
-	expr = Expr;
+	node = ExprNode;
 }
 
 BinOp::BinOp(ASTExpr * l, Op2 o, ASTExpr * r)
@@ -85,73 +87,81 @@ BinOp::BinOp(ASTExpr * l, Op2 o, ASTExpr * r)
 	left = l;
 	op = o;
 	right = r;
+	node = BinOpNode;
 }
 
 True::True()
 {
 	boolean = true;
+	node = TrueNode;
 }
 
 False::False()
 {
 	boolean = false;
+	node = FalseNode;
 }
 
 IDExpr::IDExpr(string i)
 {
 	id= i;
+	node = IDNode;
 }
 
 Num::Num(int v)
 {
 	value = v;
+	node = NumNode;
 }
 
 UnOp::UnOp(Op1 o, ASTExpr * e)
 {
 	op = o;
 	expr = e;
+	node = UnOpNode;
 }
 
 ASTItem::ASTItem()
 {
-	item = Item;
+	node = ItemNode;
 }
 
 ExprItem::ExprItem(ASTExpr * e)
 {
 	expr = e;
-	item = Item;
+	node = ExprNode;
 }
 
 StringItem::StringItem(string m)
 {
 	message = m;
-	item = String;
+	node = StringNode;
 }
 
 ASTParam::ASTParam()
 {
-	val = Val;
+	node = ValParamNode;
 }
 
 ValParam::ValParam(string i, Type t)
 {
 	id= i;
 	type = t;
-	val = Val;
+	node = ValParamNode;
 }
 
 VarParam::VarParam(string i, Type t)
 {
 	id= i;
 	type = t;
+	node = VarParamNode;
 }
 
 ASTProgram::ASTProgram(string n, ASTBlock* b)
 {
 	name = n;
 	block = b;
+	node = ProgramNode;
 }
 
 ASTStmt::ASTStmt()
@@ -163,29 +173,34 @@ ASTProcDecl::ASTProcDecl(string i, list<ASTParam*> p, ASTBlock* b)
 	id= i;
 	params = p;
 	block = b;
+	node = ProcDeclNode;
 }
 
 Assign::Assign(string i, ASTExpr* e)
 {
 	id= i;
 	expr = e;
+	node = AssignNode;
 }
 
 Seq::Seq(list<ASTStmt*> b)
 {
 	body = b;
+	node = SeqNode;
 }
 
 While::While(ASTExpr* t, ASTStmt * b)
 {
 	test = t;
 	body = b;
+	node = WhileNode;
 }
 
 IfThen::IfThen(ASTExpr * t, ASTStmt * tc)
 {
 	test = t;
 	trueClause = tc;
+	node = IfThenNode;
 }
 
 IfThenElse::IfThenElse(ASTExpr * t, ASTStmt * tc, ASTStmt * fc)
@@ -193,22 +208,26 @@ IfThenElse::IfThenElse(ASTExpr * t, ASTStmt * tc, ASTStmt * fc)
 	test = t;
 	trueClause = tc;
 	falseClause = fc;
+	node = IfThenElseNode;
 }
 
 Print::Print(list<ASTItem*> i)
 {
 	items = i;
+	node = PrintNode;
 }
 
 Prompt::Prompt(string m)
 {
 	message = m;
+	node = PromptNode;
 }
 
 Prompt2::Prompt2(string m, string i)
 {
 	message = m;
 	id= i;
+	node = Prompt2NOde;
 }
 
 Call::Call(string i, list<ASTExpr*> a)
@@ -221,6 +240,7 @@ ASTVarDecl::ASTVarDecl(string i, Type t)
 {
 	id = i;
 	typ = t;
+	node = VarDeclNode;
 }
 
 Val::Val() {
@@ -457,15 +477,15 @@ string False::render(string indent)
 ********************/
 Value * ASTProgram::interpret()
 {
-	SymbolTable t = SymbolTable();
-	t.entertbl(name);
+	SymbolTable<Value>* t = new SymbolTable<Value>();
+	t->entertbl(name);
 	block->interpret(t);
-	t.exittbl();
+	t->exittbl();
 
 	return NULL;
 }
 
-Value * ASTBlock::interpret(SymbolTable t)
+Value * ASTBlock::interpret(SymbolTable<Value>* t)
 {
 	for (ASTConstDecl* c : consts)
 		c->interpret(t);
@@ -479,31 +499,31 @@ Value * ASTBlock::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * ASTConstDecl::interpret(SymbolTable t)
+Value * ASTConstDecl::interpret(SymbolTable<Value>* t)
 {
-	t.bind(id, new IntValue(value));
+	t->bind(id, new IntValue(value));
 	return NULL;
 }
 
-Value * ASTVarDecl::interpret(SymbolTable t)
+Value * ASTVarDecl::interpret(SymbolTable<Value>* t)
 {
 	if (typ == IntType)
-		t.bind(id, new IntCell(0));
+		t->bind(id, new IntCell(0));
 	else
-		t.bind(id, new BoolCell(false));
+		t->bind(id, new BoolCell(false));
 	return NULL;
 }
 
-Value * ASTProcDecl::interpret(SymbolTable t)
+Value * ASTProcDecl::interpret(SymbolTable<Value>* t)
 {
-	t.bind(id, new ProcValue(params, block));
+	t->bind(id, new ProcValue(params, block));
 	return NULL;
 }
 
-Value * Assign::interpret(SymbolTable t)
+Value * Assign::interpret(SymbolTable<Value>* t)
 {
 	cout << "1" << endl;
-	Value* lhs = t.lookup(id);
+	Value* lhs = t->lookup(id);
 	cout << "2" << endl;
 	Value* rhs = expr->interpret(t);
 	cout << "3" << endl;
@@ -520,9 +540,9 @@ Value * Assign::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * Call::interpret(SymbolTable t)
+Value * Call::interpret(SymbolTable<Value>* t)
 {
-	Value* lkup = t.lookup(id);
+	Value* lkup = t->lookup(id);
 	
 	ProcValue* value = dynamic_cast<ProcValue*>(lkup);
 	list<Value*> arguments;
@@ -552,14 +572,14 @@ Value * Call::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * Seq::interpret(SymbolTable t)
+Value * Seq::interpret(SymbolTable<Value>* t)
 {
 	for (ASTStmt* b : body)
 		b->interpret(t);
 	return NULL;
 }
 
-Value * IfThen::interpret(SymbolTable t)
+Value * IfThen::interpret(SymbolTable<Value>* t)
 {
 	Value* value = test->interpret(t);
 	if (value->getBoolValue())
@@ -567,7 +587,7 @@ Value * IfThen::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * IfThenElse::interpret(SymbolTable t)
+Value * IfThenElse::interpret(SymbolTable<Value>* t)
 {
 	Value* value = test->interpret(t);
 	if (value->getBoolValue())
@@ -577,7 +597,7 @@ Value * IfThenElse::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * While::interpret(SymbolTable t) {
+Value * While::interpret(SymbolTable<Value>* t) {
 	Value* value = test->interpret(t);
 	while (!value->getBoolValue())/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	{
@@ -587,7 +607,7 @@ Value * While::interpret(SymbolTable t) {
 	return NULL;
 }
 
-Value * Prompt::interpret(SymbolTable t)
+Value * Prompt::interpret(SymbolTable<Value>* t)
 {
 	string input;
 	cout << message;
@@ -595,7 +615,7 @@ Value * Prompt::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * Prompt2::interpret(SymbolTable t)
+Value * Prompt2::interpret(SymbolTable<Value>* t)
 {
 	Value* lhs = t.lookup(id);
 	string input;
@@ -615,10 +635,10 @@ Value * Prompt2::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * Print::interpret(SymbolTable t)
+Value * Print::interpret(SymbolTable<Value>* t)
 {
 	for (ASTItem* i : items) {
-		if (i->item == Item) {
+		if (i->node == ItemNode) {
 			
 			ExprItem* j = dynamic_cast<ExprItem*>(i);
 			Value* value = j->expr->interpret(t); 
@@ -634,7 +654,7 @@ Value * Print::interpret(SymbolTable t)
 	return NULL;
 }
 
-Value * BinOp::interpret(SymbolTable t)
+Value * BinOp::interpret(SymbolTable<Value>* t)
 {
 	Value* lhs = left->interpret(t);
 	Value* rhs = right->interpret(t);
@@ -657,7 +677,7 @@ Value * BinOp::interpret(SymbolTable t)
 	}
 }
 
-Value * UnOp::interpret(SymbolTable t)
+Value * UnOp::interpret(SymbolTable<Value>* t)
 {
 	Value* value = expr->interpret(t);
 
@@ -670,14 +690,14 @@ Value * UnOp::interpret(SymbolTable t)
 	}
 }
 
-Value * Num::interpret(SymbolTable t)
+Value * Num::interpret(SymbolTable<Value>* t)
 {
 	return new IntValue(value);
 }
 
-Value * IDExpr::interpret(SymbolTable t)
+Value * IDExpr::interpret(SymbolTable<Value>* t)
 {
-	Value* value = t.lookup(id);
+	Value* value = t->lookup(id);
 	if (value != NULL)
 		return value;
 	else
@@ -687,12 +707,12 @@ Value * IDExpr::interpret(SymbolTable t)
 	}
 }
 
-Value * True::interpret(SymbolTable t)
+Value * True::interpret(SymbolTable<Value>* t)
 {
 	return new BoolValue(boolean);
 }
 
-Value * False::interpret(SymbolTable t)
+Value * False::interpret(SymbolTable<Value>* t)
 {
 	return new BoolValue(boolean);
 }
@@ -700,41 +720,37 @@ Value * False::interpret(SymbolTable t)
 /******************
 * Call 
 ******************/
-void Call::call(list<ASTParam*> param, ASTBlock * block, list<Value*> value, SymbolTable t)
+void Call::call(list<ASTParam*> params, ASTBlock* block, list<Value*> args, SymbolTable<Value>* t)
 {
-	if (param.empty() && args.empty())
+	if (params.empty() && args.empty())
 		block->interpret(t);
-	else
-	{
-		ASTParam* par = param.front();
-		Value* arg = value.front();
-		param.pop_front();
+	else {
+		ASTParam* par = params.front();
+		Value* arg = args.front();
+		params.pop_front();
 		args.pop_front();
 
-		if (par->val == Val)
-		{
+		if (par->node == ValParamNode) {
 			ValParam* param = dynamic_cast<ValParam*>(par);
 
 			if (param->type == IntType)
-				t.bind(param->id, new IntCell(arg->getIntValue()));
+				t->bind(param->id, new IntCell(arg->getIntValue()));
 			else
-				t.bind(param->id, new BoolCell(arg->getBoolValue()));
+				t->bind(param->id, new BoolCell(arg->getBoolValue()));
 		}
-		else
-		{
+		else {
 			VarParam* param = dynamic_cast<VarParam*>(par);
 
 			if (param->type == IntType && arg->value == IntegerCell)
-				t.bind(param->id, dynamic_cast<IntCell*>(arg));
+				t->bind(param->id, dynamic_cast<IntCell*>(arg));
 			else if (param->type == BoolType && arg->value == BooleanCell)
-				t.bind(param->id, dynamic_cast<BoolCell*>(arg));
-			else
-			{
-				cout << "Error: Cannot pass " << checkValueType(arg->value)	<< " " << id << " defined at " << " to a parameter of type " << checkType(param->type) << endl;
+				t->bind(param->id, dynamic_cast<BoolCell*>(arg));
+			else {
+				cout << "Error: Cannot pass " << checkValueType(arg->value)	<< " " << id << " to a parameter of type " << checkType(param->type) << endl;
 				exit(1);
 			}
 		}
-		call(param, block, value, t);
+		call(params, block, args, t);
 	}
 }
 
@@ -783,8 +799,8 @@ Val* ASTProcDecl::typecheck(SymbolTable<Val>* t)
 	t->entertbl(id);
 	for (ASTParam* p : params)
 	{
-		if (p->id == IntType) //////////////////////////////////////
-			t->bind(p->id, new IntVar();//////////////////////////////////////////////////////////////////////////////////////
+		if (p->val == IntType) //////////////////////////////////////
+			t->bind(p->id, new IntVar());//////////////////////////////////////////////////////////////////////////////////////
 		else
 			t->bind(p->id, new BoolVar());
 	}
@@ -853,7 +869,7 @@ Val* Seq::typecheck(SymbolTable<Val>* t) {
 
 Val* IfThen::typecheck(SymbolTable<Val>* t) {
 	Val* value = test->typecheck(t);
-	if (checkValueType(value->valtype).compare("bool") != 0) {
+	if (checkValType(value->valtype).compare("bool") != 0) {
 		cout << "Error: Expected boolean" << endl;
 		exit(1);
 	}
@@ -863,7 +879,7 @@ Val* IfThen::typecheck(SymbolTable<Val>* t) {
 
 Val* IfThenElse::typecheck(SymbolTable<Val>* t) {
 	Val* value = test->typecheck(t);
-	if (checkValueType(value->valtype).compare("bool") != 0) {
+	if (checkValType(value->valtype).compare("bool") != 0) {
 		cout << "Error: Expected boolean" << endl;
 		exit(1);
 	}
@@ -875,7 +891,7 @@ Val* IfThenElse::typecheck(SymbolTable<Val>* t) {
 Val* While::typecheck(SymbolTable<Val>* t)
 {
 	Val* value = test->typecheck(t);
-	if (checkValueType(value->valtype).compare("bool") != 0) {
+	if (checkValType(value->valtype).compare("bool") != 0) {
 		cout << "Error: Expected boolean" << endl;
 		exit(1);
 	}
@@ -899,7 +915,7 @@ Val* Prompt2::typecheck(SymbolTable<Val>* t) {
 
 Val* Print::typecheck(SymbolTable<Val>* t) {
 	for (ASTItem* i : items) {
-		if (i->node_type == Node_ExprItem) {
+		if (i->node == ItemNode) {
 			ExprItem* item = dynamic_cast<ExprItem*>(i);
 			Val* value = item->expr->typecheck(t);
 			if (checkValueType(value->valtype).compare("int") != 0)
@@ -919,91 +935,91 @@ Val* BinOp::typecheck(SymbolTable<Val>* t) {
 
 	switch (op)	{
 	case And:
-		if (checkValueType(lhs->valtype).compare("bool") == 0 && checkValueType(rhs->valtype).compare("bool") == 0) {}
+		if (checkValType(lhs->valtype).compare("bool") == 0 && checkValType(rhs->valtype).compare("bool") == 0) {}
 		else {
 			cout << "Error: Expected boolean" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case Or:
-		if (checkValueType(lhs->valtype).compare("bool") == 0 && checkValueType(rhs->valtype).compare("bool") == 0) {}
+		if (checkValType(lhs->valtype).compare("bool") == 0 && checkValType(rhs->valtype).compare("bool") == 0) {}
 		else {
 			cout << "Error: Expected boolean" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case EQ:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case NE:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case LE:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case LT:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case GE:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case GT:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new BoolVal();
 	case Plus:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new IntVal();
 	case Minus:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new IntVal();
 	case Times:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new IntVal();
 	case Div:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new IntVal();
 	case Mod:
-		if (checkValueType(lhs->valtype).compare("int") == 0 && checkValueType(rhs->valtype).compare("int") == 0) {}
+		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 		else {
 			cout << "Error: Expected integer" << endl;
 			exit(1);
@@ -1017,13 +1033,13 @@ Val* UnOp::typecheck(SymbolTable<Val>* t) {
 
 	switch (op)	{
 	case Neg:
-		if (checkValueType(value->valtype).compare("int") != 0)	{
+		if (checkValType(value->valtype).compare("int") != 0)	{
 			cout << "Error: Expected integer" << endl;
 			exit(1);
 		}
 		return new IntVal();
 	case Not:
-		if (checkValueType(value->valtype).compare("bool") != 0) {
+		if (checkValType(value->valtype).compare("bool") != 0) {
 			cout << "Error: Expected boolean" << endl;
 			exit(1);
 		}
@@ -1063,9 +1079,9 @@ void Call::match(list<ASTParam*> params, list<Val*> args) {
 		params.pop_front();
 		args.pop_front();
 
-		if (par->node_type == Node_ValParam)
+		if (par->node == ValParamNode)
 		{
-			if (checkValueType(arg->valtype).compare("int") == 0 || checkValueType(arg->valtype).compare("bool") == 0) {}
+			if (checkValType(arg->valtype).compare("int") == 0 || checkValType(arg->valtype).compare("bool") == 0) {}
 			else
 			{
 				cout << "Error: Expected either an integer or a boolean" << endl;

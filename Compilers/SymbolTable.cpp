@@ -10,14 +10,20 @@
 
 using namespace std;
 
+template <typename T>
 SymbolTable::SymbolTable()
 {
-	scopes = vector<pair<string, map<string, Value*>*>>();
+	scopes = vector<pair<string, map<string, T*>* > >();
+	level = -1;
+	offset = 0;
+	param = 0;
+	sequence = -1;
 }
 
 /*
 * Enter pushes a new id onto the symbol table
 */
+template <typename T>
 void SymbolTable::entertbl(string i)
 {
 	pair<string, map<string, Value*>* > symbol = make_pair(i, new map<string, Value*>());
@@ -27,11 +33,13 @@ void SymbolTable::entertbl(string i)
 /*
 * Exit pops the top off of the symbol table
 */
+template <typename T>
 void SymbolTable::exittbl()
 {
 	scopes.pop_back();
 }
 
+template <typename T>
 void SymbolTable::bind(string id, Value * v)
 {
 	map<string, Value*>* current_map = scopes.back().second;
@@ -47,6 +55,7 @@ void SymbolTable::bind(string id, Value * v)
 * Lookup returns the the binding for the id and if none found,
 * it returns a new value.
 */
+template <typename T>
 Value* SymbolTable::lookup(string id)
 {
 	for (int i = (int)scopes.size() - 1; i > -1; --i)
@@ -57,6 +66,20 @@ Value* SymbolTable::lookup(string id)
 	}
 	return NULL;
 }
+
+template <typename T>
+int SymbolTable<T>::getLevel() {
+	return symbol_table.size() - 1;
+}
+
+template <typename T>
+string SymbolTable<T>::newLabel() {
+	sequence += 1;
+	return "_" + to_string(sequence);
+}
+/*****************
+* Values
+*******************/
 
 IntValue::IntValue(int i)
 {
@@ -86,7 +109,6 @@ void IntValue::setBool(bool b)
 	cout << "Error: Cannot set " << checkValueType(BooleanValue) << endl;
 	exit(1);
 }
-
 
 BoolValue::BoolValue(bool b)
 {
@@ -219,112 +241,3 @@ BoolCell::BoolCell(bool b)
 	value = BooleanCell;
 }
 
-/****************
-* Templates 
-******************/
-template <typename T>
-T* SymbolTable<T>::lookUp(string ID, int line, int column)
-{
-	for (int i = (int)symbol_table.size() - 1; i > -1; --i)
-	{
-		map<string, T*>* map = symbol_table.at(i).second;
-		if (map->find(ID) != map->end())
-			return map->at(ID);
-	}
-	return NULL;
-}
-
-template <typename T>
-T* SymbolTable<T>::lookUp(string ID)
-{
-	for (int i = (int)symbol_table.size() - 1; i > -1; --i)
-	{
-		map<string, T*>* map = symbol_table.at(i).second;
-		if (map->find(ID) != map->end())
-			return map->at(ID);
-	}
-	return NULL;
-}
-
-//-------------------------------//
-// Push a new pair of a program's
-// ID and its corresponding
-// value declerations and values
-// maps to the symbol table.
-// Only called by Program, Call, Match
-//-------------------------------//
-template <typename T>
-void SymbolTable<T>::enterTable(string ID, int line, int column)
-{
-	pair<string, map<string, T*>* > symbol = make_pair(ID, new map<string, T*>());
-	symbol_table.push_back(symbol);
-	level += 1;
-}
-
-template <typename T>
-void SymbolTable<T>::enterTable(string ID)
-{
-	pair<string, map<string, T*>* > symbol = make_pair(ID, new map<string, T*>());
-	symbol_table.push_back(symbol);
-	level += 1;
-}
-
-
-//-------------------------------//
-// Push a new pair of
-// value decleration and value
-// to the last map
-//-------------------------------//
-template <typename T>
-void SymbolTable<T>::bind(string ID, int line, int column, T* v)
-{
-	map<string, T*>* current_map = symbol_table.back().second;
-	if (current_map->find(ID) == current_map->end())
-		current_map->insert(pair<string, T*>(ID, v));
-	else
-	{
-		cout << "(!) " << ID << " is defined at " << v->line << ":" << v->column
-			<< " and should not be re-defined at " << line << ":" << column << endl;
-		exit(1);
-	}
-}
-
-template <typename T>
-void SymbolTable<T>::bind(string ID, T* v)
-{
-	map<string, T*>* current_map = symbol_table.back().second;
-	current_map->insert(pair<string, T*>(ID, v));
-}
-
-
-//-------------------------------//
-// Pop the last map
-//-------------------------------//
-template <typename T>
-void SymbolTable<T>::exitTable()
-{
-	delete symbol_table.back().second;
-	symbol_table.pop_back();
-	level -= 1;
-}
-
-
-//-------------------------------//
-// Return the last scope's stack level
-//-------------------------------//
-template <typename T>
-int SymbolTable<T>::getLevel()
-{
-	return symbol_table.size() - 1;
-}
-
-
-//-------------------------------//
-// Return a unique label
-//-------------------------------//
-template <typename T>
-string SymbolTable<T>::newLabel()
-{
-	sequence += 1;
-	return "_" + to_string(sequence);
-}
