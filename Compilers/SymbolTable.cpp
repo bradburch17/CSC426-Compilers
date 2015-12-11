@@ -11,7 +11,7 @@
 using namespace std;
 
 template <typename T>
-SymbolTable::SymbolTable()
+SymbolTable<T>::SymbolTable()
 {
 	scopes = vector<pair<string, map<string, T*>* > >();
 	level = -1;
@@ -24,9 +24,9 @@ SymbolTable::SymbolTable()
 * Enter pushes a new id onto the symbol table
 */
 template <typename T>
-void SymbolTable::entertbl(string i)
+void SymbolTable<T>::entertbl(string i)
 {
-	pair<string, map<string, Value*>* > symbol = make_pair(i, new map<string, Value*>());
+	pair<string, map<string, T*>* > symbol = make_pair(i, new map<string, T*>());
 	scopes.push_back(symbol);
 }
 
@@ -34,19 +34,16 @@ void SymbolTable::entertbl(string i)
 * Exit pops the top off of the symbol table
 */
 template <typename T>
-void SymbolTable::exittbl()
-{
+void SymbolTable<T>::exittbl() {
 	scopes.pop_back();
 }
 
 template <typename T>
-void SymbolTable::bind(string id, Value * v)
-{
-	map<string, Value*>* current_map = scopes.back().second;
+void SymbolTable<T>::bind(string id, T* v) {
+	map<string, T*>* current_map = scopes.back().second;
 	if (current_map->find(id) == current_map->end())
-		current_map->insert(map<string, Value*>::value_type(id, v));
-	else
-	{
+		current_map->insert(map<string, T*>::value_type(id, v));
+	else {
 		cout << "Error: " << id << endl;
 	}
 }
@@ -56,11 +53,9 @@ void SymbolTable::bind(string id, Value * v)
 * it returns a new value.
 */
 template <typename T>
-Value* SymbolTable::lookup(string id)
-{
-	for (int i = (int)scopes.size() - 1; i > -1; --i)
-	{
-		map<string, Value*>* map = scopes.at(i).second;
+T* SymbolTable<T>::lookup(string id) {
+	for (int i = (int)scopes.size() - 1; i > -1; --i) {
+		map<string, T*>* map = scopes.at(i).second;
 		if (map->find(id) != map->end())
 			return map->at(id);
 	}

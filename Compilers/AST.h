@@ -52,14 +52,11 @@ enum NodeTypes {
 	ExprNode, 
 	ItemNode, 
 	StringNode
-}; //used to check to see if node is true.
+}; 
 
 string checkOp1(Op1 op1);
 string checkOp2(Op2 op2);
 string checkValType(ValType valType);
-
-void lvalue(string id, SymbolTable<Info>* t);
-void printChar(string str);
 
 /******************
 * Abstract Syntax Tree Beginning 
@@ -74,9 +71,13 @@ class ASTExpr;
 class ASTValDecl;
 class ASTProgram;
 class Value;
+template <typename T>
 class SymbolTable;
+class Info;
+class Val;
 
-
+void lvalue(string id, SymbolTable<Info>* t);
+void printChar(string str);
 
 /*****************
 * Block
@@ -85,10 +86,9 @@ class ASTBlock {
 public:
 	ASTBlock(list<ASTConstDecl*> c, list<ASTVarDecl*> v, list<ASTProcDecl*> p, list<ASTStmt*> b);
 	string render(string indent);
-	Value* interpret(SymbolTable t);
+	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-	
 	
 private:
 	list<ASTConstDecl*> consts;
@@ -105,7 +105,7 @@ class ASTConstDecl {
 public:
 	ASTConstDecl(string i, int v);
 	string render(string indent);
-	Value* interpret(SymbolTable t);
+	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 
@@ -123,8 +123,9 @@ public:
 	ASTExpr();
 	virtual string render(string indent) = 0;
 	virtual Value* interpret(SymbolTable<Value>* t) = 0;
-	Val* typecheck(SymbolTable<Val>* t) = 0;
-	Info* generate(SymbolTable<Info>* t) = 0;
+	virtual Val* typecheck(SymbolTable<Val>* t) = 0;
+	virtual Info* generate(SymbolTable<Info>* t) = 0;
+	virtual Info* generate(SymbolTable<Info>* t, string y, string n) = 0;
 	NodeTypes node;
 };
 
@@ -135,6 +136,7 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
+	Info* generate(SymbolTable<Info>* t, string y, string n);
 
 private:
 	ASTExpr* left;
@@ -150,8 +152,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 	Info* generate(SymbolTable<Info>* t, string y, string n);
-
-private:
 	string id;
 };
 
@@ -505,6 +505,7 @@ class Info {
 public:
 	Info();
 	InfoType infotype;
+	virtual Infos();
 };
 
 class ConstInfo : Info {

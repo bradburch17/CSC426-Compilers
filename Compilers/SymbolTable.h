@@ -95,7 +95,7 @@ public:
 	void entertbl(string id);
 	void exittbl();
 	void bind(string id, T* v);
-	Value* lookup(string id);
+	T* lookup(string id);
 	int getLevel();
 	string newLabel();
 	vector<pair<string, map<string, T*>*>> scopes;

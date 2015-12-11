@@ -540,35 +540,29 @@ Value * Assign::interpret(SymbolTable<Value>* t)
 	return NULL;
 }
 
-Value * Call::interpret(SymbolTable<Value>* t)
-{
+Value * Call::interpret(SymbolTable<Value>* t) {
 	Value* lkup = t->lookup(id);
-	
+
+	if (lkup == NULL || lkup->value != ProcedureValue) {
+		cout << "Error: Expected procedure" << endl;
+		exit(1);
+	}
+
 	ProcValue* value = dynamic_cast<ProcValue*>(lkup);
 	list<Value*> arguments;
 
-	if (lkup == NULL) {
-		cout << "Error: Expected " << checkValueType(ProcedureValue) << " but found " << checkValueType(Undefined) << endl;
-		exit(1);
-	}
-	if (lkup->value != ProcedureValue) {
-		cout << "Error: Expected " << checkValueType(ProcedureValue) << " but found " << checkValueType(lkup->value) << endl;
-		exit(1);
-	}
-	
 	for (ASTExpr* arg : args) {
 		Value* v = arg->interpret(t);
 		arguments.push_back(v);
 	}
 
 	if (value->param.size() != arguments.size()) {
-		cout << "Error: Number of parameters does not match " << id << " number of arguments." << endl;
+		cout << "Error: The number of parameters does not match the number of arguments of " << id << endl;
 		exit(1);
 	}
-
-	t.entertbl(id);
+	t->entertbl(id);
 	call(value->param, value->block, arguments, t);
-	t.exittbl();
+	t->exittbl();
 	return NULL;
 }
 
@@ -599,7 +593,7 @@ Value * IfThenElse::interpret(SymbolTable<Value>* t)
 
 Value * While::interpret(SymbolTable<Value>* t) {
 	Value* value = test->interpret(t);
-	while (!value->getBoolValue())/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	while (!value->getBoolValue())
 	{
 		body->interpret(t);
 		value = test->interpret(t);
@@ -617,12 +611,11 @@ Value * Prompt::interpret(SymbolTable<Value>* t)
 
 Value * Prompt2::interpret(SymbolTable<Value>* t)
 {
-	Value* lhs = t.lookup(id);
+	Value* lhs = t->lookup(id);
 	string input;
 
 	cout << message << " ";
 	cin >> input;
-	//getline(cin, input);
 
 	try {
 		int n = stoi(input);
@@ -799,8 +792,8 @@ Val* ASTProcDecl::typecheck(SymbolTable<Val>* t)
 	t->entertbl(id);
 	for (ASTParam* p : params)
 	{
-		if (p->val == IntType) //////////////////////////////////////
-			t->bind(p->id, new IntVar());//////////////////////////////////////////////////////////////////////////////////////
+		if (p->val == IntType) 
+			t->bind(p->id, new IntVar());
 		else
 			t->bind(p->id, new BoolVar());
 	}
@@ -821,9 +814,9 @@ Val* Assign::typecheck(SymbolTable<Val>* t)
 		cout << "Error: Expected " << id << endl;
 		exit(1);
 	}
-	if (checkValueType(lhs->valtype).compare(checkValueType(rhs->valtype)) != 0)
+	if (checkValType(lhs->valtype).compare(checkValType(rhs->valtype)) != 0)
 	{
-		cout << "Error: Cannot assign a value typed " << checkValueType(rhs->valtype) << " to " << id << endl;
+		cout << "Error: Cannot assign a value typed " << checkValType(rhs->valtype) << " to " << id << endl;
 		exit(1);
 	}
 	return NULL;
@@ -835,8 +828,7 @@ Val* Call::typecheck(SymbolTable<Val>* t)
 	Val* look_up = t->lookup(id);
 
 
-	if (look_up == NULL || look_up->valtype != ProcedureValue)
-	{
+	if (look_up == NULL || look_up->valtype != ProcedureValue) {
 		cout << "Error: No procedure identified" << endl;
 		exit(1);
 	}
@@ -845,14 +837,12 @@ Val* Call::typecheck(SymbolTable<Val>* t)
 	list<Val*> arguments;
 
 
-	for (ASTExpr* arg : args)
-	{
+	for (ASTExpr* arg : args) {
 		Val* v = arg->typecheck(t);
 		arguments.push_back(v);
 	}
-	if (proc_val->params.size() != arguments.size())
-	{
-		cout << "(!) The number of parameters does not match the number of arguments of " << id << endl;
+	if (proc_val->params.size() != arguments.size()) {
+		cout << "Error: The number of parameters does not match the number of arguments of " << id << endl;
 		exit(1);
 	}
 
@@ -907,7 +897,7 @@ Val* Prompt::typecheck(SymbolTable<Val>* t) {
 Val* Prompt2::typecheck(SymbolTable<Val>* t) {
 	Val* lhs = t->lookup(id);
 	if (lhs->valtype != IntVar_Val) {
-		cout << "(!) Expected an integer variable at " << line << ":" << column << endl;
+		cout << "Error: Expected an integer " << endl;
 		exit(1);
 	}
 	return NULL;
@@ -918,7 +908,7 @@ Val* Print::typecheck(SymbolTable<Val>* t) {
 		if (i->node == ItemNode) {
 			ExprItem* item = dynamic_cast<ExprItem*>(i);
 			Val* value = item->expr->typecheck(t);
-			if (checkValueType(value->valtype).compare("int") != 0)
+			if (checkValType(value->valtype).compare("int") != 0)
 			{
 				cout << "Error: Expected integer" << endl;
 				exit(1);
@@ -1225,11 +1215,11 @@ void Call::setup(list<ASTParam*> params, list<ASTExpr*> args, SymbolTable<Info>*
 	if (params.empty() && args.empty()) {}
 	else {
 		ASTParam* par = params.front();
-		Expr* arg = args.front();
+		ASTExpr* arg = args.front();
 		params.pop_front();
 		args.pop_front();
 
-		if (par->node_type == Node_ValParam)
+		if (par->node == ValParamNode)
 			arg->generate(t);
 		else // Node_VarParam == reference parameter
 		{
@@ -1299,7 +1289,7 @@ Info* Prompt2::generate(SymbolTable<Info>* t) {
 
 Info* Print::generate(SymbolTable<Info>* t) {
 	for (ASTItem* i : items) {
-		if (i->node_type == Node_ExprItem)
+		if (i->node == ItemNode)
 		{
 			ExprItem* item = dynamic_cast<ExprItem*>(i);
 			item->expr->generate(t);
