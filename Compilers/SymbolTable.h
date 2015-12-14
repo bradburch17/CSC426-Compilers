@@ -4,20 +4,24 @@
 *  Created on: November 4, 2015
 *      Author: Brad Burch
 */
-#ifndef SYMBOLTABLE_H_
+#ifndef _SYMBOLTABLE_H_
 #define _SYMBOLTABLE_H_
 
 #include <iostream>
-#include "AST.h"
+#include <list>
+//#include "AST.h"
 
 using namespace std;
 
 enum ValueType { Undefined, IntegerValue, BooleanValue, IntegerCell, BooleanCell, ProcedureValue };
 string checkValueType(ValueType type);
 
-/*
+class ASTParam;
+class ASTBlock;
+
+/***************
 * Values
-*/
+****************/
 class Value {
 public:
 	Value();

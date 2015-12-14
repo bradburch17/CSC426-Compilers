@@ -493,9 +493,8 @@ Value * ASTBlock::interpret(SymbolTable<Value>* t)
 		v->interpret(t);
 	for (ASTProcDecl* p : procs)
 		p->interpret(t);
-	for (ASTStmt* b : body) {
+	for (ASTStmt* b : body)
 		b->interpret(t);
-	}
 	return NULL;
 }
 

@@ -70,7 +70,7 @@ class ASTParam;
 class ASTExpr;
 class ASTValDecl;
 class ASTProgram;
-class Value;
+//class Value;
 template <typename T>
 class SymbolTable;
 class Info;
@@ -467,31 +467,31 @@ public:
 	ValType valtype;
 };
 
-class IntVal : Val {
+class IntVal : public Val {
 public:
 	IntVal();
 	bool isVariable();
 };
 
-class BoolVal : Val {
+class BoolVal : public Val {
 public:
 	BoolVal();
 	bool isVariable();
 };
 
-class IntVar : Val {
+class IntVar : public Val {
 public:
 	IntVar();
 	bool isVariable();
 };
 
-class BoolVar : Val {
+class BoolVar : public Val {
 public:
 	BoolVar();
 	bool isVariable();
 };
 
-class ProcVal : Val {
+class ProcVal : public Val {
 public:
 	ProcVal(list<ASTParam*>	p);
 	bool isVariable();
@@ -505,30 +505,30 @@ class Info {
 public:
 	Info();
 	InfoType infotype;
-	virtual Infos();
+	virtual ~Info();
 };
 
-class ConstInfo : Info {
+class ConstInfo : public Info {
 public: 
 	ConstInfo(int cnst);
 	int constant;
 };
 
-class VarInfo : Info {
+class VarInfo : public Info {
 public:
 	VarInfo(int l, int o);
 	int level;
 	int offset;
 };
 
-class RefInfo : Info {
+class RefInfo : public Info {
 public: 
 	RefInfo(int l, int o);
 	int level;
 	int offset;
 };
 
-class ProcInfo :Info {
+class ProcInfo : public Info {
 public:
 	ProcInfo(string l, list<ASTParam*> p);
 	string label;
