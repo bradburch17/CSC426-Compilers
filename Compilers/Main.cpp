@@ -26,5 +26,7 @@ int main() {
 
 	Parser parser(input);
 	ASTProgram* start = parser.start();
-	start->interpret();
+	//start->interpret();
+	start->typecheck();
+	//start->generate();
 }

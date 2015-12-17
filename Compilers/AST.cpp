@@ -46,14 +46,14 @@ string checkType(Type t) {
 	}
 }
 
-string checkValueType(ValueType t) {
+string checkValType(ValType t) {
 	switch (t) {
-	case Undefined: return "Undefined Value";
-	case IntegerValue: return "Integer Value";
-	case BooleanValue: return "Boolean Value";
-	case IntegerCell: return "Integer Cell";
-	case BooleanCell: return "Boolean Cell";
-	case ProcedureValue: return "Procedure Value";
+	case Undefined_Val:	return "undefined";
+	case IntVal_Val:	return "int";
+	case BoolVal_Val:	return "bool";
+	case IntVar_Val:	return "int";
+	case BoolVar_Val:	return "bool";
+	case ProcVal_Val:	return "proc";
 	}
 }
 
@@ -270,6 +270,9 @@ IntVal::IntVal() {
 
 Info::Info() {
 	infotype = Undefined_Info;
+}
+
+Info::~Info(){
 }
 
 ConstInfo::ConstInfo(int cnst) {
@@ -649,23 +652,63 @@ Value * Print::interpret(SymbolTable<Value>* t)
 Value * BinOp::interpret(SymbolTable<Value>* t)
 {
 	Value* lhs = left->interpret(t);
-	Value* rhs = right->interpret(t);
+	Value* rhs;
 
 	switch (op)
 	{
-	case And:	return new BoolValue(lhs->getBoolValue() && rhs->getBoolValue());
-	case Or:	return new BoolValue(lhs->getBoolValue() || rhs->getBoolValue());
-	case EQ:	return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
-	case NE:	return new BoolValue(lhs->getIntValue() != rhs->getIntValue());
-	case LE:	return new BoolValue(lhs->getIntValue() <= rhs->getIntValue());
-	case LT:	return new BoolValue(lhs->getIntValue() < rhs->getIntValue());
-	case GE:	return new BoolValue(lhs->getIntValue() >= rhs->getIntValue());
-	case GT:	return new BoolValue(lhs->getIntValue() > rhs->getIntValue());
-	case Plus:	return new IntValue(lhs->getIntValue() + rhs->getIntValue());
-	case Minus:	return new IntValue(lhs->getIntValue() - rhs->getIntValue());
-	case Times:	return new IntValue(lhs->getIntValue() * rhs->getIntValue());
-	case Div:	return new IntValue(lhs->getIntValue() / rhs->getIntValue());
-	case Mod:	return new IntValue(lhs->getIntValue() % rhs->getIntValue());
+	case And:
+		if (lhs->getBoolValue())
+			return right->interpret(t);
+		else
+			return lhs;
+	case Or:
+		if (lhs->getBoolValue())
+			return lhs;
+		else
+			return right->interpret(t);
+	case EQ:
+		rhs = right->interpret(t);
+		return new BoolValue(lhs->getIntValue() == rhs->getIntValue());
+
+	case NE:
+		rhs = right->interpret(t);
+		return new BoolValue(lhs->getIntValue() != rhs->getIntValue());
+
+	case LE:
+		rhs = right->interpret(t);
+		return new BoolValue(lhs->getIntValue() <= rhs->getIntValue());
+
+	case LT:
+		rhs = right->interpret(t);
+		return new BoolValue(lhs->getIntValue() < rhs->getIntValue());
+
+	case GE:
+		rhs = right->interpret(t);
+		return new BoolValue(lhs->getIntValue() >= rhs->getIntValue());
+
+	case GT:
+		rhs = right->interpret(t);
+		return new BoolValue(lhs->getIntValue() > rhs->getIntValue());
+
+	case Plus:
+		rhs = right->interpret(t);
+		return new IntValue(lhs->getIntValue() + rhs->getIntValue());
+
+	case Minus:
+		rhs = right->interpret(t);
+		return new IntValue(lhs->getIntValue() - rhs->getIntValue());
+
+	case Times:
+		rhs = right->interpret(t);
+		return new IntValue(lhs->getIntValue() * rhs->getIntValue());
+
+	case Div:
+		rhs = right->interpret(t);
+		return new IntValue(lhs->getIntValue() / rhs->getIntValue());
+
+	case Mod:
+		rhs = right->interpret(t);
+		return new IntValue(lhs->getIntValue() % rhs->getIntValue());
 	}
 }
 
@@ -791,12 +834,15 @@ Val* ASTProcDecl::typecheck(SymbolTable<Val>* t)
 	t->entertbl(id);
 	for (ASTParam* p : params)
 	{
-		if (p->val == IntType) 
+		if (p->val == IntType) {
+			cout << p->id << endl;
+			cout << "just printed id" << endl;
 			t->bind(p->id, new IntVar());
-		else
+		}
+		else {
 			t->bind(p->id, new BoolVar());
+		}
 	}
-
 	block->typecheck(t);
 	t->exittbl();
 	return NULL;

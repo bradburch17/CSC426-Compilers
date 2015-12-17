@@ -6,72 +6,25 @@
 */
 
 #include <iostream>
+#include <string>
+#include <vector>
+#include <map>
 #include "SymbolTable.h"
 
 using namespace std;
 
-template <typename T>
-SymbolTable<T>::SymbolTable()
-{
-	scopes = vector<pair<string, map<string, T*>* > >();
-	level = -1;
-	offset = 0;
-	param = 0;
-	sequence = -1;
-}
-
-/*
-* Enter pushes a new id onto the symbol table
-*/
-template <typename T>
-void SymbolTable<T>::entertbl(string i)
-{
-	pair<string, map<string, T*>* > symbol = make_pair(i, new map<string, T*>());
-	scopes.push_back(symbol);
-}
-
-/*
-* Exit pops the top off of the symbol table
-*/
-template <typename T>
-void SymbolTable<T>::exittbl() {
-	scopes.pop_back();
-}
-
-template <typename T>
-void SymbolTable<T>::bind(string id, T* v) {
-	map<string, T*>* current_map = scopes.back().second;
-	if (current_map->find(id) == current_map->end())
-		current_map->insert(map<string, T*>::value_type(id, v));
-	else {
-		cout << "Error: " << id << endl;
+string checkValueType(ValueType valueType) {
+	switch (valueType) {
+	case Undefined:		return "Undefined Value";
+	case IntegerValue:	return "Integer Value";
+	case BooleanValue:	return "Boolean Value";
+	case IntegerCell:	return "Integer Cell";
+	case BooleanCell:	return "Boolean Cell";
+	case ProcedureValue:return "Procedure Value";
 	}
 }
 
-/*
-* Lookup returns the the binding for the id and if none found,
-* it returns a new value.
-*/
-template <typename T>
-T* SymbolTable<T>::lookup(string id) {
-	for (int i = (int)scopes.size() - 1; i > -1; --i) {
-		map<string, T*>* map = scopes.at(i).second;
-		if (map->find(id) != map->end())
-			return map->at(id);
-	}
-	return NULL;
-}
 
-template <typename T>
-int SymbolTable<T>::getLevel() {
-	return symbol_table.size() - 1;
-}
-
-template <typename T>
-string SymbolTable<T>::newLabel() {
-	sequence += 1;
-	return "_" + to_string(sequence);
-}
 /*****************
 * Values
 *******************/

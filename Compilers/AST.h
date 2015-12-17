@@ -294,7 +294,6 @@ public:
 	Value* interpret();
 	Val* typecheck();
 	Info* generate();
-private:
 	string name;
 	ASTBlock* block;
 	NodeTypes node;
