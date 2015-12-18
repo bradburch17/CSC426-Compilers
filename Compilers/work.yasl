@@ -1,39 +1,22 @@
 program demo3;
   { Declare some procedures }
-  var a: int;
+  const x = 6;
   var b: bool;
   proc foo;
     begin
         print "Hooray!";
     end;
-  proc bar(x: bool, n: int);
-	begin
-	  print "FIREST";
-		while b do
-		begin
-			print "hey";
-			b = not b;
-		end;
-		
-		while x do
-		begin
-		   x = not x;
-		   print "1738";		   
-		end;
-		print "Yup yup yup ";
+  proc bar (x: bool);
+     begin 
+	    print "Hooray!";
 	end;
-	proc car(n: int);
-    begin
-      while b do
-      begin
-        b = not b;
-        foo;
-      end;
-    end;
+  proc car (n: int);
+     begin 
+	    print x;
+	end;
   begin
   foo;
-	prompt "Enter a number", a;
-	bar(b, a);
-	car(a);
-    prompt "Hit ENTER to end";
+  bar (b);
+  car (x);
+  prompt "Hit ENTER to end";
   end.

@@ -831,21 +831,23 @@ Val* ASTVarDecl::typecheck(SymbolTable<Val>* t) {
 
 Val* ASTProcDecl::typecheck(SymbolTable<Val>* t)
 {
-	t->entertbl(id);
-	for (ASTParam* p : params)
-	{
-		if (p->val == IntType) {
-			cout << p->id << endl;
-			cout << "just printed id" << endl;
-			t->bind(p->id, new IntVar());
+	if (!id.empty()) {
+		t->entertbl(id);
+		for (ASTParam* p : params)
+		{
+			if (p->type == IntType) {
+				t->bind(p->id, new IntVar());
+			}
+			else {
+				t->bind(p->id, new BoolVar());
+			}
 		}
-		else {
-			t->bind(p->id, new BoolVar());
-		}
+		block->typecheck(t);
+		t->exittbl();
+		return NULL;
 	}
-	block->typecheck(t);
-	t->exittbl();
-	return NULL;
+	else
+		cout << "Error: ID is not initialized" << endl;
 }
 
 
@@ -873,7 +875,7 @@ Val* Call::typecheck(SymbolTable<Val>* t)
 	Val* look_up = t->lookup(id);
 
 
-	if (look_up == NULL || look_up->valtype != ProcedureValue) {
+	if (look_up == NULL || look_up->valtype != ProcVal_Val) {
 		cout << "Error: No procedure identified" << endl;
 		exit(1);
 	}
@@ -890,7 +892,6 @@ Val* Call::typecheck(SymbolTable<Val>* t)
 		cout << "Error: The number of parameters does not match the number of arguments of " << id << endl;
 		exit(1);
 	}
-
 
 	match(proc_val->params, arguments);
 	return NULL;
@@ -968,98 +969,99 @@ Val* BinOp::typecheck(SymbolTable<Val>* t) {
 	Val* lhs = left->typecheck(t);
 	Val* rhs = right->typecheck(t);
 
-	switch (op)	{
-	case And:
-		if (checkValType(lhs->valtype).compare("bool") == 0 && checkValType(rhs->valtype).compare("bool") == 0) {}
-		else {
-			cout << "Error: Expected boolean" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case Or:
-		if (checkValType(lhs->valtype).compare("bool") == 0 && checkValType(rhs->valtype).compare("bool") == 0) {}
-		else {
-			cout << "Error: Expected boolean" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case EQ:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case NE:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case LE:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case LT:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case GE:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case GT:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new BoolVal();
-	case Plus:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new IntVal();
-	case Minus:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new IntVal();
-	case Times:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new IntVal();
-	case Div:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new IntVal();
-	case Mod:
-		if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
-		else {
-			cout << "Error: Expected integer" << endl;
-			exit(1);
-		}
-		return new IntVal();
+			switch (op) {
+			case And:
+				if (checkValType(lhs->valtype).compare("bool") == 0 && checkValType(rhs->valtype).compare("bool") == 0) {}
+				else {
+					cout << "Error: Expected boolean" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case Or:
+				if (checkValType(lhs->valtype).compare("bool") == 0 && checkValType(rhs->valtype).compare("bool") == 0) {}
+				else {
+					cout << "Error: Expected boolean" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case EQ:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case NE:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case LE:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case LT:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case GE:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case GT:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new BoolVal();
+			case Plus:
+				cout << checkValType(lhs->valtype) << " and " << checkValType(rhs->valtype) << endl;///////////////////////////
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new IntVal();
+			case Minus:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new IntVal();
+			case Times:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new IntVal();
+			case Div:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new IntVal();
+			case Mod:
+				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
+				else {
+					cout << "Error: Expected integer" << endl;
+					exit(1);
+				}
+				return new IntVal();
 	}
 }
 
@@ -1123,7 +1125,7 @@ void Call::match(list<ASTParam*> params, list<Val*> args) {
 				exit(1);
 			}
 		}
-		else // Node_VarParam
+		else
 		{
 			if (arg->valtype == IntVar_Val || arg->valtype == BoolVar_Val) {}
 			else
@@ -1266,7 +1268,7 @@ void Call::setup(list<ASTParam*> params, list<ASTExpr*> args, SymbolTable<Info>*
 
 		if (par->node == ValParamNode)
 			arg->generate(t);
-		else // Node_VarParam == reference parameter
+		else 
 		{
 			IDExpr* ID2 = dynamic_cast<IDExpr*>(arg);
 			lvalue(ID2->id, t);
@@ -1340,7 +1342,7 @@ Info* Print::generate(SymbolTable<Info>* t) {
 			item->expr->generate(t);
 			cout << "WRITEINT" << endl;
 		}
-		else // Node_StringItem
+		else 
 		{
 			StringItem* item = dynamic_cast<StringItem*>(i);
 			printChar(item->message);

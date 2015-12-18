@@ -74,7 +74,6 @@ public:
 	bool getBoolValue();
 	void setInt(int i);
 	void setBool(bool b);
-private:
 	int integer;
 
 };
@@ -87,7 +86,6 @@ public:
 	bool getBoolValue();
 	void setInt(int i);
 	void setBool(bool b);
-private:
 	bool boolean;
 
 };

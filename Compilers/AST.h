@@ -70,7 +70,6 @@ class ASTParam;
 class ASTExpr;
 class ASTValDecl;
 class ASTProgram;
-//class Value;
 template <typename T>
 class SymbolTable;
 class Info;
@@ -89,8 +88,7 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-	
-private:
+
 	list<ASTConstDecl*> consts;
 	list<ASTVarDecl*> vars;
 	list<ASTProcDecl*> procs;
@@ -109,7 +107,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 
-private:
 	string id;
 	int value;
 	NodeTypes node;
@@ -137,8 +134,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 	Info* generate(SymbolTable<Info>* t, string y, string n);
-
-private:
 	ASTExpr* left;
 	Op2 op;
 	ASTExpr* right;
@@ -163,8 +158,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 	Info* generate(SymbolTable<Info>* t, string y, string n);
-
-private:
 	int value;
 };
 
@@ -176,8 +169,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 	Info* generate(SymbolTable<Info>* t, string y, string n);
-
-private:
 	Op1 op;
 	ASTExpr* expr;
 
@@ -191,8 +182,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 	Info* generate(SymbolTable<Info>* t, string y, string n);
-
-private:
 	bool boolean;
 };
 
@@ -204,8 +193,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 	Info* generate(SymbolTable<Info>* t, string y, string n);
-
-private:
 	bool boolean;
 };
 
@@ -224,7 +211,6 @@ public:
 	ExprItem(ASTExpr* e);
 	string render(string indent);
 	ASTExpr* expr;
-	//May need to add NodeTypes n to this 
 };
 
 class StringItem : public ASTItem {
@@ -243,9 +229,9 @@ public:
 	ASTParam();
 	virtual string render(string indent) = 0;
 	virtual Info* generate(SymbolTable<Info>* t) = 0;
-	NodeTypes val;
 	string id;
 	NodeTypes node;
+	Type type;
 };
 
 class ValParam : public ASTParam {
@@ -253,9 +239,6 @@ public:
 	ValParam(string i, Type t);
 	string render(string indent);
 	Info* generate(SymbolTable<Info>* t);
-	string id;
-	Type type;
-	NodeTypes val;
 };
 
 class VarParam : public ASTParam {
@@ -263,9 +246,6 @@ public:
 	VarParam(string i, Type t);
 	string render(string indent);
 	Info* generate(SymbolTable<Info>* t);
-	string id;
-	Type type;
-	NodeTypes node;
 };
 
 /******************
@@ -318,8 +298,6 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-
-private:
 	string id;
 	ASTExpr* expr;
 	NodeTypes node;
@@ -348,7 +326,6 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-private:
 	ASTExpr* test;
 	ASTStmt* trueClause;
 	NodeTypes node;
@@ -362,7 +339,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 
-private:
 	ASTExpr* test;
 	ASTStmt* trueClause;
 	ASTStmt* falseClause;
@@ -376,8 +352,6 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-
-private:
 	list<ASTItem*> items;
 	NodeTypes node;
 };
@@ -389,7 +363,6 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-private:
 	string message;
 	NodeTypes node;
 
@@ -402,8 +375,6 @@ public:
 	Value* interpret(SymbolTable<Value>* t);
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
-
-private:
 	string message;
 	string id;
 	NodeTypes node;
@@ -418,7 +389,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 
-private:
 	list<ASTStmt*> body;
 	NodeTypes node;
 
@@ -432,7 +402,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 
-private:
 	ASTExpr* test;
 	ASTStmt* body;
 	NodeTypes node;
@@ -450,7 +419,6 @@ public:
 	Val* typecheck(SymbolTable<Val>* t);
 	Info* generate(SymbolTable<Info>* t);
 
-private:
 	string id;
 	Type typ;
 	NodeTypes node;
