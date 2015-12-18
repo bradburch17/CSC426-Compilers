@@ -1027,7 +1027,6 @@ Val* BinOp::typecheck(SymbolTable<Val>* t) {
 				}
 				return new BoolVal();
 			case Plus:
-				cout << checkValType(lhs->valtype) << " and " << checkValType(rhs->valtype) << endl;///////////////////////////
 				if (checkValType(lhs->valtype).compare("int") == 0 && checkValType(rhs->valtype).compare("int") == 0) {}
 				else {
 					cout << "Error: Expected integer" << endl;
@@ -1336,14 +1335,12 @@ Info* Prompt2::generate(SymbolTable<Info>* t) {
 
 Info* Print::generate(SymbolTable<Info>* t) {
 	for (ASTItem* i : items) {
-		if (i->node == ItemNode)
-		{
+		if (i->node == ExprNode) {
 			ExprItem* item = dynamic_cast<ExprItem*>(i);
 			item->expr->generate(t);
 			cout << "WRITEINT" << endl;
 		}
-		else 
-		{
+		else if (i->node == ItemNode) {
 			StringItem* item = dynamic_cast<StringItem*>(i);
 			printChar(item->message);
 		}
